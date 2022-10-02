@@ -1,34 +1,27 @@
 import io
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.hashers import make_password
 from django.db.models.aggregates import Count, Sum
 from django.db.models.expressions import Exists, OuterRef, Value
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
-from djoser.views import UserViewSet
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from rest_framework import generics, status, viewsets
-from rest_framework.authtoken.models import Token
-from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.decorators import action, api_view
-from rest_framework.permissions import (SAFE_METHODS, AllowAny,
+from rest_framework.permissions import (SAFE_METHODS,
                                         IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
 from recipes.filters import IngredientFilter, RecipeFilter
-from recipes.models import (Favorite, Ingredients, Recipes, ShoppingCart,
-                            Tags)
-from users.models import Subscribe
-from .mixins import GetObjectMixin, PermissionAndPaginationMixin
-from .serializers import (IngredientsSerializer, RecipeReadSerializer,
-                          RecipePostSerializer, TagsSerializer)
-from users.serializers import (UserPasswordSerializer, SubscribeSerializer,
-                               UserCreateSerializer, UserListSerializer,
-                               TokenSerializer)
+from recipes.models import (FavoriteRecipe, Ingredient, Recipe, ShoppingCart,
+                            Tag)
+from recipes.mixins import GetObjectMixin, PermissionAndPaginationMixin
+from .serializers import (IngredientSerializer, RecipeReadSerializer,
+                          RecipeWriteSerializer, TagSerializer,)
+from users.serializers import (UserPasswordSerializer, SubscribeSerializer,)
 
 User = get_user_model()
 FILENAME = 'shoppingcart.pdf'
@@ -106,78 +99,22 @@ class AddDeleteShoppingCart(
         self.request.user.shopping_cart.recipe.remove(instance)
 
 
-class AuthToken(ObtainAuthToken):
-    """Авторизация пользователя."""
-
-    serializer_class = TokenSerializer
-    permission_classes = (AllowAny,)
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        token, created = Token.objects.get_or_create(user=user)
-        return Response(
-            {'auth_token': token.key},
-            status=status.HTTP_201_CREATED)
-
-
-class UsersViewSet(UserViewSet):
-    """Пользователи."""
-
-    serializer_class = UserListSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def get_queryset(self):
-        return User.objects.annotate(
-            is_subscribed=Exists(
-                self.request.user.follower.filter(
-                    author=OuterRef('id'))
-            )).prefetch_related(
-                'follower', 'following'
-        ) if self.request.user.is_authenticated else User.objects.annotate(
-            is_subscribed=Value(False))
-
-    def get_serializer_class(self):
-        if self.request.method.lower() == 'post':
-            return UserCreateSerializer
-        return UserListSerializer
-
-    def perform_create(self, serializer):
-        password = make_password(self.request.data['password'])
-        serializer.save(password=password)
-
-    @action(
-        detail=False,
-        permission_classes=(IsAuthenticated,))
-    def subscriptions(self, request):
-        """Получить на кого пользователь подписан."""
-
-        user = request.user
-        queryset = Subscribe.objects.filter(user=user)
-        pages = self.paginate_queryset(queryset)
-        serializer = SubscribeSerializer(
-            pages, many=True,
-            context={'request': request})
-        return self.get_paginated_response(serializer.data)
-
-
 class RecipesViewSet(viewsets.ModelViewSet):
     """Рецепты."""
 
-    queryset = Recipes.objects.all()
+    queryset = Recipe.objects.all()
     filterset_class = RecipeFilter
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
             return RecipeReadSerializer
-        return RecipePostSerializer
+        return RecipeWriteSerializer
 
     def get_queryset(self):
-        return Recipes.objects.annotate(
+        return Recipe.objects.annotate(
             is_favorited=Exists(
-                Favorite.objects.filter(
+                FavoriteRecipe.objects.filter(
                     user=self.request.user, recipe=OuterRef('id'))),
             is_in_shopping_cart=Exists(
                 ShoppingCart.objects.filter(
@@ -186,7 +123,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         ).select_related('author').prefetch_related(
             'tags', 'ingredients', 'recipe',
             'shopping_cart', 'favorite_recipe'
-        ) if self.request.user.is_authenticated else Recipes.objects.annotate(
+        ) if self.request.user.is_authenticated else Recipe.objects.annotate(
             is_in_shopping_cart=Value(False),
             is_favorited=Value(False),
         ).select_related('author').prefetch_related(
@@ -246,8 +183,8 @@ class TagsViewSet(
         viewsets.ModelViewSet):
     """Список тэгов."""
 
-    queryset = Tags.objects.all()
-    serializer_class = TagsSerializer
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
 
 
 class IngredientsViewSet(
@@ -255,8 +192,8 @@ class IngredientsViewSet(
         viewsets.ModelViewSet):
     """Список ингредиентов."""
 
-    queryset = Ingredients.objects.all()
-    serializer_class = IngredientsSerializer
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
     filterset_class = IngredientFilter
 
 
