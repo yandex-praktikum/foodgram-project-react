@@ -10,7 +10,7 @@ services:
       - ./.env
   
   backend:
-    image: kobzev5612/foodgram_backend:latest
+    image: pavelpashapavlusha/foodgram:latest
     restart: always
     volumes:
       - static_value:/code/static/
@@ -21,7 +21,7 @@ services:
       - ./.env
 
   frontend:
-    image: kobzev5612/foodgram_frontend:latest
+    image: pavelpashapavlusha/foodgram_frontend:latest
     restart: always
     volumes:
       - ./frontend/:/app/result_build/
