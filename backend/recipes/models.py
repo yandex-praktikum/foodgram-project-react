@@ -1,10 +1,9 @@
-from django.contrib.auth import get_user_model
 from django.core import validators
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-User = get_user_model()
+from users.models import User
 
 
 class Ingredient(models.Model):
@@ -16,7 +15,7 @@ class Ingredient(models.Model):
         max_length=200)
 
     class Meta:
-        ordering = ['name']
+        ordering = ('name',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
 
@@ -41,7 +40,7 @@ class Tag(models.Model):
     class Meta:
         verbose_name = 'Тэг'
         verbose_name_plural = 'Тэги'
-        ordering = ['-id']
+        ordering = ('-id',)
 
     def __str__(self):
         return self.name
@@ -108,7 +107,7 @@ class RecipeIngredient(models.Model):
     class Meta:
         verbose_name = 'Количество ингредиента'
         verbose_name_plural = 'Количество ингредиентов'
-        ordering = ['-id']
+        ordering = ('-id',)
         constraints = [
             models.UniqueConstraint(
                 fields=['recipe', 'ingredient'],

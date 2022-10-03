@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from django.db.models.expressions import Exists, OuterRef, Value
 from djoser.views import UserViewSet
@@ -6,16 +5,16 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.decorators import action
-from rest_framework.permissions import (AllowAny,
-                                        IsAuthenticated,)
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from .serializers import (TokenSerializer, UserCreateSerializer,
-                          UserListSerializer, SubscribeSerializer)
-from .models import Subscribe
+from foodgram.settings import SHOPCART
 
-User = get_user_model()
-FILENAME = 'shoppingcart.pdf'
+from .models import Subscribe, User
+from .serializers import (SubscribeSerializer, TokenSerializer,
+                          UserCreateSerializer, UserListSerializer)
+
+FILENAME = SHOPCART
 
 
 class AuthToken(ObtainAuthToken):

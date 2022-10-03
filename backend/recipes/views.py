@@ -1,6 +1,5 @@
 import io
 
-from django.contrib.auth import get_user_model
 from django.db.models.aggregates import Count, Sum
 from django.db.models.expressions import Exists, OuterRef, Value
 from django.http import FileResponse
@@ -10,20 +9,20 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action, api_view
-from rest_framework.permissions import (SAFE_METHODS,
-                                        IsAuthenticated,
+from rest_framework.permissions import (SAFE_METHODS, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
 from recipes.filters import IngredientFilter, RecipeFilter
+from recipes.mixins import GetObjectMixin, PermissionAndPaginationMixin
 from recipes.models import (FavoriteRecipe, Ingredient, Recipe, ShoppingCart,
                             Tag)
-from recipes.mixins import GetObjectMixin, PermissionAndPaginationMixin
-from .serializers import (IngredientSerializer, RecipeReadSerializer,
-                          RecipeWriteSerializer, TagSerializer,)
-from users.serializers import (UserPasswordSerializer, SubscribeSerializer,)
+from users.models import User
+from users.serializers import SubscribeSerializer, UserPasswordSerializer
 
-User = get_user_model()
+from .serializers import (IngredientSerializer, RecipeReadSerializer,
+                          RecipeWriteSerializer, TagSerializer)
+
 FILENAME = 'shoppingcart.pdf'
 
 
@@ -31,7 +30,6 @@ class AddAndDeleteSubscribe(
         generics.RetrieveDestroyAPIView,
         generics.ListCreateAPIView):
     """Подписка и отписка от пользователя."""
-
     serializer_class = SubscribeSerializer
 
     def get_queryset(self):
@@ -72,7 +70,6 @@ class AddDeleteFavoriteRecipe(
         generics.RetrieveDestroyAPIView,
         generics.ListCreateAPIView):
     """Добавление и удаление рецепта в/из избранных."""
-
     def create(self, request, *args, **kwargs):
         instance = self.get_object()
         request.user.favorite_recipe.recipe.add(instance)
@@ -88,7 +85,6 @@ class AddDeleteShoppingCart(
         generics.RetrieveDestroyAPIView,
         generics.ListCreateAPIView):
     """Добавление и удаление рецепта в/из корзины."""
-
     def create(self, request, *args, **kwargs):
         instance = self.get_object()
         request.user.shopping_cart.recipe.add(instance)
@@ -101,7 +97,6 @@ class AddDeleteShoppingCart(
 
 class RecipesViewSet(viewsets.ModelViewSet):
     """Рецепты."""
-
     queryset = Recipe.objects.all()
     filterset_class = RecipeFilter
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -135,11 +130,10 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=False,
-        methods=['get'],
+        methods=('get',),
         permission_classes=(IsAuthenticated,))
     def download_shopping_cart(self, request):
         """Качаем список с ингредиентами."""
-
         buffer = io.BytesIO()
         page = canvas.Canvas(buffer)
         pdfmetrics.registerFont(TTFont('DejaVuSans', 'DejaVuSans.ttf'))
@@ -182,7 +176,6 @@ class TagsViewSet(
         PermissionAndPaginationMixin,
         viewsets.ModelViewSet):
     """Список тэгов."""
-
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 
@@ -191,7 +184,6 @@ class IngredientsViewSet(
         PermissionAndPaginationMixin,
         viewsets.ModelViewSet):
     """Список ингредиентов."""
-
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filterset_class = IngredientFilter
@@ -200,7 +192,6 @@ class IngredientsViewSet(
 @api_view(['post'])
 def set_password(request):
     """Изменить пароль."""
-
     serializer = UserPasswordSerializer(
         data=request.data,
         context={'request': request})

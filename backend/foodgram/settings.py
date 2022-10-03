@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+SHOPCART = 'shoppingcart.pdf'
+
 BASE_DIR = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__)))
 

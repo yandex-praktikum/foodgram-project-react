@@ -1,11 +1,12 @@
 import django.contrib.auth.password_validation as validators
-from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
-from .models import Subscribe
+
 from recipes.models import Recipe
 
-User = get_user_model()
+from .models import Subscribe, User
+
 ERR_MSG = 'Данные неверны!'
 
 

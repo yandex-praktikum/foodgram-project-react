@@ -67,7 +67,7 @@ docker-compose exec backend python manage.py collectstatic --noinput
 
 Сайт доступен по ссылке:
 
-[Foodgram](http://51.250.5.134/)
+[Foodgram](http://158.160.2.248/)
 
 Вход в административную зону:
 e-mail - rew@rew.ru

@@ -15,7 +15,7 @@ class User(AbstractUser):
         max_length=150)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+    REQUIRED_FIELDS = ('username', 'first_name', 'last_name',)
 
     class Meta:
         verbose_name = 'Пользователь'
@@ -44,7 +44,7 @@ class Subscribe(models.Model):
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
-        ordering = ['-id']
+        ordering = ('-id',)
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'author'],
