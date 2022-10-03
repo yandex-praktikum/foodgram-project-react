@@ -70,5 +70,5 @@ docker-compose exec backend python manage.py collectstatic --noinput
 [Foodgram](http://158.160.2.248/)
 
 Вход в административную зону:
-e-mail - rew@rew.ru
-пароль - 123456789
+e-mail - test@gmail.com
+пароль - 171717
