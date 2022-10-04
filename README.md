@@ -12,10 +12,15 @@
 * Cоздайте файл `.env` в корневой директории с содержанием:
 ```
 DB_ENGINE=django.db.backends.postgresql
-DB_NAME=postgres
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-DB_HOST=db
+# Укажите имя созданной базы данных
+DB_NAME=foodgram
+# Укажите имя пользователя
+POSTGRES_USER=foodgram_user
+# Укажите пароль для пользователя
+POSTGRES_PASSWORD=1731Pa
+# Укажите localhost
+DB_HOST=127.0.0.1
+# Укажите порт для подключения к базе
 DB_PORT=5432
 ```
 * Запустите docker compose:
@@ -67,8 +72,8 @@ docker-compose exec backend python manage.py collectstatic --noinput
 
 Сайт доступен по ссылке:
 
-[Foodgram](http://158.160.2.248/)
+[Foodgram](http://84.201.164.103/)
 
 Вход в административную зону:
 e-mail - test@gmail.com
-пароль - 171717
+пароль - testtesttest
