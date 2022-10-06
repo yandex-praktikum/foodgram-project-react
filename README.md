@@ -72,7 +72,7 @@ docker-compose exec backend python manage.py collectstatic --noinput
 
 Сайт доступен по ссылке:
 
-[Foodgram](http://84.201.164.103/)
+[Foodgram](http://158.160.12.243/)
 
 Вход в административную зону:
 e-mail - test@gmail.com
