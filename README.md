@@ -77,3 +77,4 @@ docker-compose exec backend python manage.py collectstatic --noinput
 Вход в административную зону:
 e-mail - test@gmail.com
 пароль - testtesttest
+*
