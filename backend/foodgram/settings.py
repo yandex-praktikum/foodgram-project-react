@@ -67,6 +67,27 @@ DATABASES = {
     }
 }
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': os.getenv(
+#            'DB_ENGINE', default='django.db.backends.postgresql'),
+#        'NAME': os.getenv(
+#            'POSTGRES_DB',
+#            default='postgres'),
+#        'USER': os.getenv(
+#            'POSTGRES_USER',
+#            default='postgres'),
+#        'PASSWORD': os.getenv(
+#            'POSTGRES_PASSWORD',
+#            default='postgres'),
+#        'HOST': os.getenv(
+#            'DB_HOST',
+#            default='db'),
+#        'PORT': os.getenv(
+#            'DB_PORT',
+#            default='5432'),
+#    }}
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -105,17 +126,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
 
-#REST_FRAMEWORK = {
-#    'DEFAULT_PERMISSION_CLASSES': [
-#        'rest_framework.permissions.IsAuthenticated',
-#    ],
-#    'DEFAULT_AUTHENTICATION_CLASSES': [
-#        'rest_framework.authentication.TokenAuthentication',
-#    ],
-#    'DEFAULT_FILTER_BACKENDS': [
-#        'django_filters.rest_framework.DjangoFilterBackend',
-#        'rest_framework.filters.SearchFilter',
-#    ],
-#    'DEFAULT_PAGINATION_CLASS': 'api.pagination.LimitPageNumberPagination',
-#    'PAGE_SIZE': 6,
-#}
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'api.pagination.LimitPageNumberPagination',
+    'PAGE_SIZE': 6,
+}
