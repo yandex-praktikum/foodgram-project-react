@@ -37,13 +37,15 @@ class RecipeIngredientAdmin(ModelAdmin):
 
 
 class FavoriteAdmin(ModelAdmin):
-    list_display = ('author', 'recipe')
+    list_display = ('id', 'author', 'recipe')
+    list_editable = ('author', 'recipe')
     list_filter = ('author',)
-    search_fields = ('author',)
+    search_fields = ('recipe',)
 
 
 class FollowAdmin(ModelAdmin):
-    list_display = ('user', 'author')
+    list_display = ('id', 'user', 'author')
+    list_editable = ('user', 'author',)
     list_filter = ('author',)
     search_fields = ('user',)
 

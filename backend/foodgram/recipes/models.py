@@ -169,7 +169,7 @@ class Favorite(Model):
             name='unique_favorite')]
 
     def __str__(self):
-        return self.recipe
+        return f'{self.recipe}'
 
 
 class Follow(Model):
