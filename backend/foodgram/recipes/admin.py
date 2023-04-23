@@ -1,10 +1,6 @@
-from django.contrib.admin import ModelAdmin, site, StackedInline
+from django.contrib.admin import ModelAdmin, StackedInline, site
 
-from recipes.models import (Ingredient,
-                            Recipe,
-                            RecipeIngredient,
-                            Tag,
-                            )
+from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 
 
 class IngidientAdmin(ModelAdmin):
@@ -27,8 +23,8 @@ class IngredientInline(StackedInline):
 
 
 class RecipeAdmin(ModelAdmin):
-    list_display = ('id', 'name', 'text', 'author', 'image')
-    list_display_links = ('id', 'name')
+    list_display = ('name', 'text', 'author', 'image')
+    list_editable = ('author',)
     inlines = (IngredientInline,)
     list_filter = ('author', 'name', 'tags')
     search_fields = ('name',)

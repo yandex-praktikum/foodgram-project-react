@@ -1,5 +1,8 @@
 from django.core.validators import MinValueValidator
-from django.db.models import CASCADE, CharField, DateField, ForeignKey, ImageField, ManyToManyField, Model, PositiveIntegerField, SlugField, TextField, UniqueConstraint
+from django.db.models import (CASCADE, CharField, DateField, ForeignKey,
+                              ImageField, ManyToManyField, Model,
+                              PositiveIntegerField, SlugField, TextField,
+                              UniqueConstraint)
 
 from users.models import UserFoodgram
 
@@ -73,7 +76,8 @@ class Recipe(Model):
         Ingredient,
         related_name='recipes',
         verbose_name='Ингредиенты',
-        help_text='Введите игредиенты'
+        help_text='Введите игредиенты',
+        through='RecipeIngredient'
     )
     name = CharField(
         verbose_name='Название рецепта',
@@ -83,7 +87,7 @@ class Recipe(Model):
     image = ImageField(
         verbose_name='Картинка рецепта',
         help_text='Добавьте изображение',
-        upload_to='media/'
+        upload_to='media/', blank=True
     )
     text = TextField(
         verbose_name='Описание рецепта',
@@ -141,3 +145,54 @@ class RecipeIngredient(Model):
 
     def __str__(self):
         return f'{self.ingredient} {self.amount}'
+
+
+class Favorite(Model):
+    author = ForeignKey(
+        UserFoodgram,
+        related_name='favorites',
+        verbose_name='Автор рецепта',
+        on_delete=CASCADE
+    )
+    recipe = ForeignKey(
+        Recipe,
+        related_name='favorites',
+        verbose_name='Рецепт',
+        on_delete=CASCADE
+    )
+
+    class Meta:
+        verbose_name = 'Избранный рецепт'
+        verbose_name_plural = 'Избранные рецепты'
+        constraints = [UniqueConstraint(
+            fields=['author', 'recipe'],
+            name='unique_favorite')]
+
+    def __str__(self):
+        return self.recipe
+
+
+class Follow(Model):
+    user = ForeignKey(
+        UserFoodgram,
+        related_name='follower',
+        verbose_name='Пользователь',
+        on_delete=CASCADE,
+    )
+    author = ForeignKey(
+        UserFoodgram,
+        related_name='followed',
+        verbose_name='Автор',
+        on_delete=CASCADE
+    )
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        constraints = [
+            UniqueConstraint(
+                fields=['user', 'author'],
+                name='unique_following')]
+
+    def __str__(self):
+        return f'Пользователь {self.user} подписан на {self.author}'
