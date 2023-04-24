@@ -173,7 +173,7 @@ class ShoppingCart(Model):
         return f'{self.recipe}'
 
 
-class Favorite(Model):
+class Favorites(Model):
     author = ForeignKey(
         UserFoodgram,
         related_name='favorites',
@@ -192,7 +192,7 @@ class Favorite(Model):
         verbose_name_plural = 'Избранные рецепты'
         constraints = [UniqueConstraint(
             fields=['author', 'recipe'],
-            name='unique_favorite')]
+            name='unique_favorites')]
 
     def __str__(self):
         return f'{self.recipe}'
