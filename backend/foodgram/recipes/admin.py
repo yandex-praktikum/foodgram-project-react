@@ -1,7 +1,7 @@
 from django.contrib.admin import ModelAdmin, StackedInline, site
 
 from recipes.models import (Favorite, Follow, Ingredient, Recipe,
-                            RecipeIngredient, Tag)
+                            RecipeIngredient, ShoppingCart, Tag)
 
 
 class IngidientAdmin(ModelAdmin):
@@ -36,6 +36,13 @@ class RecipeIngredientAdmin(ModelAdmin):
     list_editable = ('recipe', 'ingredient', 'amount')
 
 
+class ShoppingCartAdmin(ModelAdmin):
+    list_display = ('id', 'author', 'recipe')
+    list_editable = ('author', 'recipe')
+    list_filter = ('author',)
+    search_fields = ('recipe',)
+
+
 class FavoriteAdmin(ModelAdmin):
     list_display = ('id', 'author', 'recipe')
     list_editable = ('author', 'recipe')
@@ -54,5 +61,6 @@ site.register(Ingredient, IngidientAdmin)
 site.register(Tag, TagAdmin)
 site.register(Recipe, RecipeAdmin)
 site.register(RecipeIngredient, RecipeIngredientAdmin)
+site.register(ShoppingCart, ShoppingCartAdmin)
 site.register(Favorite, FavoriteAdmin)
 site.register(Follow, FollowAdmin)

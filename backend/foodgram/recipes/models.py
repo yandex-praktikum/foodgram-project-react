@@ -25,7 +25,7 @@ class Ingredient(Model):
         verbose_name_plural = 'Ингредиенты'
 
     def __str__(self):
-        return self.name
+        return f'{self.name}'
 
 
 class Tag(Model):
@@ -56,7 +56,7 @@ class Tag(Model):
         verbose_name_plural = 'Теги'
 
     def __str__(self):
-        return self.name
+        return f'{self.name}'
 
 
 class Recipe(Model):
@@ -110,7 +110,7 @@ class Recipe(Model):
                 name='unique_recipe')]
 
     def __str__(self):
-        return self.name
+        return f'{self.name}'
 
 
 class RecipeIngredient(Model):
@@ -145,6 +145,32 @@ class RecipeIngredient(Model):
 
     def __str__(self):
         return f'{self.ingredient} {self.amount}'
+
+
+class ShoppingCart(Model):
+    author = ForeignKey(
+        UserFoodgram,
+        related_name='shopping_cart',
+        verbose_name='Пользователь',
+        on_delete=CASCADE
+    )
+    recipe = ForeignKey(
+        Recipe,
+        related_name='shopping_cart',
+        verbose_name='Рецепт для приготовления',
+        help_text='Выберите рецепт для приготовления',
+        on_delete=CASCADE
+    )
+
+    class Meta:
+        verbose_name = 'Список покупок'
+        verbose_name_plural = 'Список покупок'
+        constraints = [UniqueConstraint(
+            fields=['author', 'recipe'],
+            name='unique_cart')]
+
+    def __str__(self):
+        return f'{self.recipe}'
 
 
 class Favorite(Model):
