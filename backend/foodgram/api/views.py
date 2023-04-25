@@ -1,19 +1,24 @@
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from djoser.serializers import SetPasswordSerializer
-from rest_framework import status
-from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticated, SAFE_METHODS
-from rest_framework.viewsets import ModelViewSet
 
 from api.filters import IngredientSearchFilter, RecipeFilter
 from api.mixins import ListRetrieveViewSet
 from api.pagination import PageLimitPagination
-from api.permissions import IsCurrentUserOrAdminOrReadOnly, IsOwnerOrAdminOrReadOnly
-from api.serializers import FavoritesSerializer, FollowSerializer, IngredientSerializer, RecipeListSerializer, RecipeWriteSerializer, ShoppingCartSerializer, TagSerializer, UserFoodgramSerializer
+from api.permissions import (IsCurrentUserOrAdminOrReadOnly,
+                             IsOwnerOrAdminOrReadOnly)
+from api.serializers import (FavoritesSerializer, FollowSerializer,
+                             IngredientSerializer, RecipeListSerializer,
+                             RecipeWriteSerializer, ShoppingCartSerializer,
+                             TagSerializer, UserFoodgramSerializer)
 from api.utils import shopping_cart
-from recipes.models import Favorites, Follow, Ingredient, Recipe, ShoppingCart, Tag
+from django_filters.rest_framework import DjangoFilterBackend
+from djoser.serializers import SetPasswordSerializer
+from recipes.models import (Favorites, Follow, Ingredient, Recipe,
+                            ShoppingCart, Tag)
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 from users.models import UserFoodgram
 
 

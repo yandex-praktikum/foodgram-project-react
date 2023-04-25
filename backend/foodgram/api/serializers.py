@@ -1,16 +1,15 @@
 from django.shortcuts import get_object_or_404
 
 from drf_extra_fields.fields import Base64ImageField
+from recipes.models import (Favorites, Follow, Ingredient, Recipe,
+                            RecipeIngredient, ShoppingCart, Tag)
+from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import (CharField, CurrentUserDefault,
                                         HiddenField, ImageField, IntegerField,
                                         ModelSerializer,
                                         PrimaryKeyRelatedField, ReadOnlyField,
                                         SerializerMethodField)
-from rest_framework import status
-
-from recipes.models import (Favorites, Follow, Ingredient, Recipe,
-                            RecipeIngredient, ShoppingCart, Tag)
 from users.models import UserFoodgram
 
 
