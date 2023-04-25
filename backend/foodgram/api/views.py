@@ -114,7 +114,7 @@ class RecipeViewSet(ModelViewSet):
         user = self.request.user
         if request.method == 'POST':
             if Favorites.objects.filter(author=user,
-                                       recipe=recipe).exists():
+                                        recipe=recipe).exists():
                 return Response({'errors': 'Рецепт уже добавлен!'},
                                 status=status.HTTP_400_BAD_REQUEST)
             serializer = FavoritesSerializer(data=request.data)
@@ -125,7 +125,7 @@ class RecipeViewSet(ModelViewSet):
             return Response(serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
         if not Favorites.objects.filter(author=user,
-                                       recipe=recipe).exists():
+                                        recipe=recipe).exists():
             return Response({'errors': 'Объект не найден'},
                             status=status.HTTP_404_NOT_FOUND)
         Favorites.objects.get(recipe=recipe).delete()
