@@ -20,10 +20,10 @@
 1. Установите на сервере `docker` и `docker compose`.
 2. Создайте файл `/infra/.env`.
 3. Выполните команду `docker compose up -d --buld`.
-4. Выполните миграции `docker compose exec foodgram-backend python manage.py migrate`.
-5. Создайте суперюзера `docker compose exec foodgram-backend python manage.py createsuperuser`.
-6. Соберите статику `docker compose exec foodgram-backend python manage.py collectstatic --no-input`.
-7. Заполните базу ингредиентами `docker compose exec foodgram-backend python manage.py import_csv --path ingredients.csv`.
+4. Выполните миграции `docker compose exec foodgram_backend python manage.py migrate`.
+5. Создайте суперюзера `docker compose exec foodgram_backend python manage.py createsuperuser`.
+6. Соберите статику `docker compose exec foodgram_backend python manage.py collectstatic --no-input`.
+7. Заполните базу ингредиентами `docker compose exec foodgram_backend python manage.py import_csv --path ingredients.csv`.
 
 ## Автор
 

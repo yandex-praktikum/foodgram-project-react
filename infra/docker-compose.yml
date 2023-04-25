@@ -2,7 +2,7 @@ version: '3.3'
 services:
 
   db:
-    container_name: foodgram-db
+    container_name: foodgram_db
     image: postgres:13.0-alpine
     volumes:
       - db_value:/var/lib/postgresql/data/
@@ -12,7 +12,7 @@ services:
       - 5432:5432
   
   backend:
-    container_name: foodgram-backend
+    container_name: foodgram_backend
     image: vladimir9993/foodgram_backend:v25.04.2023
     restart: always
     volumes:
@@ -24,7 +24,7 @@ services:
       - ./.env
 
   frontend:
-    container_name: foodgram-frontend
+    container_name: foodgram_frontend
     image: vladimir9993/foodgram_frontend:v25.04.2023
     volumes:
       - ../frontend/:/app/result_build/
