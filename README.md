@@ -11,7 +11,7 @@
 - Проект завернут в Docker-контейнеры;
 - Образы foodgram_frontend и foodgram_backend запушены на DockerHub;
 - Реализован workflow c автодеплоем на удаленный сервер и отправкой сообщения в Telegram;
-- Проект был развернут на сервере: <http://158.160.44.57>
+- Проект был развернут на сервере: <http://158.160.44.57/recipes>
 
 ## Развертывание проекта
 
@@ -24,7 +24,6 @@
 5. Создайте суперюзера `docker compose exec foodgram-backend python manage.py createsuperuser`.
 6. Соберите статику `docker compose exec foodgram-backend python manage.py collectstatic --no-input`.
 7. Заполните базу ингредиентами `docker compose exec foodgram-backend python manage.py import_csv --path ingredients.csv`.
-8. **Для корректного создания рецепта через фронт, надо создать пару тегов в базе через админку.**
 
 ## Автор
 
