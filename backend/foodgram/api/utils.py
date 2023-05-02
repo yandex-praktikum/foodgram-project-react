@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from recipes.models import RecipeIngredient
 
 
-def shopping_cart(self, request, author):
+def shopping_cart_download(self, request, author):
     """Скачивание списка продуктов для выбранных рецептов пользователя."""
     sum_ingredients_in_recipes = RecipeIngredient.objects.filter(
         recipe__shopping_cart__author=author
@@ -22,7 +22,7 @@ def shopping_cart(self, request, author):
             f'{ingredient["amounts"]} '
             f'{ingredient["ingredient__measurement_unit"]}\n'
         )
-    shopping_list += '\n\nFoodgram (2022)'
+    shopping_list += '\n\nFoodgram (2023)'
     filename = 'shopping_list.txt'
     response = HttpResponse(shopping_list, content_type='text/plain')
     response['Content-Disposition'] = f'attachment; filename={filename}'

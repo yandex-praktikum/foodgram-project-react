@@ -38,7 +38,7 @@ class Tag(Model):
     color = CharField(
         verbose_name='Цвет в НЕХ',
         help_text='Выбирите цвет',
-        max_length=7,
+        max_length=20,
         unique=True,
         blank=True,
         null=True
@@ -87,7 +87,7 @@ class Recipe(Model):
     image = ImageField(
         verbose_name='Картинка рецепта',
         help_text='Добавьте изображение',
-        upload_to='media/', blank=True
+        upload_to='media/'
     )
     text = TextField(
         verbose_name='Описание рецепта',
@@ -116,14 +116,14 @@ class Recipe(Model):
 class RecipeIngredient(Model):
     ingredient = ForeignKey(
         Ingredient,
-        related_name='recipe_ingredient',
+        related_name='recipe_ingredients',
         verbose_name='Ингредиент',
         help_text='Укажите инредиенты',
         on_delete=CASCADE
     )
     recipe = ForeignKey(
         Recipe,
-        related_name='recipe_ingredient',
+        related_name='recipe_ingredients',
         verbose_name='Рецепт',
         help_text='Укажите рецепт',
         on_delete=CASCADE
@@ -147,55 +147,46 @@ class RecipeIngredient(Model):
         return f'{self.ingredient} {self.amount}'
 
 
-class ShoppingCart(Model):
+class AbstractModel(Model):
     author = ForeignKey(
         UserFoodgram,
-        related_name='shopping_cart',
         verbose_name='Пользователь',
         on_delete=CASCADE
     )
     recipe = ForeignKey(
         Recipe,
-        related_name='shopping_cart',
         verbose_name='Рецепт для приготовления',
         help_text='Выберите рецепт для приготовления',
         on_delete=CASCADE
     )
 
     class Meta:
+        abstract = True
+
+    def __str__(self):
+        return f'{self.recipe}'
+
+
+class ShoppingCart(AbstractModel):
+
+    class Meta:
+        default_related_name = 'shopping_cart'
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Список покупок'
         constraints = [UniqueConstraint(
             fields=['author', 'recipe'],
             name='unique_cart')]
 
-    def __str__(self):
-        return f'{self.recipe}'
 
-
-class Favorites(Model):
-    author = ForeignKey(
-        UserFoodgram,
-        related_name='favorites',
-        verbose_name='Автор рецепта',
-        on_delete=CASCADE
-    )
-    recipe = ForeignKey(
-        Recipe,
-        related_name='favorites',
-        verbose_name='Рецепт',
-        on_delete=CASCADE
-    )
+class Favorites(AbstractModel):
 
     class Meta:
+        default_related_name = 'favorites'
         verbose_name = 'Избранный рецепт'
         verbose_name_plural = 'Избранные рецепты'
         constraints = [UniqueConstraint(
             fields=['author', 'recipe'],
             name='unique_favorites')]
-
-    def __str__(self):
-        return f'{self.recipe}'
 
 
 class Follow(Model):
