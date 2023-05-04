@@ -22,9 +22,37 @@ from api.serializers import (FavoritesSerializer,
                              TagSerializer,
                              UserFoodgramSerializer)
 from api.utils import shopping_cart_download
-from recipes.models import (Favorites, Follow, Ingredient, Recipe,
-                            ShoppingCart, Tag)
+from recipes.models import (Favorites,
+                            Follow,
+                            Ingredient,
+                            Recipe,
+                            ShoppingCart,
+                            Tag)
 from users.models import UserFoodgram
+
+
+def create_or_delete_write(model, serializer, request, pk):
+    recipe = get_object_or_404(Recipe, pk=pk)
+    user = request.user
+    if request.method == 'POST':
+        if model.objects.filter(author=user,
+                                recipe=recipe).exists():
+            return Response({'errors': 'Рецепт уже добавлен!'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        serializer = serializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(author=user, recipe=recipe)
+            return Response(serializer.data,
+                            status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)
+    if not model.objects.filter(author=user,
+                                recipe=recipe).exists():
+        return Response({'errors': 'Объект не найден'},
+                        status=status.HTTP_404_NOT_FOUND)
+    model.objects.get(recipe=recipe).delete()
+    return Response('Рецепт успешно удалён из избранного.',
+                    status=status.HTTP_204_NO_CONTENT)
 
 
 class UserFoodgramViewSet(ModelViewSet):
@@ -58,8 +86,8 @@ class UserFoodgramViewSet(ModelViewSet):
     @action(detail=True,
             methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
-    def subscribe(self, request, *args, **kwargs):
-        author = get_object_or_404(UserFoodgram, id=self.kwargs.get('pk'))
+    def subscribe(self, request, pk):
+        author = get_object_or_404(UserFoodgram, pk=pk)
         user = self.request.user
         if request.method == 'POST':
             serializer = FollowSerializer(
@@ -116,34 +144,11 @@ class RecipeViewSet(ModelViewSet):
             return RecipeListSerializer
         return RecipeWriteSerializer
 
-    def create_or_delete_recipe(self, model, serializer, request, pk):
-        recipe = get_object_or_404(Recipe, pk=pk)
-        user = self.request.user
-        if request.method == 'POST':
-            if model.objects.filter(author=user,
-                                    recipe=recipe).exists():
-                return Response({'errors': 'Рецепт уже добавлен!'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            serializer = serializer(data=request.data)
-            if serializer.is_valid(raise_exception=True):
-                serializer.save(author=user, recipe=recipe)
-                return Response(serializer.data,
-                                status=status.HTTP_201_CREATED)
-            return Response(serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
-        if not model.objects.filter(author=user,
-                                    recipe=recipe).exists():
-            return Response({'errors': 'Объект не найден'},
-                            status=status.HTTP_404_NOT_FOUND)
-        model.objects.get(recipe=recipe).delete()
-        return Response('Рецепт успешно удалён из избранного.',
-                        status=status.HTTP_204_NO_CONTENT)
-
     @action(detail=True,
             methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
     def favorite(self, request, pk):
-        return self.create_or_delete_recipe(
+        return create_or_delete_write(
             Favorites,
             FavoritesSerializer,
             request,
@@ -154,7 +159,7 @@ class RecipeViewSet(ModelViewSet):
             methods=['post', 'delete'],
             permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, pk):
-        return self.create_or_delete_recipe(
+        return create_or_delete_write(
             ShoppingCart,
             ShoppingCartSerializer,
             request,

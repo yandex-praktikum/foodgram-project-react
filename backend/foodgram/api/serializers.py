@@ -1,6 +1,11 @@
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import (Favorites, Follow, Ingredient, Recipe,
-                            RecipeIngredient, ShoppingCart, Tag)
+from recipes.models import (Favorites,
+                            Follow,
+                            Ingredient,
+                            Recipe,
+                            RecipeIngredient,
+                            ShoppingCart,
+                            Tag)
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import (CharField,
@@ -72,7 +77,8 @@ class RecipeIngredientSerializer(ModelSerializer):
     id = PrimaryKeyRelatedField(source='ingredient.id', read_only=True)
     name = StringRelatedField(source='ingredient.name', read_only=True)
     measurement_unit = StringRelatedField(
-        source='ingredient.measurement_unit', read_only=True)
+        source='ingredient.measurement_unit', read_only=True
+    )
 
     class Meta:
         model = RecipeIngredient
@@ -228,9 +234,17 @@ class FollowSerializer(UserFoodgramSerializer):
     recipes_count = SerializerMethodField()
 
     class Meta:
-        model = Follow
-        fields = ('email', 'id', 'username', 'first_name',
-                  'last_name', 'is_subscribed', 'recipes', 'recipes_count')
+        model = UserFoodgram
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count'
+        )
 
     def get_recipes(self, obj):
         request = self.context.get('request')

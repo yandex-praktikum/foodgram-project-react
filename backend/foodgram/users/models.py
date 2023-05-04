@@ -9,8 +9,9 @@ class UserFoodgram(AbstractUser):
         (USER_ROLE, 'Пользователь'),
         (ADMIN_ROLE, 'Администратор')
     ]
-    password = CharField(verbose_name='Пароль', max_length=150)
     email = EmailField(unique=True)
+    username = CharField(max_length=150, unique=True)
+    password = CharField(verbose_name='Пароль', max_length=150)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('username', 'first_name', 'last_name')
 

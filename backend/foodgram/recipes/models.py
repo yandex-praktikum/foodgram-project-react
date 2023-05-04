@@ -1,9 +1,10 @@
 from django.core.validators import MinValueValidator
-from django.db.models import (CASCADE, CharField, DateField, ForeignKey,
-                              ImageField, ManyToManyField, Model,
-                              PositiveIntegerField, SlugField, TextField,
-                              UniqueConstraint)
+from django.db.models import (CASCADE, CharField, CheckConstraint, DateField,
+                              F, ForeignKey, ImageField, ManyToManyField,
+                              Model, PositiveIntegerField, SlugField,
+                              TextField, UniqueConstraint, Q)
 
+from recipes.validators import validate_hex_color
 from users.models import UserFoodgram
 
 
@@ -41,7 +42,8 @@ class Tag(Model):
         max_length=20,
         unique=True,
         blank=True,
-        null=True
+        null=True,
+        validators=[validate_hex_color]
     )
     slug = SlugField(
         verbose_name='Слаг тега',
@@ -200,13 +202,16 @@ class Follow(Model):
         UserFoodgram,
         related_name='followed',
         verbose_name='Автор',
-        on_delete=CASCADE
+        on_delete=CASCADE,
     )
 
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
         constraints = [
+            CheckConstraint(
+                check=~Q(author=F('user')),
+                name='user_cant_follow_self'),
             UniqueConstraint(
                 fields=['user', 'author'],
                 name='unique_following')]
