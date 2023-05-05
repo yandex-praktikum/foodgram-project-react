@@ -229,12 +229,18 @@ class FavoritesSerializer(AbsrtactSerializer):
         fields = ('id', 'name', 'image', 'coocking_time')
 
 
-class FollowSerializer(UserFoodgramSerializer):
+class FollowSerializer(ModelSerializer):
+    email = StringRelatedField(source='author.email')
+    id = StringRelatedField(source='author.id')
+    username = StringRelatedField(source='author.username')
+    first_name = StringRelatedField(source='author.first_name')
+    last_name = StringRelatedField(source='author.last_name')
+    is_subscribed = SerializerMethodField()
     recipes = SerializerMethodField()
     recipes_count = SerializerMethodField()
 
     class Meta:
-        model = UserFoodgram
+        model = Follow
         fields = (
             'email',
             'id',
@@ -245,6 +251,15 @@ class FollowSerializer(UserFoodgramSerializer):
             'recipes',
             'recipes_count'
         )
+        read_only_fields = ('__all__',)
+
+    def get_is_subscribed(self, obj):
+        user = self.context.get('request').user
+        if not user.is_anonymous:
+            return Follow.objects.filter(
+                user=obj.user,
+                author=obj.author).exists()
+        return False
 
     def get_recipes(self, obj):
         request = self.context.get('request')

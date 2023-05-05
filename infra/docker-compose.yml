@@ -13,7 +13,7 @@ services:
   
   backend:
     container_name: foodgram_backend
-    image: vladimir9993/foodgram_backend:v2.05.2023
+    image: vladimir9993/foodgram_backend:v5.05.2023
     restart: always
     volumes:
       - static_value:/app/static/
