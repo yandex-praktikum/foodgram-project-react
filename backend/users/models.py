@@ -33,7 +33,11 @@ class User(AbstractUser):
         choices=ROLES,
         default=USER
     )
-    auth_token = models.CharField('Токен авторизации', max_length=300)
+    auth_token = models.CharField(
+        'Токен авторизации',
+        max_length=300,
+        blank=True
+    )
 
     class Meta:
         verbose_name = 'Пользователь'

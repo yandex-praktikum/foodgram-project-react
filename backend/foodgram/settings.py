@@ -14,8 +14,9 @@ SECRET_KEY = 'django-insecure-+nd+1$z-7x8(^kf4i1a)^wk%raame+@k2fktc@)jxm$$dee22f
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['backend', '192.168.0.101', '127.0.0.1', 'localhost']
+# ALLOWED_HOSTS = ['backend', '192.168.0.101', '127.0.0.1', 'localhost']
 # ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -26,8 +27,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'users',
-    'api',
+    'users.apps.UsersConfig',
+    'api.apps.ApiConfig',
     'rest_framework',
 ]
 
@@ -65,23 +66,23 @@ WSGI_APPLICATION = 'foodgram.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-# DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': BASE_DIR / 'db.sqlite3',
-#    }
-# }
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'django'),
-        'USER': os.getenv('POSTGRES_USER', 'django'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', ''),
-        'PORT': os.getenv('DB_PORT', 5432)
-    }
+   'default': {
+       'ENGINE': 'django.db.backends.sqlite3',
+       'NAME': BASE_DIR / 'db.sqlite3',
+   }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.getenv('POSTGRES_DB', 'django'),
+#         'USER': os.getenv('POSTGRES_USER', 'django'),
+#         'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
+#         'HOST': os.getenv('DB_HOST', ''),
+#         'PORT': os.getenv('DB_PORT', 5432)
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -120,7 +121,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'collected_static'
+STATIC_ROOT = BASE_DIR / 'static/'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -131,3 +132,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 AUTH_USER_MODEL = 'users.User'
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 100,
+    "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly",
+    ],
+    "EXCEPTION_HANDLER": "api.handlers.exception_handler",
+}
