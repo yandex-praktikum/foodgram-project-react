@@ -71,6 +71,7 @@ instance/
 # Sphinx documentation
 docs/_build/
 
+
 # PyBuilder
 target/
 
@@ -130,3 +131,10 @@ dmypy.json
 
 # .idea
 .idea
+
+# Node.js
+node_modules
+
+# Static and media
+media/
+static/
