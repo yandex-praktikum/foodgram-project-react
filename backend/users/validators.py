@@ -1,4 +1,5 @@
 import re
+
 from rest_framework.exceptions import ValidationError
 
 from foodgram_backend.settings import USERNAME_BLACKLIST, USERNAME_CHARSET

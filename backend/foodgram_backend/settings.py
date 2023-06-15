@@ -44,7 +44,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'foodgrem_backend.urls'
+ROOT_URLCONF = 'foodgram_backend.urls'
 
 TEMPLATES = [
     {
@@ -62,7 +62,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'foodgrem_backend.wsgi.application'
+WSGI_APPLICATION = 'foodgram_backend.wsgi.application'
 
 
 # Database
@@ -124,3 +124,9 @@ USERNAME_BLACKLIST = ('me', 'admin')
 USERNAME_CHARSET = r'[\w.@+-]'
 USERNAME_MAX_LENGTH = 150
 USER_EMAIL_MAX_LENGTH = 254
+FIRST_NAME_MAX_LENGTH = 150
+LAST_NAME_MAX_LENGTH = 150
+PASSWORD_MAX_LENGTH = 150
+
+# Custom user model
+AUTH_USER_MODEL = 'users.FoodgramUser'
