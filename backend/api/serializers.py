@@ -1,6 +1,15 @@
 from rest_framework import serializers
-
 from users.models import User, Subscribe
+
+
+class TokenSerializer(serializers.Serializer):
+    """Сериализатор для получения токена."""
+    class Meta:
+        fields = (
+            'email',
+            'password',
+            )
+        model = User
 
 
 class UserSerializer(serializers.ModelSerializer):
