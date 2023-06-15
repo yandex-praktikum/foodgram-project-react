@@ -1,8 +1,34 @@
-from rest_framework import viewsets
+from .serializers import UserSerializer, TokenSerializer
 from users.models import User
-from .serializers import UserSerializer
+from django.contrib.auth.tokens import default_token_generator
+from rest_framework import status, viewsets
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    """Написать."""
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+
+@api_view(['POST'])
+def token(request):
+    """Получение токена авторизации по почте и паролю."""
+    serializer = TokenSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    password = request.data.get('password')
+    email = request.data.get('email')
+    user = get_object_or_404(
+        User,
+        password=password,
+        email=email,
+    )
+    token = default_token_generator.make_token(user)
+    user.auth_token = token
+    user.save()
+    return Response(
+        {"auth_token": token},
+        status=status.HTTP_201_CREATED
+        )
