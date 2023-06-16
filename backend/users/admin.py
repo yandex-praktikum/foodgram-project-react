@@ -11,8 +11,9 @@ class UserAdmin(admin.ModelAdmin):
         'last_name',
         'password',
         'role',
+        'auth_token',
     )
-    list_editable = ('first_name', 'last_name',)
+    list_editable = ('first_name', 'last_name', 'password',)
     list_select_related = ('role',)
     empty_value_display = '-пусто-'
 
