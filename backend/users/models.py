@@ -1,13 +1,11 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from foodgram_backend.settings import (
-    USER_EMAIL_MAX_LENGTH,
-    USERNAME_MAX_LENGTH,
-    FIRST_NAME_MAX_LENGTH,
-    LAST_NAME_MAX_LENGTH,
-    PASSWORD_MAX_LENGTH,
-)
 
+from foodgram_backend.settings import (FIRST_NAME_MAX_LENGTH,
+                                       LAST_NAME_MAX_LENGTH,
+                                       PASSWORD_MAX_LENGTH,
+                                       USER_EMAIL_MAX_LENGTH,
+                                       USERNAME_MAX_LENGTH)
 from users.validators import validate_username
 
 

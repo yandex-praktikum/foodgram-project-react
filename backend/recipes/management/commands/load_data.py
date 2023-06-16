@@ -1,12 +1,11 @@
 # Загрузка ингредиентов, для запуска python manage.py load_data
 
-from django.core.management.base import BaseCommand
 import json
 
+from django.core.management.base import BaseCommand
+
+from recipes.constants import INGREDIENTS_NAME_MAX_LENGTH
 from recipes.models import Ingredients
-from recipes.constants import (
-    CORRECT_MEASUREMENTS, INGREDIENTS_NAME_MAX_LENGTH,
-)
 
 
 class Command(BaseCommand):
@@ -20,16 +19,17 @@ class Command(BaseCommand):
                         and i.get('measurement_unit')):
                     print('Ошибка данных', i)
                     continue
-                if Ingredients.objects.filter(name=i['name']).exists():
-                    print(f'Ингредиент {i["name"]} уже есть')
+                if Ingredients.objects.filter(
+                    name=i['name'],
+                    measurement_unit = i['measurement_unit']
+                ).exists():
+                    print(f'Ингредиент {i["name"]},'
+                          f'i["measurement_unit"] уже есть')
                     continue
                 if not (isinstance(i['name'], str)
                         and len(i['name']) <= INGREDIENTS_NAME_MAX_LENGTH
                         and i['name'] != ''):
                     print(f'Название ингредиента {i["name"]} некорректно')
-                    continue
-                if i['measurement_unit'] not in CORRECT_MEASUREMENTS:
-                    print(f'Значение {i["measurement_unit"]} некорректно')
                     continue
                 nubmber_import += 1
                 ingredient = Ingredients()
