@@ -18,17 +18,10 @@ class TokenSerializer(serializers.Serializer):
     def validate(self, data):
         email = data.get('email')
         password = data.get('password')
-
-        if email and password:
-            user = get_object_or_404(User, email=email, password=password)
-            if user.check_password(password):
-                return user
-            else:
-                raise serializers.ValidationError('Неверный логин или пароль')
-        else:
-            raise serializers.ValidationError(
-                'Вы должны ввести логин и пароль'
-                )
+        user = get_object_or_404(User, email=email)
+        if not user.check_password(password):
+            raise serializers.ValidationError('Неверный логин или пароль')
+        return user
 
 
 class UserSerializer(serializers.ModelSerializer):

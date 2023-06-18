@@ -6,9 +6,10 @@ app_name = 'api'
 
 router = DefaultRouter()
 
-router.register('users', UserViewSet)
+router.register('users/', UserViewSet, basename='users')
 
 urlpatterns = [
+    path('users/me/', UserViewSet.as_view({'get': 'me'}), name='users-me'),
     path('', include(router.urls)),
     path('auth/token/login/', token, name='token'),
 ]
