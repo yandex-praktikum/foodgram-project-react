@@ -6,11 +6,28 @@ from recipes.models import Ingredients, Tags
 User = get_user_model()
 
 
-class UserSerializer(serializers.ModelSerializer):
+class IsSubscribedMixin(serializers.Serializer):
+    '''Mixin для проверки наличия подписки пользователя на автора
+    '''
+    is_subscribed = serializers.SerializerMethodField()
+
+    def get_is_subscribed(self, obj):
+        request = self.context['request']
+
+        if request.user.is_authenticated:
+            # Если запрошен список пользователей.
+            if isinstance(obj, User):
+                return request.user.follower.filter(following=obj.id).exists()
+
+        return False
+
+
+class UserSerializer(serializers.ModelSerializer, IsSubscribedMixin):
 
     class Meta:
         model = User
-        fields = ('email', 'pk', 'username', 'first_name', 'last_name')
+        fields = ('email', 'pk', 'username', 'first_name', 'last_name',
+                  'is_subscribed')
 
 
 class IngredientsSerializer(serializers.ModelSerializer):
