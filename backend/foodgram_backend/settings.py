@@ -3,7 +3,6 @@ import os
 from distutils.util import strtobool
 from pathlib import Path
 
-
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -28,10 +27,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework.authtoken',
     'rest_framework',
     'django_filters',
     'users',
     'recipes',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -100,7 +101,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -118,6 +119,12 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS':
+        'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5,
+}
 
 # User parameters
 USERNAME_BLACKLIST = ('me', 'admin')

@@ -21,7 +21,7 @@ class Command(BaseCommand):
                     continue
                 if Ingredients.objects.filter(
                     name=i['name'],
-                    measurement_unit = i['measurement_unit']
+                    measurement_unit=i['measurement_unit']
                 ).exists():
                     print(f'Ингредиент {i["name"]},'
                           f'i["measurement_unit"] уже есть')
@@ -33,7 +33,7 @@ class Command(BaseCommand):
                     continue
                 nubmber_import += 1
                 ingredient = Ingredients()
-                ingredient.name = i['name']
+                ingredient.name = i['name'].lower()
                 ingredient.measurement_unit = i['measurement_unit']
                 ingredient.save()
 
