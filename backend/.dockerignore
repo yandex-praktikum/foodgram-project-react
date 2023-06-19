@@ -2,3 +2,5 @@ venv
 .git
 db.sqlite3
 .env
+*/backend_static
+*/media

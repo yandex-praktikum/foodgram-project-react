@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from recipes.models import Ingredients, Tags
+from recipes.models import Ingredients, Recipes, Tags
 
 User = get_user_model()
 
@@ -34,11 +34,37 @@ class IngredientsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ingredients
-        fields = ('pk', 'name', 'measurement_unit')
+        fields = '__all__'
 
 
 class TagsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tags
-        fields = ('pk', 'name', 'color', 'slug')
+        fields = '__all__'
+
+
+class RecipesSerializer(serializers.ModelSerializer):
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
+    tags = TagsSerializer(required=False, many=True)
+
+    class Meta:
+        model = Recipes
+        fields = '__all__'
+
+    def get_is_favorited(self, obj):
+        request = self.context['request']
+
+        if request.user.is_authenticated:
+            return request.user.lover.filter(recipe=obj.id).exists()
+
+        return False
+
+    def get_is_in_shopping_cart(self, obj):
+        request = self.context['request']
+
+        if request.user.is_authenticated:
+            return request.user.buyer.filter(recipe=obj.id).exists()
+
+        return False

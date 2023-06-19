@@ -133,6 +133,13 @@ class Recipes(models.Model):
         through='RecipeIngredient',
         verbose_name='Ингредиент рецепта'
     )
+    image = models.ImageField(
+        'Изображение',
+        help_text='Загрузите изображение блюда',
+        upload_to='recipes/',
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         default_related_name = 'recipes'
@@ -222,5 +229,30 @@ class Favorites(models.Model):
             models.UniqueConstraint(
                 fields=['user', 'recipe'],
                 name='unique_favorite'
+            )
+        ]
+
+
+class Shopping_cart(models.Model):
+    '''Класс используется для добавления рецепта в список покупок.
+    '''
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='buyer',
+        verbose_name='Покупатель',
+    )
+    recipe = models.ForeignKey(
+        Recipes,
+        on_delete=models.CASCADE,
+        related_name='purchase',
+        verbose_name='Покупка',
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_shopping_cart'
             )
         ]

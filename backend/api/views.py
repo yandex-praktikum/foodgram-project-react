@@ -1,9 +1,11 @@
 from django.contrib.auth import get_user_model
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, viewsets
 
 from .pagination import OnDemandResultsPagination
-from .serializers import IngredientsSerializer, TagsSerializer, UserSerializer
-from recipes.models import Ingredients, Tags
+from .serializers import (IngredientsSerializer, RecipesSerializer,
+                          TagsSerializer, UserSerializer)
+from recipes.models import Ingredients, Recipes, Tags
 
 User = get_user_model()
 
@@ -25,3 +27,11 @@ class IngredientsViewSet(viewsets.ModelViewSet):
 class TagsViewSet(viewsets.ModelViewSet):
     queryset = Tags.objects.all()
     serializer_class = TagsSerializer
+
+
+class RecipesViewSet(viewsets.ModelViewSet):
+    queryset = Recipes.objects.all()
+    serializer_class = RecipesSerializer
+    pagination_class = OnDemandResultsPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('author', 'tags')
