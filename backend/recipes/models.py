@@ -199,3 +199,28 @@ class RecipeIngredient(models.Model):
 
     def __str__(self):
         return f'{self.recipe}, {self.ingredient}, {self.amount}'
+
+
+class Favorites(models.Model):
+    '''Класс используется для добавления рецепта в Избранное.
+    '''
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='lover',
+        verbose_name='Пользователь',
+    )
+    recipe = models.ForeignKey(
+        Recipes,
+        on_delete=models.CASCADE,
+        related_name='favorite',
+        verbose_name='Рецепт',
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_favorite'
+            )
+        ]

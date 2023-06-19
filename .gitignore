@@ -141,5 +141,7 @@ node_modules
 # Static and media
 media/
 static/
+*/backend_static
+*/media
 
 .vscode

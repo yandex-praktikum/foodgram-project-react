@@ -1,10 +1,9 @@
 from django.contrib.auth import get_user_model
 from rest_framework import filters, viewsets
 
-from recipes.models import Ingredients, Tags
-
-from .serializers import IngredientsSerializer, TagsSerializer, UserSerializer
 from .pagination import OnDemandResultsPagination
+from .serializers import IngredientsSerializer, TagsSerializer, UserSerializer
+from recipes.models import Ingredients, Tags
 
 User = get_user_model()
 
