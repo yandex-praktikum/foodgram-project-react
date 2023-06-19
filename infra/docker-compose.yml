@@ -1,5 +1,13 @@
+# TODO удалить docker-compose up -d --no-deps --build
+
 version: '3.3'
 services:
+
+  backend:
+    env_file: ../.env
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
 
   frontend:
     build:
@@ -24,3 +32,6 @@ services:
       - type: bind
         source: ../docs/
         target: /usr/share/nginx/html/api/docs/
+      - type: bind
+        source: ../backend/backend_static
+        target: /usr/share/nginx/html/static/
