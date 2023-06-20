@@ -19,7 +19,7 @@ class User(AbstractUser):
         max_length=254
     )
     username = models.CharField(
-        'Уникальный юзернейм',
+        'Имя на сайте',
         max_length=150,
         unique=True,
         validators=[validate_username]
@@ -33,20 +33,16 @@ class User(AbstractUser):
         choices=ROLES,
         default=USER
     )
-    auth_token = models.CharField(
-        'Токен авторизации',
-        max_length=300,
-        blank=True
+    is_subcribed = models.BooleanField(
+        default=False,
+        verbose_name='Подписка на автора',
+        help_text='Отметьте для подписки на автора',
     )
 
     class Meta:
+        ordering = ['username']
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['username', 'email'], name='unique_together'
-            )
-        ]
 
     @property
     def is_admin(self):
