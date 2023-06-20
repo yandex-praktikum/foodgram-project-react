@@ -5,24 +5,24 @@ from recipes.models import Recipes
 
 class RecipesFilter(rest_framework.FilterSet):
     IN_SHOPPING_CART_CHOICES = (
-        (1, 'In shopping cart'),
-        (0, 'Not in shopping cart'),
+        (1, 'В корзине'),
+        (0, 'Любые'),
     )
 
     IS_FAVORITES_CHOICES = (
-        (1, 'Is favorites'),
-        (0, 'Not is favorites'),
+        (1, 'В избранном'),
+        (0, 'Любые'),
     )
 
     is_favorited = rest_framework.ChoiceFilter(
         choices=IS_FAVORITES_CHOICES,
         method='filter_is_favorited',
-        label='Is Favorited'
+        label='В избранном'
     )
     is_in_shopping_cart = rest_framework.ChoiceFilter(
         choices=IN_SHOPPING_CART_CHOICES,
         method='filter_is_in_shopping_cart',
-        label='Is in shopping cart'
+        label='В корзине'
     )
 
     def filter_is_favorited(self, queryset, name, value):
