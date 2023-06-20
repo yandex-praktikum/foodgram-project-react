@@ -35,3 +35,6 @@ services:
       - type: bind
         source: ../backend/backend_static
         target: /usr/share/nginx/html/static/
+      - type: bind
+        source: ../backend/media
+        target: /usr/share/nginx/html/media/

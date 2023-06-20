@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, viewsets
 
+from .filters import RecipesFilter
 from .pagination import OnDemandResultsPagination
 from .serializers import (IngredientsSerializer, RecipesSerializer,
                           TagsSerializer, UserSerializer)
@@ -34,4 +35,4 @@ class RecipesViewSet(viewsets.ModelViewSet):
     serializer_class = RecipesSerializer
     pagination_class = OnDemandResultsPagination
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('author', 'tags')
+    filterset_class = RecipesFilter
