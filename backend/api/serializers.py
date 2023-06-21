@@ -49,10 +49,13 @@ class RecipesSerializer(serializers.ModelSerializer):
     is_in_shopping_cart = serializers.SerializerMethodField()
     tags = TagsSerializer(required=False, many=True)
     ingredients = IngredientsSerializer(required=False, many=True)
+    author = UserSerializer(read_only=True)
 
     class Meta:
         model = Recipes
-        fields = '__all__'
+        fields = ('id', 'tags', 'author', 'ingredients', 'is_favorited',
+                  'is_in_shopping_cart', 'name', 'image', 'text',
+                  'cooking_time')
 
     def get_is_favorited(self, obj):
         request = self.context['request']
