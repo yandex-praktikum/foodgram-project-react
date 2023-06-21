@@ -55,7 +55,8 @@ class SubscribeSerializer(serializers.ModelSerializer):
 
 class TagSerializer(serializers.ModelSerializer):
     color = serializers.CharField(
-        validators=[RegexField(r'^#[0-9a-fA-F]{6}$')]
+        validators=[RegexField(r'^#[0-9a-fA-F]{6}$')],
+        error_messages={'invalid': 'Введите корректный цвет в формате #RRGGBB'}
         )
 
     class Meta:
