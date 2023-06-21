@@ -27,6 +27,7 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (filters.SearchFilter,)
     # Поиск по частичному вхождению в начале названия ингредиента.
     search_fields = ('^name',)
+    pagination_class = None
 
     def get_view_name(self):
         return 'Ингредиенты'
@@ -35,6 +36,7 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
 class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tags.objects.all()
     serializer_class = TagsSerializer
+    pagination_class = None
 
     def get_view_name(self):
         return 'Тэги'
