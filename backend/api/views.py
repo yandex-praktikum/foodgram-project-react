@@ -4,6 +4,7 @@ from rest_framework import filters, viewsets
 
 from .filters import RecipesFilter
 from .pagination import OnDemandResultsPagination
+from .permissions import IsAuthorOrReadOnly
 from .serializers import (IngredientsSerializer, RecipesSerializer,
                           TagsSerializer, UserSerializer)
 from recipes.models import Ingredients, Recipes, Tags
@@ -42,6 +43,7 @@ class TagsViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipes.objects.all().select_related()
     serializer_class = RecipesSerializer
+    permission_classes = (IsAuthorOrReadOnly,)
     pagination_class = OnDemandResultsPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipesFilter
