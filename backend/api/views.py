@@ -20,7 +20,7 @@ class UsersViewSet(viewsets.ModelViewSet):
         return 'Пользователи'
 
 
-class IngredientsViewSet(viewsets.ModelViewSet):
+class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientsSerializer
     filter_backends = (filters.SearchFilter,)
@@ -31,7 +31,7 @@ class IngredientsViewSet(viewsets.ModelViewSet):
         return 'Ингредиенты'
 
 
-class TagsViewSet(viewsets.ModelViewSet):
+class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tags.objects.all()
     serializer_class = TagsSerializer
 
