@@ -121,6 +121,7 @@ class Recipes(models.Model):
     cooking_time = models.IntegerField(
         'Время приготовления',
         help_text='Время приготовления в минутах',
+        default=1,
         validators=[MinValueValidator(1)]
     )
     tags = models.ManyToManyField(
@@ -164,6 +165,7 @@ class RecipeTag(models.Model):
         verbose_name='Тэг')
 
     class Meta:
+        default_related_name = 'tagrecipes'
         verbose_name = 'Тэг рецепта'
         verbose_name_plural = 'Тэги рецепта'
         constraints = [
@@ -191,10 +193,12 @@ class RecipeIngredient(models.Model):
     amount = models.IntegerField(
         'Количество единиц ингредиента',
         help_text='Количество единиц ингредиента',
+        default=1,
         validators=[MinValueValidator(1)]
     )
 
     class Meta:
+        default_related_name = 'ingredientrecipes'
         verbose_name = 'Ингредиент рецепта'
         verbose_name_plural = 'Ингредиенты рецепта'
         constraints = [

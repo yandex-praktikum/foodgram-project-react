@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from drf_extra_fields.fields import Base64ImageField
 
-from recipes.models import Ingredients, Recipes, Tags
+from recipes.models import Ingredients, Recipes, Tags, RecipeIngredient
 
 User = get_user_model()
 
@@ -37,6 +38,26 @@ class IngredientsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class RecipeIngredientGetSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField(source='ingredient.pk')
+    name = serializers.ReadOnlyField(source='ingredient.name')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit',
+    )
+
+    class Meta:
+        model = RecipeIngredient
+        fields = ('id', 'name', 'measurement_unit', 'amount')
+
+
+class RecipeIngredientPostSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(source='ingredient.id')
+
+    class Meta:
+        model = RecipeIngredient
+        fields = ('id', 'amount')
+
+
 class TagsSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -44,11 +65,14 @@ class TagsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class RecipesSerializer(serializers.ModelSerializer):
+class RecipesGetSerializer(serializers.ModelSerializer):
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     tags = TagsSerializer(required=False, many=True)
-    ingredients = IngredientsSerializer(required=False, many=True)
+    ingredients = RecipeIngredientGetSerializer(
+        required=False,
+        many=True,
+        source='ingredientrecipes',)
     author = UserSerializer(read_only=True)
 
     class Meta:
@@ -72,3 +96,18 @@ class RecipesSerializer(serializers.ModelSerializer):
             return request.user.buyer.filter(recipe=obj.id).exists()
 
         return False
+
+
+class RecipesPostSerializer(serializers.ModelSerializer):
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tags.objects.all(),
+        many=True)
+    image = Base64ImageField(use_url=False,)
+    ingredients = RecipeIngredientPostSerializer(
+        many=True,
+        source='ingredientrecipes',)
+
+    class Meta:
+        model = Recipes
+        fields = ('tags', 'ingredients', 'name', 'image', 'text',
+                  'cooking_time')
