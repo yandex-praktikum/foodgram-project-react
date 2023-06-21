@@ -14,6 +14,11 @@ class RecipesFilter(rest_framework.FilterSet):
         (0, 'Любые'),
     )
 
+    tags = rest_framework.AllValuesMultipleFilter(
+        field_name='tags__slug',
+        label='Тэги (slug)'
+    )
+
     is_favorited = rest_framework.ChoiceFilter(
         choices=IS_FAVORITES_CHOICES,
         method='filter_is_favorited',
