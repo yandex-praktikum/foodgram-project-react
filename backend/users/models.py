@@ -44,6 +44,9 @@ class FoodgramUser(AbstractUser):
         max_length=PASSWORD_MAX_LENGTH
     )
 
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
     class Meta:
         ordering = ('username',)
         verbose_name = 'Пользователь'
