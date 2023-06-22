@@ -1,10 +1,10 @@
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, status, viewsets, mixins, serializers
-from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated, SAFE_METHODS
-from rest_framework.decorators import action, api_view, permission_classes
 from djoser import utils
+from rest_framework import filters, mixins, serializers, status, viewsets
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticated
+from rest_framework.response import Response
 
 from .filters import RecipesFilter
 from .pagination import OnDemandResultsPagination

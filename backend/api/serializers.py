@@ -1,9 +1,9 @@
 from django.contrib.auth import get_user_model
-from rest_framework import serializers
 from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers
 
 from foodgram_backend.settings import PASSWORD_MAX_LENGTH
-from recipes.models import Ingredients, Recipes, Tags, RecipeIngredient
+from recipes.models import Ingredients, RecipeIngredient, Recipes, Tags
 
 User = get_user_model()
 
