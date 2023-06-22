@@ -73,3 +73,7 @@ class IngredientViewSet(viewsets.ModelViewSet):
         ingredient = Ingredient.objects.all()
         serializer = self.ger_serializer(ingredient, many=True)
         return Response(serializer.data)
+
+
+class RecipesViewSet(viewsets.ModelViewSet):
+    pass
