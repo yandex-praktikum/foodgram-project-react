@@ -1,7 +1,8 @@
 from users.models import User, Subscribe
 from djoser.views import UserViewSet
 from .serializers import (
-    CustomUserSerializer, SubscribeSerializer, TagSerializer
+    CustomUserSerializer, SubscribeSerializer, TagSerializer,
+    IngredientSerilizer
     )
 from rest_framework import status
 from rest_framework import viewsets
@@ -9,7 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-from recipes.models import Tag
+from recipes.models import Tag, Ingredient
 
 
 class UsersViewSet(UserViewSet):
@@ -59,4 +60,16 @@ class TagViewSet(viewsets.ModelViewSet):
     def get_tag(self, request):
         tag = Tag.objects.all()
         serializer = self.get_serializer(tag, many=True)
+        return Response(serializer.data)
+
+
+class IngredientViewSet(viewsets.ModelViewSet):
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerilizer
+    permission_classes = (AllowAny,)
+
+    @action(detail=False)
+    def get_ingredients(self, request):
+        ingredient = Ingredient.objects.all()
+        serializer = self.ger_serializer(ingredient, many=True)
         return Response(serializer.data)

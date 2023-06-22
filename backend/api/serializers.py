@@ -1,7 +1,7 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 from users.models import User, Subscribe
-from recipes.models import Tag
+from recipes.models import Tag, Ingredient
 from rest_framework.fields import RegexField
 
 
@@ -62,3 +62,10 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = ('id', 'name', 'color', 'slug')
+
+
+class IngredientSerilizer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Ingredient
+        fields = ('id', 'name', 'measurement_unit',)
