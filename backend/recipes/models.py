@@ -1,5 +1,5 @@
 from django.db import models
-# from django.core.validators import MinValueValidator
+from django.core.validators import (MinValueValidator, MaxValueValidator)
 
 # from users.models import User
 
@@ -59,3 +59,33 @@ class Ingredient(models.Model):
 
         def __str__(self):
             return self.name
+
+
+class Recipes(models.Model):
+    """Информациия о рецептах"""
+    ingredients = models.ManyToManyField(
+        Ingredient,
+        related_name='ingredients',
+    )
+    tags = models.ManyToManyField(
+        Tag,
+        related_name='tags',
+    )
+    image = models.ImageField('Картинка')
+    name = models.CharField('Имя', max_length=200)
+    text = models.TextField()
+    cooking_time = models.IntegerField(
+        default=1,
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(1000)
+        ],
+        error_messages={'invalid': 'Время готовки от 1 до 1000 минут'}
+        )
+
+    class Meta:
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'
+
+    def __str__(self):
+        return self.name
