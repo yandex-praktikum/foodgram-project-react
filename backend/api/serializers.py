@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
+from django.core.files.base import ContentFile
+import base64
 
 from foodgram_backend.settings import PASSWORD_MAX_LENGTH
 from recipes.models import Ingredients, RecipeIngredient, Recipes, Tags
@@ -128,11 +130,21 @@ class RecipesGetSerializer(serializers.ModelSerializer):
         return False
 
 
+class RecipesImageFild(serializers.ImageField):
+    def to_internal_value(self, data):
+        # преобразуем Base64ImageField в ImageField
+        if isinstance(data, str) and data.startswith('data:image'):
+            format, imgstr = data.split(';base64,')
+            ext = format.split('/')[-1]
+            data = ContentFile(base64.b64decode(imgstr), name=f'temp.{ext}')
+        return super().to_internal_value(data)
+
+
 class RecipesPostSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tags.objects.all(),
         many=True)
-    image = Base64ImageField(use_url=False,)
+    image = RecipesImageFild(use_url=False,)
     ingredients = RecipeIngredientPostSerializer(
         many=True,
         source='ingredientrecipes',)

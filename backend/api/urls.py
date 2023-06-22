@@ -1,5 +1,7 @@
 from django.urls import include, path
+from django.conf import settings
 from djoser import views
+from django.conf.urls.static import static
 from rest_framework import routers
 
 from .views import (IngredientsViewSet, RecipesViewSet, TagsViewSet,
