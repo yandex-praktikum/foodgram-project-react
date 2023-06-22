@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from drf_extra_fields.fields import Base64ImageField
 
+from foodgram_backend.settings import PASSWORD_MAX_LENGTH
 from recipes.models import Ingredients, Recipes, Tags, RecipeIngredient
 
 User = get_user_model()
@@ -36,6 +37,28 @@ class UserCreateSerializer(serializers.ModelSerializer, IsSubscribedMixin):
     class Meta:
         model = User
         fields = ('email', 'username', 'first_name', 'last_name',)
+
+
+class SetPasswordSerializer(serializers.Serializer):
+    current_password = serializers.CharField(
+        style={"input_type": "password"},
+        max_length=PASSWORD_MAX_LENGTH
+    )
+    new_password = serializers.CharField(
+        style={"input_type": "password"},
+        max_length=PASSWORD_MAX_LENGTH
+    )
+
+    default_error_messages = {
+        "invalid_password": 'Неверный пароль'
+    }
+
+    def validate_current_password(self, value):
+        is_password_valid = self.context['request'].user.check_password(value)
+        if is_password_valid:
+            return value
+        else:
+            self.fail("invalid_password")
 
 
 class IngredientsSerializer(serializers.ModelSerializer):
