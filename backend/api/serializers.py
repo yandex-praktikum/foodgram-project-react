@@ -23,12 +23,19 @@ class IsSubscribedMixin(serializers.Serializer):
         return False
 
 
-class UserSerializer(serializers.ModelSerializer, IsSubscribedMixin):
+class UserGetSerializer(serializers.ModelSerializer, IsSubscribedMixin):
 
     class Meta:
         model = User
         fields = ('email', 'pk', 'username', 'first_name', 'last_name',
                   'is_subscribed')
+
+
+class UserCreateSerializer(serializers.ModelSerializer, IsSubscribedMixin):
+
+    class Meta:
+        model = User
+        fields = ('email', 'username', 'first_name', 'last_name',)
 
 
 class IngredientsSerializer(serializers.ModelSerializer):
@@ -73,7 +80,7 @@ class RecipesGetSerializer(serializers.ModelSerializer):
         required=False,
         many=True,
         source='ingredientrecipes',)
-    author = UserSerializer(read_only=True)
+    author = UserGetSerializer(read_only=True)
 
     class Meta:
         model = Recipes
