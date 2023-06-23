@@ -33,11 +33,6 @@ class User(AbstractUser):
         choices=ROLES,
         default=USER
     )
-    is_subcribed = models.BooleanField(
-        default=False,
-        verbose_name='Подписка на автора',
-        help_text='Отметьте для подписки на автора',
-    )
 
     class Meta:
         ordering = ['username']

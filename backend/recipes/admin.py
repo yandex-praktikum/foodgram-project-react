@@ -1,5 +1,5 @@
 from django.contrib import admin
-from recipes.models import Tag, Ingredient, Recipes
+from recipes.models import Tag, Ingredient, Recipes, Favorite, ShoppingCart
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from django.utils.safestring import mark_safe
@@ -24,13 +24,14 @@ class IngredientAdmin(ImportExportModelAdmin):
 
 class RecipesAdmin(admin.ModelAdmin):
     fields = (
-        'ingredients',
-        'tags',
-        'image',
-        'preview',
         'name',
-        'text',
+        'author',
         'cooking_time',
+        'preview',
+        'image',
+        'tags',
+        'ingredients',
+        'text',
         )
     readonly_fields = ('preview',)
 
@@ -40,6 +41,16 @@ class RecipesAdmin(admin.ModelAdmin):
             )
 
 
+class FavoriteAdmin(admin.ModelAdmin):
+    fields = ('user', 'recipe',)
+
+
+class ShoppingCartAdmin(admin.ModelAdmin):
+    fields = ('user', 'recipe',)
+
+
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Tag)
 admin.site.register(Recipes, RecipesAdmin)
+admin.site.register(Favorite)
+admin.site.register(ShoppingCart)

@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import (MinValueValidator, MaxValueValidator)
 
-# from users.models import User
+from users.models import User
 
 
 class Tag(models.Model):
@@ -63,18 +63,32 @@ class Ingredient(models.Model):
 
 class Recipes(models.Model):
     """Информациия о рецептах"""
-    ingredients = models.ManyToManyField(
-        Ingredient,
-        related_name='ingredients',
-    )
     tags = models.ManyToManyField(
         Tag,
         related_name='tags',
     )
-    image = models.ImageField('Картинка')
-    name = models.CharField('Имя', max_length=200)
-    text = models.TextField()
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='author',
+        verbose_name='Автор рецепта',
+    )
+    ingredients = models.ManyToManyField(
+        Ingredient,
+        related_name='ingredients',
+    )
+    name = models.CharField(
+        verbose_name='Название рецепта',
+        max_length=200
+    )
+    image = models.ImageField(
+        verbose_name='Картинка'
+    )
+    text = models.TextField(
+        verbose_name='Описание рецепта'
+    )
     cooking_time = models.IntegerField(
+        verbose_name='Время приготовления',
         default=1,
         validators=[
             MinValueValidator(1),
@@ -89,3 +103,78 @@ class Recipes(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='favorite',
+        verbose_name='Владелец избранного',
+    )
+    recipe = models.ForeignKey(
+        Recipes,
+        on_delete=models.CASCADE,
+        related_name='in_favorite',
+        verbose_name='Рецепт в избранном',
+    )
+
+    class Meta:
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
+
+    def __str__(self):
+        return f'{self.recipe} в избранном у {self.user.username}'
+
+
+class ShoppingCart(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='shopping_cart_user',
+        verbose_name='Владелец корзины',
+    )
+    recipe = models.ForeignKey(
+        Recipes,
+        on_delete=models.CASCADE,
+        related_name='in_shopping_cart',
+        verbose_name='Рецепт в корзине',
+    )
+
+    class Meta:
+        verbose_name = 'Корзина покупок'
+        verbose_name_plural = 'Корзина покупок'
+
+    def __str__(self):
+        return f'{self.recipe} в корзине у {self.user.username}'
+
+
+class AmountRecipeIngredient(models.Model):
+    recipe = models.ForeignKey(
+        Recipes,
+        on_delete=models.CASCADE,
+        related_name='amount_ingredient',
+        verbose_name='Рецепт для которого считается количество ингредиентов',
+    )
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        related_name='amount_ingredient',
+        verbose_name='Ингридиенты количество которых нужно',
+    )
+    amount = models.IntegerField(
+        verbose_name='Количество ингридиентов',
+        default=1,
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(1000)
+        ],
+        error_messages={'invalid': 'Количество ингридиентов от 1 до 1000 у.е.'}
+        )
+
+    class Meta:
+        verbose_name = 'Количество ингридиентов для рецета'
+        verbose_name_plural = 'Количество ингридиентов для рецепта'
+
+    def __str__(self):
+        return f'{self.user.username} подписан на {self.author.username}'

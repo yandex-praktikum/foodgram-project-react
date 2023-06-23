@@ -1,7 +1,7 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 from users.models import User, Subscribe
-from recipes.models import Tag, Ingredient
+from recipes.models import Tag, Ingredient, Recipes, Favorite, ShoppingCart
 from rest_framework.fields import RegexField
 
 
@@ -69,3 +69,35 @@ class IngredientSerilizer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit',)
+
+
+class RecipesSerilizer(serializers.ModelSerializer):
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Recipes
+        fields = (
+            'id',
+            'tags',
+            'author',
+            'ingredients',
+            'is_favorited',
+            'is_in_shopping_cart',
+            'name',
+            'image',
+            'text',
+            'cooking_time',
+            )
+
+    def get_is_favorited(self, obj):
+        user = self.context['request'].user
+        return Favorite.objects.filter(
+            user=user, recipe=obj
+        ).exists() if user.is_authenticated else False
+
+    def get_is_in_shopping_cart(self, obj):
+        user = self.context['request'].user
+        return ShoppingCart.objects.filter(
+            user=user, recipe=obj
+        ).exists() if user.is_authenticated else False
