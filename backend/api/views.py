@@ -85,3 +85,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         recipes = Recipes.objects.all()
         serializer = self.get_serializer(recipes, many=True)
         return Response(serializer.data)
+
+    # def get_queryset(self):
+    #     user = self.request.user
+    #     return super().get_queryset()
