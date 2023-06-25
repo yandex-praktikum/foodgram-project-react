@@ -149,11 +149,11 @@ class ShoppingCart(models.Model):
         return f'{self.recipe} в корзине у {self.user.username}'
 
 
-class AmountRecipeIngredient(models.Model):
+class AmountIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipes,
         on_delete=models.CASCADE,
-        related_name='amount_ingredient',
+        related_name='amount_recipe',
         verbose_name='Рецепт для которого считается количество ингредиентов',
     )
     ingredient = models.ForeignKey(

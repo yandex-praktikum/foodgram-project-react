@@ -1,7 +1,7 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 from users.models import User, Subscribe
-from recipes.models import Tag, Ingredient, Recipes, Favorite, ShoppingCart
+from recipes.models import Tag, Ingredient, Recipes, Favorite, ShoppingCart, AmountIngredient
 from rest_framework.fields import RegexField
 
 
@@ -71,7 +71,26 @@ class IngredientSerilizer(serializers.ModelSerializer):
         fields = ('id', 'name', 'measurement_unit',)
 
 
+class AmountIngredient(serializers.ModelSerializer):
+    id = serializers.IntegerField(source='ingredient.id')
+    name = serializers.CharField(source='ingredient.name')
+    measurement_unit = serializers.CharField(
+        source='ingredient.measurement_unit'
+        )
+
+    class Meta:
+        model = AmountIngredient
+        fields = ('id', 'name', 'measurement_unit', 'amount',)
+
+
 class RecipesSerilizer(serializers.ModelSerializer):
+    tags = TagSerializer(many=True)
+    author = CustomUserSerializer(many=False, read_only=True)
+    ingredients = AmountIngredient(
+        many=True,
+        read_only=True,
+        source='amount_ingredient'
+        )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
@@ -91,13 +110,13 @@ class RecipesSerilizer(serializers.ModelSerializer):
             )
 
     def get_is_favorited(self, obj):
-        user = self.context['request'].user
+        user = self.context['request'].user.id
         return Favorite.objects.filter(
-            user=user, recipe=obj
+            user=user, recipe=obj.id
         ).exists()
 
     def get_is_in_shopping_cart(self, obj):
-        user = self.context['request'].user
+        user = self.context['request'].user.id
         return ShoppingCart.objects.filter(
-            user=user, recipe=obj
+            user=user, recipe=obj.id
         ).exists()
