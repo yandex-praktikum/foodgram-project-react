@@ -2,9 +2,9 @@ from users.models import User, Subscribe
 from djoser.views import UserViewSet
 from .serializers import (
     CustomUserSerializer, SubscribeSerializer, TagSerializer,
-    IngredientSerilizer, RecipesSerilizer
+    IngredientSerilizer, RecipesPostUpdateSerializer, RecipesSerializer
     )
-from rest_framework import status, viewsets, generics
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.shortcuts import get_object_or_404
@@ -74,17 +74,25 @@ class IngredientViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class RecipesList(generics.ListCreateAPIView):
+class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipes.objects.all()
-    serializer_class = RecipesSerilizer
+    serializer_class = RecipesSerializer
     permission_classes = (AllowAny,)
 
-    # @action(detail=False)
-    # def get_recipes(self, request):
-    #     recipes = Recipes.objects.all()
-    #     serializer = self.get_serializer(recipes, many=True)
-    #     return Response(serializer.data)
+    @action(detail=False, methods=['get'])
+    def get_recipes(self, request):
+        recipes = Recipes.objects.all()
+        serializer = RecipesSerializer(recipes, many=True)
+        return Response(serializer.data)
 
-    # def get_queryset(self):
-    #     user = self.request.user
-    #     return super().get_queryset()
+    @action(detail=False, methods=['post'])
+    def post_recipes(self, request):
+        serializer = RecipesPostUpdateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return RecipesSerializer
+        return RecipesPostUpdateSerializer
