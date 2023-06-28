@@ -1,4 +1,7 @@
+from http import HTTPStatus
+
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_list_or_404, get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser import utils
 from rest_framework import filters, mixins, serializers, status, viewsets
@@ -9,11 +12,12 @@ from rest_framework.response import Response
 from .filters import RecipesFilter
 from .pagination import OnDemandResultsPagination
 from .permissions import IsAuthorOrReadOnly
-from .serializers import (IngredientsSerializer, RecipesGetSerializer,
-                          RecipesPostSerializer, SetPasswordSerializer,
-                          TagsSerializer, UserCreateSerializer,
-                          UserGetSerializer)
-from recipes.models import Ingredients, Recipes, Tags
+from .serializers import (FavoritesSerializer, IngredientsSerializer,
+                          RecipesGetSerializer, RecipesPostSerializer,
+                          SetPasswordSerializer, ShoppingCartSerializer,
+                          SubscriptionsSerializer, TagsSerializer,
+                          UserCreateSerializer, UserGetSerializer)
+from recipes.models import Favorites, Ingredients, Recipes, Shopping_cart, Tags
 
 User = get_user_model()
 
@@ -104,3 +108,49 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
     def get_view_name(self):
         return 'Рецепты'
+
+
+class SubscriptionsViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = (IsAuthenticated,)
+    pagination_class = OnDemandResultsPagination
+    serializer_class = SubscriptionsSerializer
+
+    def get_queryset(self):
+        return self.request.user.follower
+
+
+class BaseFavoriteShoppingCartViewSet(viewsets.ModelViewSet):
+    # TODO попробовать оптимизировать, вынести определение ID
+    permission_classes = (IsAuthenticated,)
+
+    def create(self, request, *args, **kwargs):
+        recipe_id = int(self.kwargs['recipes_id'])
+        recipe = get_object_or_404(Recipes, id=recipe_id)
+        _, created = self.model.objects.get_or_create(
+            user=request.user, recipe=recipe)
+        if created:
+            return Response(HTTPStatus.CREATED)
+        return Response(HTTPStatus.BAD_REQUEST)
+
+    def delete(self, request, *args, **kwargs):
+        recipe_id = self.kwargs['recipes_id']
+        user_id = request.user.id
+        try:
+            object = self.model.objects.get(
+                user__id=user_id, recipe__id=recipe_id)
+            object.delete()
+        except self.model.DoesNotExist:
+            return Response(HTTPStatus.BAD_REQUEST)
+        return Response(HTTPStatus.NO_CONTENT)
+
+
+class FavoritesViewSet(BaseFavoriteShoppingCartViewSet):
+    serializer_class = FavoritesSerializer
+    queryset = Favorites.objects.all()
+    model = Favorites
+
+
+class ShoppingCartViewSet(BaseFavoriteShoppingCartViewSet):
+    serializer_class = ShoppingCartSerializer
+    queryset = Shopping_cart.objects.all()
+    model = Shopping_cart

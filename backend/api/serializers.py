@@ -1,8 +1,9 @@
+import base64
+
 from django.contrib.auth import get_user_model
+from django.core.files.base import ContentFile
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
-from django.core.files.base import ContentFile
-import base64
 
 from foodgram_backend.settings import PASSWORD_MAX_LENGTH
 from recipes.models import Ingredients, RecipeIngredient, Recipes, Tags
@@ -153,3 +154,21 @@ class RecipesPostSerializer(serializers.ModelSerializer):
         model = Recipes
         fields = ('tags', 'ingredients', 'name', 'image', 'text',
                   'cooking_time')
+
+# TODO зачем два одинаковых сериалайзера?
+class FavoritesSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    cooking_time = serializers.IntegerField()
+    image = Base64ImageField(max_length=None, use_url=False,)
+
+
+class ShoppingCartSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    cooking_time = serializers.IntegerField()
+    image = Base64ImageField(max_length=None, use_url=False,)
+
+
+class SubscriptionsSerializer(serializers.ModelSerializer):
+    pass

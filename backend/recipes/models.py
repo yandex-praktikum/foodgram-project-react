@@ -9,7 +9,7 @@ from .constants import (COLORS_CODE_LENGTH, INGREDIENTS_NAME_MAX_LENGTH,
 User = get_user_model()
 
 
-class Follow(models.Model):
+class Subscriptions(models.Model):
     '''Класс используется для создания подписки пользователя на
     рецепты другого пользователя.
     '''
