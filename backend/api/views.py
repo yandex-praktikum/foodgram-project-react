@@ -1,12 +1,12 @@
 from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
-from django.shortcuts import get_list_or_404, get_object_or_404
+from django.db import IntegrityError
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser import utils
-from rest_framework import filters, mixins, serializers, status, viewsets
-from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticated
+from rest_framework import filters, mixins, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 
 from .filters import RecipesFilter
@@ -118,19 +118,21 @@ class SubscriptionsViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return self.request.user.follower
 
+    def get_view_name(self):
+        return 'Подписка'
+
 
 class BaseFavoriteShoppingCartViewSet(viewsets.ModelViewSet):
-    # TODO попробовать оптимизировать, вынести определение ID
     permission_classes = (IsAuthenticated,)
 
     def create(self, request, *args, **kwargs):
-        recipe_id = int(self.kwargs['recipes_id'])
-        recipe = get_object_or_404(Recipes, id=recipe_id)
-        _, created = self.model.objects.get_or_create(
-            user=request.user, recipe=recipe)
-        if created:
+        recipe_id = self.kwargs['recipes_id']
+        try:
+            recipe = Recipes.objects.get(id=recipe_id)
+            self.model.objects.create(user=request.user, recipe=recipe)
             return Response(HTTPStatus.CREATED)
-        return Response(HTTPStatus.BAD_REQUEST)
+        except (Recipes.DoesNotExist, IntegrityError):
+            return Response(HTTPStatus.BAD_REQUEST)
 
     def delete(self, request, *args, **kwargs):
         recipe_id = self.kwargs['recipes_id']
@@ -149,8 +151,14 @@ class FavoritesViewSet(BaseFavoriteShoppingCartViewSet):
     queryset = Favorites.objects.all()
     model = Favorites
 
+    def get_view_name(self):
+        return 'В избранное'
+
 
 class ShoppingCartViewSet(BaseFavoriteShoppingCartViewSet):
     serializer_class = ShoppingCartSerializer
     queryset = Shopping_cart.objects.all()
     model = Shopping_cart
+
+    def get_view_name(self):
+        return 'В корзину'

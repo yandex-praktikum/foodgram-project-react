@@ -10,6 +10,8 @@ from recipes.models import Ingredients, RecipeIngredient, Recipes, Tags
 
 User = get_user_model()
 
+# TODO использовать label полей, м.б. help text
+
 
 class IsSubscribedMixin(serializers.Serializer):
     '''Mixin для проверки наличия подписки пользователя на автора
@@ -154,6 +156,7 @@ class RecipesPostSerializer(serializers.ModelSerializer):
         model = Recipes
         fields = ('tags', 'ingredients', 'name', 'image', 'text',
                   'cooking_time')
+
 
 # TODO зачем два одинаковых сериалайзера?
 class FavoritesSerializer(serializers.Serializer):
