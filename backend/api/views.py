@@ -85,7 +85,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         serializer = RecipesSerializer(recipes, many=True)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post', 'patch', 'delete'])
     def post_recipes(self, request):
         serializer = RecipesPostUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

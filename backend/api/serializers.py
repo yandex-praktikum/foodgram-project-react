@@ -173,17 +173,29 @@ class RecipesPostUpdateSerializer(RecipesSerializer):
                 )
         return recipe
 
-    # class Meta(RecipesSerializer.Meta):
-    #     model = Recipes
-    #     fields = (
-    #         'id',
-    #         'tags',
-    #         'author',
-    #         'ingredients',
-    #         'is_favorited',
-    #         'is_in_shopping_cart',
-    #         'name',
-    #         'image',
-    #         'text',
-    #         'cooking_time',
-    #         )
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.text = validated_data.get('text', instance.text)
+        instance.cooking_time = validated_data.get(
+            'cooking_time', instance.cooking_time
+            )
+        instance.image = validated_data.get('image', instance.image)
+        instance.save()
+
+        tags_data = validated_data.get('tags')
+        if tags_data:
+            instance.tags.set(tags_data)
+
+        ingredients_data = validated_data.get('amount_recipe')
+        if ingredients_data:
+            AmountIngredient.objects.filter(recipe=instance).delete()
+            for ingredient_data in ingredients_data:
+                pk = ingredient_data['ingredient']['id']
+                ingredient = Ingredient.objects.get(pk=pk)
+                amount = ingredient_data['amount']
+                AmountIngredient.objects.create(
+                    recipe=instance,
+                    ingredient=ingredient,
+                    amount=amount
+                )
+        return instance
