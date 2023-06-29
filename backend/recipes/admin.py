@@ -36,13 +36,13 @@ class RecipesAdmin(admin.ModelAdmin):
         'tags',
         'ingredients',
         'text',
-        )
+    )
     readonly_fields = ('preview',)
 
     def preview(self, obj):
         return mark_safe(
             f'<img src="{obj.image.url}" style="max-height: 200px;">'
-            )
+        )
 
 
 class FavoriteAdmin(admin.ModelAdmin):
