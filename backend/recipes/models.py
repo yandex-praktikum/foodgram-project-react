@@ -41,7 +41,7 @@ class Ingredient(models.Model):
     name = models.CharField(
         verbose_name='Название ингридиента',
         max_length=200
-        )
+    )
     measurement_unit = models.CharField(
         verbose_name='Единицы измерения',
         max_length=50
@@ -95,7 +95,7 @@ class Recipes(models.Model):
             MaxValueValidator(1000)
         ],
         error_messages={'invalid': 'Время готовки от 1 до 1000 минут'}
-        )
+    )
 
     class Meta:
         verbose_name = 'Рецепт'
@@ -173,7 +173,7 @@ class AmountIngredient(models.Model):
             MaxValueValidator(1000)
         ],
         error_messages={'invalid': 'Количество ингридиентов от 1 до 1000 у.е.'}
-        )
+    )
 
     class Meta:
         verbose_name = 'Количество ингридиентов для рецета'
