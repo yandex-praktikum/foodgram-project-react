@@ -199,3 +199,10 @@ class RecipesPostUpdateSerializer(RecipesSerializer):
                     amount=amount
                 )
         return instance
+
+
+class CartSerializer(RecipesSerializer):
+
+    class Meta:
+        model = Recipes
+        fields = ('id', 'name', 'image', 'cooking_time')

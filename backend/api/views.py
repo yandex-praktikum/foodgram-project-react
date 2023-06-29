@@ -2,14 +2,17 @@ from users.models import User, Subscribe
 from djoser.views import UserViewSet
 from .serializers import (
     CustomUserSerializer, SubscribeSerializer, TagSerializer,
-    IngredientSerilizer, RecipesPostUpdateSerializer, RecipesSerializer
+    IngredientSerilizer, RecipesPostUpdateSerializer, RecipesSerializer,
+    CartSerializer
     )
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-from recipes.models import Tag, Ingredient, Recipes
+from recipes.models import Tag, Ingredient, Recipes, ShoppingCart, Favorite
+import csv
+from django.http import HttpResponse
 
 
 class UsersViewSet(UserViewSet):
@@ -77,9 +80,14 @@ class IngredientViewSet(viewsets.ModelViewSet):
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipes.objects.all()
     serializer_class = RecipesSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticated,)
 
-    @action(detail=False, methods=['get'])
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return RecipesSerializer
+        return RecipesPostUpdateSerializer
+
+    @action(detail=False, methods=['get'], permission_classes=(AllowAny,))
     def get_recipes(self, request):
         recipes = Recipes.objects.all()
         serializer = RecipesSerializer(recipes, many=True)
@@ -92,7 +100,71 @@ class RecipesViewSet(viewsets.ModelViewSet):
         serializer.save()
         return Response(serializer.data)
 
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return RecipesSerializer
-        return RecipesPostUpdateSerializer
+    @action(detail=True, methods=['post', 'delete'])
+    def shopping_cart(self, request, pk=None):
+        user = self.request.user
+        recipe = get_object_or_404(Recipes, pk=pk)
+        cart = ShoppingCart.objects.filter(user=user, recipe=recipe)
+
+        if self.request.method == "POST":
+            if cart:
+                return Response(
+                    {'error': 'Рецепт уже в корзине'},
+                    status=status.HTTP_400_BAD_REQUEST
+                    )
+            ShoppingCart.objects.create(user=user, recipe=recipe)
+            serializer = CartSerializer(
+                recipe,
+                context={'request': request})
+            return Response(serializer.data)
+
+        if self.request.method == 'DELETE':
+            if cart:
+                cart.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {'error': 'Рецепта нет в корзине'},
+            status=status.HTTP_400_BAD_REQUEST
+            )
+
+    @action(detail=True, methods=['post', 'delete'])
+    def favorite(self, request, pk=None):
+        user = self.request.user
+        recipe = get_object_or_404(Recipes, pk=pk)
+        chosen = Favorite.objects.filter(user=user, recipe=recipe)
+        if self.request.method == "POST":
+            if chosen:
+                return Response(
+                    {'error': 'Рецепт уже в избранном'},
+                    status=status.HTTP_400_BAD_REQUEST
+                    )
+            Favorite.objects.create(user=user, recipe=recipe)
+            serializer = CartSerializer(
+                recipe,
+                context={'request': request}
+            )
+            return Response(serializer.data)
+
+        if self.request.method == 'DELETE':
+            if chosen:
+                chosen.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {'error': 'Рецепта нет в избранном'},
+            status=status.HTTP_400_BAD_REQUEST
+            )
+
+    @action(detail=True, methods=['get'])
+    def download_shopping_cart(self, request, pk=None):
+        user = self.request.user
+        recipes = Recipes.objects.filter(shopping_cart__user=user)
+        if not recipes:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="shopping_cart.csv"'
+        writer = csv.writer(response)
+        writer.writerow(['Recipe name', 'Ingredients'])
+        for recipe in recipes:
+            ingredients = ', '.join([f'{amount} {ingredient.name}' for amount, ingredient in recipe.amount_recipe.all()])
+            writer.writerow([recipe.name, ingredients])
+        return response
