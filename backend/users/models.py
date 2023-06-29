@@ -5,7 +5,7 @@ from .validators import validate_username
 
 
 class User(AbstractUser):
-    """Модель пользователя."""
+    """Информация о пользователях."""
     USER = 'user'
     ADMIN = 'admin'
     ROLES = [
@@ -33,11 +33,6 @@ class User(AbstractUser):
         choices=ROLES,
         default=USER
     )
-    is_subcribed = models.BooleanField(
-        default=False,
-        verbose_name='Подписка на автора',
-        help_text='Отметьте для подписки на автора',
-    )
 
     class Meta:
         ordering = ['username']
@@ -53,7 +48,7 @@ class User(AbstractUser):
 
 
 class Subscribe(models.Model):
-    """Модель подписки."""
+    """Информация о подписках."""
     user = models.ForeignKey(
         User,
         related_name='subscriber',

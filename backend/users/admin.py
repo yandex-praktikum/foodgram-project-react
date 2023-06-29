@@ -4,6 +4,7 @@ from users.models import User, Subscribe
 
 
 class UserAdmin(admin.ModelAdmin):
+    """Управление пользователями через админку."""
     list_display = (
         'email',
         'username',
