@@ -8,6 +8,7 @@ from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404, get_list_or_404
 
 from .filters import RecipesFilter
 from .pagination import OnDemandResultsPagination
@@ -17,7 +18,8 @@ from .serializers import (FavoritesSerializer, IngredientsSerializer,
                           SetPasswordSerializer, ShoppingCartSerializer,
                           SubscriptionsSerializer, TagsSerializer,
                           UserCreateSerializer, UserGetSerializer)
-from recipes.models import Favorites, Ingredients, Recipes, Shopping_cart, Tags
+from recipes.models import (Favorites, Ingredients, Recipes, Shopping_cart,
+                            Subscriptions, Tags)
 
 User = get_user_model()
 
@@ -110,13 +112,34 @@ class RecipesViewSet(viewsets.ModelViewSet):
         return 'Рецепты'
 
 
-class SubscriptionsViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = (IsAuthenticated,)
-    pagination_class = OnDemandResultsPagination
+class SubscriptionsViewSet(viewsets.ModelViewSet):
     serializer_class = SubscriptionsSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        return self.request.user.follower
+        return get_list_or_404(User, following__user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+
+        user_id = self.kwargs.get('users_id')
+        user = get_object_or_404(User, id=user_id)
+        if Subscriptions.objects.filter(user=request.user,
+                                        following=user).exists():
+            data = {"errors": "Подписка уже существует"}
+            return Response(data, status=HTTPStatus.BAD_REQUEST)
+        Subscriptions.objects.create(
+            user=request.user, following=user)
+        return Response(status=HTTPStatus.CREATED)
+
+    def delete(self, request, *args, **kwargs):
+
+        author_id = self.kwargs['users_id']
+        user_id = request.user.id
+
+        subscribe = get_object_or_404(
+            Subscriptions, user__id=user_id, following__id=author_id)
+        subscribe.delete()
+        return Response('Подписка удалена', status=HTTPStatus.NO_CONTENT)
 
     def get_view_name(self):
         return 'Подписка'
@@ -130,9 +153,9 @@ class BaseFavoriteShoppingCartViewSet(viewsets.ModelViewSet):
         try:
             recipe = Recipes.objects.get(id=recipe_id)
             self.model.objects.create(user=request.user, recipe=recipe)
-            return Response(HTTPStatus.CREATED)
+            return Response(status=HTTPStatus.CREATED)
         except (Recipes.DoesNotExist, IntegrityError):
-            return Response(HTTPStatus.BAD_REQUEST)
+            return Response(status=HTTPStatus.BAD_REQUEST)
 
     def delete(self, request, *args, **kwargs):
         recipe_id = self.kwargs['recipes_id']
@@ -142,8 +165,8 @@ class BaseFavoriteShoppingCartViewSet(viewsets.ModelViewSet):
                 user__id=user_id, recipe__id=recipe_id)
             object.delete()
         except self.model.DoesNotExist:
-            return Response(HTTPStatus.BAD_REQUEST)
-        return Response(HTTPStatus.NO_CONTENT)
+            return Response(status=HTTPStatus.BAD_REQUEST)
+        return Response(status=HTTPStatus.NO_CONTENT)
 
 
 class FavoritesViewSet(BaseFavoriteShoppingCartViewSet):

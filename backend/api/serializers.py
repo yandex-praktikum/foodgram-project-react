@@ -29,6 +29,15 @@ class IsSubscribedMixin(serializers.Serializer):
         return False
 
 
+class RecipesCountMixin(serializers.Serializer):
+
+    recipes_count = serializers.SerializerMethodField()
+
+    def get_recipes_count(self, obj):
+
+        return Recipes.objects.filter(author__id=obj.id).count()
+
+
 class UserGetSerializer(serializers.ModelSerializer, IsSubscribedMixin):
 
     class Meta:
@@ -173,5 +182,27 @@ class ShoppingCartSerializer(serializers.Serializer):
     image = Base64ImageField(max_length=None, use_url=False,)
 
 
-class SubscriptionsSerializer(serializers.ModelSerializer):
-    pass
+class RecipesMinifieldSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipes
+        fields = ('id', 'name', 'cooking_time', 'image')
+
+
+class SubscriptionsSerializer(serializers.ModelSerializer, IsSubscribedMixin,
+                              RecipesCountMixin):
+
+    class Meta:
+        model = User
+        fields = ('email', 'id', 'username', 'first_name',
+                  'last_name', 'is_subscribed', 'recipes', 'recipes_count')
+
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        if request.GET.get('recipes_limit'):
+            # int?
+            recipes_limit = request.GET.get('recipes_limit')
+            queryset = Recipes.objects.filter(author__id=obj.id).order_by('id')[
+                :recipes_limit]
+        else:
+            queryset = Recipes.objects.filter(author__id=obj.id).order_by('id')
+        return RecipesMinifieldSerializer(queryset, many=True).data

@@ -9,12 +9,15 @@ from .views import (FavoritesViewSet, IngredientsViewSet, RecipesViewSet,
 router = routers.DefaultRouter()
 router.register('ingredients', IngredientsViewSet, basename='ingredients')
 router.register('tags', TagsViewSet, basename='tags')
-router.register('user/subscriptions', SubscriptionsViewSet,
-                basename='subscriptions')
 router.register('users', UsersViewSet, basename='users')
 router.register('recipes', RecipesViewSet, basename='recipes')
 
 urlpatterns = [
+    path('users/subscriptions/',
+         SubscriptionsViewSet.as_view({'get': 'list'}), name='subscriptions'),
+    path('users/<users_id>/subscribe/',
+         SubscriptionsViewSet.as_view({'post': 'create',
+                                      'delete': 'delete'}), name='subscribe'),
     path('recipes/<recipes_id>/favorite/',
          FavoritesViewSet.as_view({'post': 'create',
                                   'delete': 'delete'}), name='favorite'),
