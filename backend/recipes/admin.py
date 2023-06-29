@@ -6,6 +6,7 @@ from django.utils.safestring import mark_safe
 
 
 class TagAdmin(admin.ModelAdmin):
+    '''Управление Тегами через админку.'''
     list_display = (
         'name',
         'color',
@@ -14,15 +15,18 @@ class TagAdmin(admin.ModelAdmin):
 
 
 class IngredientResource(resources.ModelResource):
+    'Управление Ингридиентами через админку.'''
     class Meta:
         model = Ingredient
 
 
 class IngredientAdmin(ImportExportModelAdmin):
+    'Загрузка Ингридиентов из файла через админку.'''
     resource_class = IngredientResource
 
 
 class RecipesAdmin(admin.ModelAdmin):
+    '''Управление Рецептами через админку.'''
     fields = (
         'name',
         'author',
@@ -42,10 +46,12 @@ class RecipesAdmin(admin.ModelAdmin):
 
 
 class FavoriteAdmin(admin.ModelAdmin):
+    '''Управление Избранным через админку.'''
     fields = ('user', 'recipe',)
 
 
 class ShoppingCartAdmin(admin.ModelAdmin):
+    '''Управление Корзиной через админку.'''
     fields = ('user', 'recipe',)
 
 

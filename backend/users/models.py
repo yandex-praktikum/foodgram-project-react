@@ -5,7 +5,7 @@ from .validators import validate_username
 
 
 class User(AbstractUser):
-    """Модель пользователя."""
+    """Информация о пользователях."""
     USER = 'user'
     ADMIN = 'admin'
     ROLES = [
@@ -48,7 +48,7 @@ class User(AbstractUser):
 
 
 class Subscribe(models.Model):
-    """Модель подписки."""
+    """Информация о подписках."""
     user = models.ForeignKey(
         User,
         related_name='subscriber',
