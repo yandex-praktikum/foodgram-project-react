@@ -1,17 +1,16 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-
-from .validators import validate_username
+from users.validators import validate_username
 
 
 class User(AbstractUser):
     """Информация о пользователях."""
     USER = 'user'
     ADMIN = 'admin'
-    ROLES = [
+    ROLES = (
         (USER, 'Аутентифицированный пользователь'),
         (ADMIN, 'Администратор'),
-    ]
+    )
 
     email = models.EmailField(
         'Адрес электронной почты',
@@ -22,7 +21,7 @@ class User(AbstractUser):
         'Имя на сайте',
         max_length=150,
         unique=True,
-        validators=[validate_username]
+        validators=(validate_username,)
     )
     first_name = models.CharField('Имя', max_length=150)
     last_name = models.CharField('Фамилия', max_length=150)
@@ -35,7 +34,7 @@ class User(AbstractUser):
     )
 
     class Meta:
-        ordering = ['username']
+        ordering = ('username',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 

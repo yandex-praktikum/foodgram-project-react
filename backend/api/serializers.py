@@ -2,18 +2,28 @@ import base64
 
 from django.core.files.base import ContentFile
 from django.core.validators import EmailValidator
-from djoser.serializers import UserCreateSerializer, UserSerializer
-from recipes.models import (AmountIngredient, Favorite, Ingredient, Recipes,
-                            ShoppingCart, Tag)
+from django.db import transaction
 from rest_framework import serializers
 from rest_framework.fields import RegexField
+from djoser.serializers import UserCreateSerializer, UserSerializer
+from foodgram.settings import COOKING_TIME, HEX_VALID
+from recipes.models import (AmountIngredient, Favorite, Ingredient, Recipes,
+                            ShoppingCart, Tag)
 from users.models import Subscribe, User
+
+
+TEG_COLOR_VALID = 'Тег с таким цветом уже есть'
+INGREDIENT_VALID = 'Такой ингридиент уже есть'
+RECIPES_VALID = 'Рецепт с таким именем уже есть'
+COOKING_TIME_VALID = 'Время приготовления должно быть не меньше 1 минуты'
+TAG_VALID = 'Такого тега нет, создайте его'
+INGREDIENT_COUNT = f'Добавьте хотя бы {COOKING_TIME} ингридиент'
 
 
 class CreateUserSerializer(UserCreateSerializer):
     """Сериалайзер для создания пользователя."""
 
-    email = serializers.EmailField(validators=[EmailValidator])
+    email = serializers.EmailField(validators=(EmailValidator,))
 
     class Meta:
         model = User
@@ -30,7 +40,7 @@ class CreateUserSerializer(UserCreateSerializer):
 class CustomUserSerializer(UserSerializer):
     """Сериалайзер для получени информации о пользователях."""
 
-    email = serializers.EmailField(validators=[EmailValidator])
+    email = serializers.EmailField(validators=(EmailValidator,))
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
@@ -55,8 +65,8 @@ class TagSerializer(serializers.ModelSerializer):
     """Сериалайзер для создания тегов."""
 
     color = serializers.CharField(
-        validators=[
-            RegexField(r"^#[0-9a-fA-F]{6}$")],
+        validators=(
+            RegexField(HEX_VALID),),
         error_messages={
             "invalid": "Введите корректный цвет в формате #RRGGBB"},
     )
@@ -67,7 +77,7 @@ class TagSerializer(serializers.ModelSerializer):
 
     def validate_color(self, value):
         if Tag.objects.filter(color=value).exists():
-            raise serializers.ValidationError("Тег с таким цветом уже есть")
+            raise serializers.ValidationError(TEG_COLOR_VALID)
         return value
 
 
@@ -84,7 +94,7 @@ class IngredientSerilizer(serializers.ModelSerializer):
 
     def validate_name(self, value):
         if Ingredient.objects.filter(name=value).exists():
-            raise serializers.ValidationError("Такой ингридиент уже есть")
+            raise serializers.ValidationError(INGREDIENT_VALID)
         return value
 
 
@@ -114,8 +124,12 @@ class RecipesSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(many=False, read_only=True)
     ingredients = GetAmountIngredientSerializer(
         many=True, source="amount_recipe")
-    is_favorited = serializers.SerializerMethodField()
-    is_in_shopping_cart = serializers.SerializerMethodField()
+    is_favorited = serializers.SerializerMethodField(
+        method_name='is_favorited'
+    )
+    is_in_shopping_cart = serializers.SerializerMethodField(
+        method_name='is_in_shopping_cart'
+    )
 
     class Meta:
         model = Recipes
@@ -142,21 +156,23 @@ class RecipesSerializer(serializers.ModelSerializer):
 
     def validate_name(self, value):
         if Recipes.objects.filter(name=value).exists():
-            raise serializers.ValidationError("Рецепт с таким именем уже есть")
+            raise serializers.ValidationError(RECIPES_VALID)
         return value
 
     def validate_cooking_time(self, value):
-        if value < 1:
-            raise serializers.ValidationError(
-                "Время приготовления должно быть не меньше 1 минуты"
-            )
+        if value < COOKING_TIME:
+            raise serializers.ValidationError(COOKING_TIME_VALID)
         return value
 
     def validate_tags(self, value):
         for tag in value:
             if not Tag.objects.filter(name=tag["name"]).exists():
-                raise serializers.ValidationError(
-                    "Такого тега нет, создайте его")
+                raise serializers.ValidationError(TAG_VALID)
+        return value
+
+    def validate_ingredients(self, value):
+        if len(value) < 2:
+            raise serializers.ValidationError(INGREDIENT_COUNT)
         return value
 
 
@@ -178,6 +194,7 @@ class RecipesPostUpdateSerializer(RecipesSerializer):
         queryset=Tag.objects.all(), many=True)
     image = Base64ImageField()
 
+    @transaction.atomic
     def create(self, validated_data):
         tags_data = validated_data.pop("tags")
         ingredients_data = validated_data.pop("amount_recipe")
@@ -190,12 +207,12 @@ class RecipesPostUpdateSerializer(RecipesSerializer):
             pk = ingredient_data["ingredient"]["id"]
             ingredient = Ingredient.objects.get(pk=pk)
             amount = ingredient_data["amount"]
-            print(ingredients_data)
             AmountIngredient.objects.create(
                 recipe=recipe, ingredient=ingredient, amount=amount
             )
         return recipe
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         instance.name = validated_data.get("name", instance.name)
         instance.text = validated_data.get("text", instance.text)
@@ -250,8 +267,8 @@ class SubscribeSerializer(CustomUserSerializer):
         )
 
     def get_recipes(self, obj):
-        recipes = Recipes.objects.filter(author=obj)
+        recipes = obj.recipes.all()
         return CartSerializer(recipes, many=True).data
 
     def get_recipes_count(self, obj):
-        return Recipes.objects.filter(author=obj).count()
+        return obj.recipes.count()
