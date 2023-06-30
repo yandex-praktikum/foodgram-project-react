@@ -1,7 +1,8 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.core.validators import (MinValueValidator, MaxValueValidator)
-
 from users.models import User
+from foodgram.settings import COOKING_TIME
+from recipes.validators import validate_hex_color
 
 
 class Tag(models.Model):
@@ -15,6 +16,7 @@ class Tag(models.Model):
         verbose_name='Цвет',
         max_length=7,
         unique=True,
+        validators=(validate_hex_color,),
     )
     slug = models.SlugField(
         verbose_name='Уникальный слаг',
@@ -70,7 +72,7 @@ class Recipes(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='author',
+        related_name='recipes',
         verbose_name='Автор рецепта',
     )
     ingredients = models.ManyToManyField(
@@ -90,10 +92,10 @@ class Recipes(models.Model):
     cooking_time = models.IntegerField(
         verbose_name='Время приготовления',
         default=1,
-        validators=[
-            MinValueValidator(1),
-            MaxValueValidator(1000)
-        ],
+        validators=(
+            MinValueValidator(COOKING_TIME),
+            MaxValueValidator(1000),
+        ),
         error_messages={'invalid': 'Время готовки от 1 до 1000 минут'}
     )
 
@@ -168,11 +170,14 @@ class AmountIngredient(models.Model):
     amount = models.IntegerField(
         verbose_name='Количество ингридиентов',
         default=1,
-        validators=[
-            MinValueValidator(1),
-            MaxValueValidator(1000)
-        ],
-        error_messages={'invalid': 'Количество ингридиентов от 1 до 1000 у.е.'}
+        validators=(
+            MinValueValidator(COOKING_TIME),
+            MaxValueValidator(1000),
+        ),
+        error_messages={
+            'invalid':
+            f'Количество ингридиентов от {COOKING_TIME} до 1000 у.е.'
+        }
     )
 
     class Meta:
