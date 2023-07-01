@@ -8,7 +8,7 @@ from foodgram.settings import (
 from recipes.validators import validate_hex_color
 
 
-COOKING_TIME_ERROR = f"Время готовки от {MIN_COOKING_TIME} до {MAX_COOKING_TIME} минут."
+COOKING_ERROR = f"Время в минутах от {MIN_COOKING_TIME} до {MAX_COOKING_TIME}."
 MIN_AMOUNT = 1
 MAX_AMOUNT = 1000
 
@@ -89,7 +89,7 @@ class Recipes(models.Model):
             MinValueValidator(MIN_COOKING_TIME),
             MaxValueValidator(MAX_COOKING_TIME),
         ),
-        error_messages={"invalid": COOKING_TIME_ERROR},
+        error_messages={"invalid": COOKING_ERROR},
     )
 
     class Meta:
