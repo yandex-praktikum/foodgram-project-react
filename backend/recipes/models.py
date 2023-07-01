@@ -1,9 +1,13 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from users.models import User
-from foodgram.settings import COOKING_TIME
+from foodgram.settings import MIN_COOKING_TIME, MAX_COOKING_TIME, INGREDIENT_COUNT_ERROR
 from recipes.validators import validate_hex_color
 
+
+COOKING_TIME_ERROR = f'Время готовки от {MIN_COOKING_TIME} до {MAX_COOKING_TIME} минут.'
+MIN_AMOUNT = 1
+MAX_AMOUNT = 1000
 
 class Tag(models.Model):
     """Информациия о тегах."""
@@ -93,10 +97,10 @@ class Recipes(models.Model):
         verbose_name='Время приготовления',
         default=1,
         validators=(
-            MinValueValidator(COOKING_TIME),
-            MaxValueValidator(1000),
+            MinValueValidator(MIN_COOKING_TIME),
+            MaxValueValidator(MAX_COOKING_TIME),
         ),
-        error_messages={'invalid': 'Время готовки от 1 до 1000 минут'}
+        error_messages={'invalid': COOKING_TIME_ERROR}
     )
 
     class Meta:
@@ -171,12 +175,11 @@ class AmountIngredient(models.Model):
         verbose_name='Количество ингридиентов',
         default=1,
         validators=(
-            MinValueValidator(COOKING_TIME),
-            MaxValueValidator(1000),
+            MinValueValidator(MIN_AMOUNT),
+            MaxValueValidator(MAX_AMOUNT),
         ),
         error_messages={
-            'invalid':
-            f'Количество ингридиентов от {COOKING_TIME} до 1000 у.е.'
+            'invalid': INGREDIENT_COUNT_ERROR
         }
     )
 
