@@ -127,14 +127,16 @@ class SubscriptionsViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
 
-        user_id = self.kwargs.get('users_id')
-        user = get_object_or_404(User, id=user_id)
-        if Subscriptions.objects.filter(user=request.user,
-                                        following=user).exists():
+        author_id = self.kwargs['users_id']
+        user_id = request.user.id
+
+        following, subscribe = self.check_subscriptions(user_id, author_id)
+
+        if subscribe:
             data = {"errors": "Подписка уже существует"}
             return Response(data, status=HTTPStatus.BAD_REQUEST)
         Subscriptions.objects.create(
-            user=request.user, following=user)
+            user=request.user, following=following)
         return Response(status=HTTPStatus.CREATED)
 
     def delete(self, request, *args, **kwargs):
