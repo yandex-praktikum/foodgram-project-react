@@ -119,6 +119,12 @@ class SubscriptionsViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return get_list_or_404(User, following__user=self.request.user)
 
+    def check_subscriptions(self, user_id, following_id):
+        following = get_object_or_404(User, id=following_id)
+        return (following,
+                Subscriptions.objects.filter(user=user_id,
+                                             following=following_id).first())
+
     def create(self, request, *args, **kwargs):
 
         user_id = self.kwargs.get('users_id')
@@ -136,10 +142,14 @@ class SubscriptionsViewSet(viewsets.ModelViewSet):
         author_id = self.kwargs['users_id']
         user_id = request.user.id
 
-        subscribe = get_object_or_404(
-            Subscriptions, user__id=user_id, following__id=author_id)
-        subscribe.delete()
-        return Response('Подписка удалена', status=HTTPStatus.NO_CONTENT)
+        following, subscribe = self.check_subscriptions(user_id, author_id)
+
+        if subscribe:
+            subscribe.delete()
+            return Response('Подписка удалена', status=HTTPStatus.NO_CONTENT)
+
+        data = {"errors": "Подписка не существует"}
+        return Response(data, status=HTTPStatus.BAD_REQUEST)
 
     def get_view_name(self):
         return 'Подписка'
