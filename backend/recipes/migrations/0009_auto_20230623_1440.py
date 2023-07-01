@@ -6,43 +6,91 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('recipes', '0008_alter_recipes_image'),
+        ("recipes", "0008_alter_recipes_image"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='recipes',
-            name='is_favorited',
-            field=models.BooleanField(default=False, verbose_name='Избранное'),
+            model_name="recipes",
+            name="is_favorited",
+            field=models.BooleanField(default=False, verbose_name="Избранное"),
         ),
         migrations.AddField(
-            model_name='recipes',
-            name='is_in_shopping_cart',
-            field=models.BooleanField(default=False, verbose_name='В корзине покупок'),
+            model_name="recipes",
+            name="is_in_shopping_cart",
+            field=models.BooleanField(
+                default=False, verbose_name="В корзине покупок"),
         ),
         migrations.CreateModel(
-            name='ShoppingCart',
+            name="ShoppingCart",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('recipe', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='in_shopping_cart', to='recipes.recipes', verbose_name='Рецепт в корзине')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='shopping_cart_user', to=settings.AUTH_USER_MODEL, verbose_name='Владелец корзины')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "recipe",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="in_shopping_cart",
+                        to="recipes.recipes",
+                        verbose_name="Рецепт в корзине",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="shopping_cart_user",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Владелец корзины",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Корзина покупок',
+                "verbose_name": "Корзина покупок",
             },
         ),
         migrations.CreateModel(
-            name='Favorite',
+            name="Favorite",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('recipe', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='in_favorite', to='recipes.recipes', verbose_name='Рецепт в избранном')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='favorite', to=settings.AUTH_USER_MODEL, verbose_name='Владелец избранного')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "recipe",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="in_favorite",
+                        to="recipes.recipes",
+                        verbose_name="Рецепт в избранном",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="favorite",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Владелец избранного",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Избранное',
+                "verbose_name": "Избранное",
             },
         ),
     ]

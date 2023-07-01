@@ -9,10 +9,10 @@ load_dotenv()
 MIN_COOKING_TIME = 1
 MAX_COOKING_TIME = 1000
 SHOPCART_FILENAME = "shopcart.csv"
-HEX_VALID = r'^#[0-9a-fA-F]{6}$'
+HEX_VALID = r"^#[0-9a-fA-F]{6}$"
 """Константа для проверки цвета тагов на соотвествие HEX."""
 INGREDIENT_AMOUNT = 1
-INGREDIENT_COUNT_ERROR = f'Добавьте хотя бы {INGREDIENT_AMOUNT} ингридиент'
+INGREDIENT_COUNT_ERROR = f"Добавьте хотя бы {INGREDIENT_AMOUNT} ингридиент"
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent

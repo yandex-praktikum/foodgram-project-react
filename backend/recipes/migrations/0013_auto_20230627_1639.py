@@ -6,26 +6,62 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('recipes', '0012_amountrecipeingredient'),
+        ("recipes", "0012_amountrecipeingredient"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='AmountIngredient',
+            name="AmountIngredient",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('amount', models.IntegerField(default=1, error_messages={'invalid': 'Количество ингридиентов от 1 до 1000 у.е.'}, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(1000)], verbose_name='Количество ингридиентов')),
-                ('ingredient', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='amount_ingredient', to='recipes.ingredient', verbose_name='Ингридиенты количество которых нужно')),
-                ('recipe', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='amount_recipe', to='recipes.recipes', verbose_name='Рецепт для которого считается количество ингредиентов')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "amount",
+                    models.IntegerField(
+                        default=1,
+                        error_messages={
+                            "invalid": "Количество ингридиентов от 1 до 1000 у.е."
+                        },
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(1000),
+                        ],
+                        verbose_name="Количество ингридиентов",
+                    ),
+                ),
+                (
+                    "ingredient",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="amount_ingredient",
+                        to="recipes.ingredient",
+                        verbose_name="Ингридиенты количество которых нужно",
+                    ),
+                ),
+                (
+                    "recipe",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="amount_recipe",
+                        to="recipes.recipes",
+                        verbose_name="Рецепт для которого считается количество ингредиентов",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Количество ингридиентов для рецета',
-                'verbose_name_plural': 'Количество ингридиентов для рецепта',
+                "verbose_name": "Количество ингридиентов для рецета",
+                "verbose_name_plural": "Количество ингридиентов для рецепта",
             },
         ),
         migrations.DeleteModel(
-            name='AmountRecipeIngredient',
+            name="AmountRecipeIngredient",
         ),
     ]

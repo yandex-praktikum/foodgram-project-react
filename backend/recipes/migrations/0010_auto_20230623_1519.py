@@ -7,40 +7,58 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('recipes', '0009_auto_20230623_1440'),
+        ("recipes", "0009_auto_20230623_1440"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='favorite',
-            options={'verbose_name': 'Избранное', 'verbose_name_plural': 'Избранное'},
+            name="favorite",
+            options={"verbose_name": "Избранное",
+                     "verbose_name_plural": "Избранное"},
         ),
         migrations.AlterModelOptions(
-            name='shoppingcart',
-            options={'verbose_name': 'Корзина покупок', 'verbose_name_plural': 'Корзина покупок'},
+            name="shoppingcart",
+            options={
+                "verbose_name": "Корзина покупок",
+                "verbose_name_plural": "Корзина покупок",
+            },
         ),
         migrations.AddField(
-            model_name='recipes',
-            name='author',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='author', to='users.user', verbose_name='Автор рецепта'),
+            model_name="recipes",
+            name="author",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="author",
+                to="users.user",
+                verbose_name="Автор рецепта",
+            ),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='recipes',
-            name='cooking_time',
-            field=models.IntegerField(default=1, error_messages={'invalid': 'Время готовки от 1 до 1000 минут'}, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(1000)], verbose_name='Время приготовлдения'),
+            model_name="recipes",
+            name="cooking_time",
+            field=models.IntegerField(
+                default=1,
+                error_messages={"invalid": "Время готовки от 1 до 1000 минут"},
+                validators=[
+                    django.core.validators.MinValueValidator(1),
+                    django.core.validators.MaxValueValidator(1000),
+                ],
+                verbose_name="Время приготовлдения",
+            ),
         ),
         migrations.AlterField(
-            model_name='recipes',
-            name='name',
-            field=models.CharField(max_length=200, verbose_name='Название рецепта'),
+            model_name="recipes",
+            name="name",
+            field=models.CharField(
+                max_length=200, verbose_name="Название рецепта"),
         ),
         migrations.AlterField(
-            model_name='recipes',
-            name='text',
-            field=models.TextField(verbose_name='Описание рецепта'),
+            model_name="recipes",
+            name="text",
+            field=models.TextField(verbose_name="Описание рецепта"),
         ),
     ]
