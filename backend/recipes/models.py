@@ -136,7 +136,7 @@ class ShoppingCart(models.Model):
     recipe = models.ForeignKey(
         Recipes,
         on_delete=models.CASCADE,
-        related_name="in_shopping_cart",
+        related_name="recipes",
         verbose_name="Рецепт в корзине",
     )
 
@@ -178,4 +178,4 @@ class AmountIngredient(models.Model):
         verbose_name_plural = "Количество ингридиентов для рецепта"
 
     def __str__(self):
-        return f"{self.user.username} подписан на {self.author.username}"
+        return self.recipe.name, self.ingredient.name
