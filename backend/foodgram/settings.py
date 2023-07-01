@@ -6,16 +6,20 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-COOKING_TIME = 1
-SHOPCART = "shopcart.csv"
-HEX_VALID = r'^#[0-9a-fA-F]{6}$'
+MIN_COOKING_TIME = 1
+MAX_COOKING_TIME = 1000
+SHOPCART_FILENAME = "shopcart.csv"
+HEX_VALID = r"^#[0-9a-fA-F]{6}$"
 """Константа для проверки цвета тагов на соотвествие HEX."""
+INGREDIENT_AMOUNT = 1
+INGREDIENT_COUNT_ERROR = f"Добавьте хотя бы {INGREDIENT_AMOUNT} ингридиент"
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-DEBUG = os.getenv("DEBUG")
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -67,17 +71,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "foodgram.wsgi.application"
 
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'django'),
-        'USER': os.getenv('POSTGRES_USER', 'django'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', ''),
-        'PORT': os.getenv('DB_PORT', 5432)
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.getenv('POSTGRES_DB', 'django'),
+#         'USER': os.getenv('POSTGRES_USER', 'django'),
+#         'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
+#         'HOST': os.getenv('DB_HOST', ''),
+#         'PORT': os.getenv('DB_PORT', 5432)
+#     }
+# }
 
 
 AUTH_PASSWORD_VALIDATORS = [

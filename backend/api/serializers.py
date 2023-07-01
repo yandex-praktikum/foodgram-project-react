@@ -6,18 +6,30 @@ from django.db import transaction
 from rest_framework import serializers
 from rest_framework.fields import RegexField
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from foodgram.settings import COOKING_TIME, HEX_VALID
-from recipes.models import (AmountIngredient, Favorite, Ingredient, Recipes,
-                            ShoppingCart, Tag)
+from foodgram.settings import (
+    MIN_COOKING_TIME,
+    HEX_VALID,
+    INGREDIENT_AMOUNT,
+    INGREDIENT_COUNT_ERROR,
+)
+from recipes.models import (
+    AmountIngredient,
+    Favorite,
+    Ingredient,
+    Recipes,
+    ShoppingCart,
+    Tag,
+)
 from users.models import Subscribe, User
 
 
-TEG_COLOR_VALID = 'Тег с таким цветом уже есть'
-INGREDIENT_VALID = 'Такой ингридиент уже есть'
-RECIPES_VALID = 'Рецепт с таким именем уже есть'
-COOKING_TIME_VALID = 'Время приготовления должно быть не меньше 1 минуты'
-TAG_VALID = 'Такого тега нет, создайте его'
-INGREDIENT_COUNT = f'Добавьте хотя бы {COOKING_TIME} ингридиент'
+TEG_COLOR_VALID = "Тег с таким цветом уже есть"
+INGREDIENT_VALID = "Такой ингридиент уже есть"
+RECIPES_VALID = "Рецепт с таким именем уже есть"
+COOKING_TIME_VALID = (
+    f"Время приготовления должно быть не меньше {MIN_COOKING_TIME} минуты"
+)
+TAG_VALID = "Такого тега нет, создайте его"
 
 
 class CreateUserSerializer(UserCreateSerializer):
@@ -65,8 +77,7 @@ class TagSerializer(serializers.ModelSerializer):
     """Сериалайзер для создания тегов."""
 
     color = serializers.CharField(
-        validators=(
-            RegexField(HEX_VALID),),
+        validators=(RegexField(HEX_VALID),),
         error_messages={
             "invalid": "Введите корректный цвет в формате #RRGGBB"},
     )
@@ -125,10 +136,9 @@ class RecipesSerializer(serializers.ModelSerializer):
     ingredients = GetAmountIngredientSerializer(
         many=True, source="amount_recipe")
     is_favorited = serializers.SerializerMethodField(
-        method_name='is_favorited'
-    )
+        method_name="get_is_favorited")
     is_in_shopping_cart = serializers.SerializerMethodField(
-        method_name='is_in_shopping_cart'
+        method_name="get_is_in_shopping_cart"
     )
 
     class Meta:
@@ -160,7 +170,7 @@ class RecipesSerializer(serializers.ModelSerializer):
         return value
 
     def validate_cooking_time(self, value):
-        if value < COOKING_TIME:
+        if value < MIN_COOKING_TIME:
             raise serializers.ValidationError(COOKING_TIME_VALID)
         return value
 
@@ -171,8 +181,9 @@ class RecipesSerializer(serializers.ModelSerializer):
         return value
 
     def validate_ingredients(self, value):
-        if len(value) < 2:
-            raise serializers.ValidationError(INGREDIENT_COUNT)
+        for ingredient in value:
+            if ingredient["amount"] < INGREDIENT_AMOUNT:
+                raise serializers.ValidationError(INGREDIENT_COUNT_ERROR)
         return value
 
 

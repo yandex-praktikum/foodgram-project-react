@@ -1,5 +1,4 @@
-from api.views import (IngredientViewSet, RecipesViewSet, TagViewSet,
-                       UsersViewSet)
+from api.views import IngredientViewSet, RecipesViewSet, TagViewSet, UsersViewSet
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 

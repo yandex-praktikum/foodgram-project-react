@@ -6,27 +6,52 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('recipes', '0013_auto_20230627_1639'),
+        ("recipes", "0013_auto_20230627_1639"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ShoppingList',
+            name="ShoppingList",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('recipe_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='in_shopping_list', to='recipes.recipes', verbose_name='id рецепта')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='shopping_list', to=settings.AUTH_USER_MODEL, verbose_name='Пользователь')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "recipe_id",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="in_shopping_list",
+                        to="recipes.recipes",
+                        verbose_name="id рецепта",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="shopping_list",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Пользователь",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Список покупок',
-                'verbose_name_plural': 'Список покупок',
+                "verbose_name": "Список покупок",
+                "verbose_name_plural": "Список покупок",
             },
         ),
         migrations.AddConstraint(
-            model_name='shoppinglist',
-            constraint=models.UniqueConstraint(fields=('recipe_id', 'user'), name='unique_shopping_list'),
+            model_name="shoppinglist",
+            constraint=models.UniqueConstraint(
+                fields=("recipe_id", "user"), name="unique_shopping_list"
+            ),
         ),
     ]

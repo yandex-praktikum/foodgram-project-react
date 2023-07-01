@@ -18,15 +18,28 @@ class IngredientResource(resources.ModelResource):
 
 class IngredientAdmin(ImportExportModelAdmin):
     """Загрузка Ингридиентов из файла через админку."""
+
     resource_class = IngredientResource
-    list_display = ('name', 'measurement_unit',)
-    search_fields = ('name',)
+    list_display = (
+        "name",
+        "measurement_unit",
+    )
+    search_fields = ("name",)
 
 
 class RecipesAdmin(admin.ModelAdmin):
     """Управление Рецептами через админку."""
-    search_fields = ('name', 'cooking_time',)
-    list_display = ('name', 'author', "cooking_time", "preview",)
+
+    search_fields = (
+        "name",
+        "cooking_time",
+    )
+    list_display = (
+        "name",
+        "author",
+        "cooking_time",
+        "preview",
+    )
     fields = (
         "name",
         "author",
@@ -40,8 +53,7 @@ class RecipesAdmin(admin.ModelAdmin):
     readonly_fields = ("preview",)
 
     def preview(self, obj):
-        return mark_safe(
-            f'<img src="{obj.image.url}" style="max-height: 200px;">')
+        return mark_safe(f'<img src="{obj.image.url}" style="max-height: 200px;">')
 
 
 class FavoriteAdmin(admin.ModelAdmin):

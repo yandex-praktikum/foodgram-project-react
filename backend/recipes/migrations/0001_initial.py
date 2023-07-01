@@ -5,28 +5,60 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Tag',
+            name="Tag",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, unique=True, verbose_name='Тег')),
-                ('color', models.CharField(default='#006400', help_text='Введите цвет в формате #006400', max_length=7, unique=True, validators=[django.core.validators.RegexValidator(message='Укажите цвет в формате HEX!', regex='^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$')], verbose_name='Цвет')),
-                ('slug', models.SlugField(max_length=100, unique=True, verbose_name='Уникальный слаг')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=100, unique=True, verbose_name="Тег"),
+                ),
+                (
+                    "color",
+                    models.CharField(
+                        default="#006400",
+                        help_text="Введите цвет в формате #006400",
+                        max_length=7,
+                        unique=True,
+                        validators=[
+                            django.core.validators.RegexValidator(
+                                message="Укажите цвет в формате HEX!",
+                                regex="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$",
+                            )
+                        ],
+                        verbose_name="Цвет",
+                    ),
+                ),
+                (
+                    "slug",
+                    models.SlugField(
+                        max_length=100, unique=True, verbose_name="Уникальный слаг"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Тег',
-                'verbose_name_plural': 'Теги',
+                "verbose_name": "Тег",
+                "verbose_name_plural": "Теги",
             },
         ),
         migrations.AddConstraint(
-            model_name='tag',
-            constraint=models.UniqueConstraint(fields=('name', 'color', 'slug'), name='unique_tags'),
+            model_name="tag",
+            constraint=models.UniqueConstraint(
+                fields=("name", "color", "slug"), name="unique_tags"
+            ),
         ),
     ]

@@ -5,22 +5,50 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('recipes', '0005_auto_20230622_1510'),
+        ("recipes", "0005_auto_20230622_1510"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Recipes',
+            name="Recipes",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image', models.ImageField(upload_to='media/', verbose_name='Картинка')),
-                ('name', models.CharField(max_length=200, verbose_name='Имя')),
-                ('text', models.TextField()),
-                ('cooking_time', models.IntegerField(default=1, error_messages={'invalid': 'Время готовки от 1 до 1000 минут'}, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(1000)])),
-                ('ingredients', models.ManyToManyField(related_name='ingredients', to='recipes.Ingredient')),
-                ('tags', models.ManyToManyField(related_name='tags', to='recipes.Tag')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "image",
+                    models.ImageField(upload_to="media/",
+                                      verbose_name="Картинка"),
+                ),
+                ("name", models.CharField(max_length=200, verbose_name="Имя")),
+                ("text", models.TextField()),
+                (
+                    "cooking_time",
+                    models.IntegerField(
+                        default=1,
+                        error_messages={
+                            "invalid": "Время готовки от 1 до 1000 минут"},
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(1000),
+                        ],
+                    ),
+                ),
+                (
+                    "ingredients",
+                    models.ManyToManyField(
+                        related_name="ingredients", to="recipes.Ingredient"
+                    ),
+                ),
+                ("tags", models.ManyToManyField(
+                    related_name="tags", to="recipes.Tag")),
             ],
         ),
     ]

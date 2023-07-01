@@ -4,26 +4,44 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('recipes', '0002_alter_tag_color'),
+        ("recipes", "0002_alter_tag_color"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Ingredient',
+            name="Ingredient",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200, unique=True, verbose_name='Название ингридиента')),
-                ('measurement_unit', models.CharField(max_length=50, verbose_name='Единицы измерения')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=200, unique=True, verbose_name="Название ингридиента"
+                    ),
+                ),
+                (
+                    "measurement_unit",
+                    models.CharField(
+                        max_length=50, verbose_name="Единицы измерения"),
+                ),
             ],
             options={
-                'verbose_name': 'Ингридиент',
-                'verbose_name_plural': 'Ингридиенты',
+                "verbose_name": "Ингридиент",
+                "verbose_name_plural": "Ингридиенты",
             },
         ),
         migrations.AddConstraint(
-            model_name='ingredient',
-            constraint=models.UniqueConstraint(fields=('name', 'measurement_unit'), name='unique_ingredient'),
+            model_name="ingredient",
+            constraint=models.UniqueConstraint(
+                fields=("name", "measurement_unit"), name="unique_ingredient"
+            ),
         ),
     ]

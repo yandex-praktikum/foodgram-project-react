@@ -5,23 +5,30 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('recipes', '0010_auto_20230623_1519'),
+        ("recipes", "0010_auto_20230623_1519"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='recipes',
-            name='is_favorited',
+            model_name="recipes",
+            name="is_favorited",
         ),
         migrations.RemoveField(
-            model_name='recipes',
-            name='is_in_shopping_cart',
+            model_name="recipes",
+            name="is_in_shopping_cart",
         ),
         migrations.AlterField(
-            model_name='recipes',
-            name='cooking_time',
-            field=models.IntegerField(default=1, error_messages={'invalid': 'Время готовки от 1 до 1000 минут'}, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(1000)], verbose_name='Время приготовления'),
+            model_name="recipes",
+            name="cooking_time",
+            field=models.IntegerField(
+                default=1,
+                error_messages={"invalid": "Время готовки от 1 до 1000 минут"},
+                validators=[
+                    django.core.validators.MinValueValidator(1),
+                    django.core.validators.MaxValueValidator(1000),
+                ],
+                verbose_name="Время приготовления",
+            ),
         ),
     ]

@@ -2,10 +2,15 @@ import csv
 
 from api.filters import IngredientsFilter, RecipesFilter
 from api.pagination import PageLimitPagination
-from api.serializers import (CartSerializer, CustomUserSerializer,
-                             IngredientSerilizer, RecipesPostUpdateSerializer,
-                             RecipesSerializer, SubscribeSerializer,
-                             TagSerializer)
+from api.serializers import (
+    CartSerializer,
+    CustomUserSerializer,
+    IngredientSerilizer,
+    RecipesPostUpdateSerializer,
+    RecipesSerializer,
+    SubscribeSerializer,
+    TagSerializer,
+)
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -15,7 +20,7 @@ from rest_framework.filters import SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from djoser.views import UserViewSet
-from foodgram.settings import SHOPCART
+from foodgram.settings import SHOPCART_FILENAME
 from recipes.models import Favorite, Ingredient, Recipes, ShoppingCart, Tag
 from users.models import Subscribe, User
 
@@ -31,15 +36,20 @@ class UsersViewSet(UserViewSet):
     permission_classes = (AllowAny,)
     pagination_class = PageLimitPagination
 
-    @action(methods=("GET",), detail=False,
-            permission_classes=(IsAuthenticated,))
+    @action(methods=("GET",), detail=False, permission_classes=(IsAuthenticated,))
     def subscriptions(self, request):
         user = request.user
         serializer = SubscribeSerializer(user, context={"request": request})
         return Response(serializer.data)
 
-    @action(methods=("POST", "DELETE",), detail=True,
-            permission_classes=(IsAuthenticated,))
+    @action(
+        methods=(
+            "POST",
+            "DELETE",
+        ),
+        detail=True,
+        permission_classes=(IsAuthenticated,),
+    )
     def subscribe(self, request, id):
         user = self.request.user
         author = get_object_or_404(User, id=id)
@@ -51,8 +61,9 @@ class UsersViewSet(UserViewSet):
         subscribers = Subscribe.objects.filter(user=user, author=author)
         if self.request.method == "POST":
             if subscribers.exists():
-                return Response({"error": "Уже подписан"},
-                                status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"error": "Уже подписан"}, status=status.HTTP_400_BAD_REQUEST
+                )
             Subscribe.objects.create(user=request.user, author=author),
             serializer = SubscribeSerializer(
                 author, context={"request": request})
@@ -98,8 +109,8 @@ class IngredientViewSet(viewsets.ModelViewSet):
 class RecipesViewSet(viewsets.ModelViewSet):
     """Вьюсет для создания рецептов"""
 
-    queryset = Recipes.objects.all()
-    permission_classes = (IsAuthenticated,)
+    queryset = Recipes.objects.all().order_by("id")
+    permission_classes = (AllowAny,)
     pagination_class = PageLimitPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipesFilter
@@ -109,20 +120,35 @@ class RecipesViewSet(viewsets.ModelViewSet):
             return RecipesSerializer
         return RecipesPostUpdateSerializer
 
-    @action(detail=False, methods=("get",), permission_classes=(AllowAny,))
+    @action(detail=False, methods=("get",))
     def get_recipes(self, request):
         recipes = Recipes.objects.all()
         serializer = RecipesSerializer(recipes, many=True)
         return Response(serializer.data)
 
-    @action(detail=False, methods=("post", "patch", "delete",))
+    @action(
+        detail=False,
+        methods=(
+            "post",
+            "patch",
+            "delete",
+        ),
+        permission_classes=(IsAuthenticated,),
+    )
     def post_recipes(self, request):
         serializer = RecipesPostUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
 
-    @action(detail=True, methods=("post", "delete",))
+    @action(
+        detail=True,
+        methods=(
+            "post",
+            "delete",
+        ),
+        permission_classes=(IsAuthenticated,),
+    )
     def shopping_cart(self, request, pk=None):
         user = self.request.user
         recipe = get_object_or_404(Recipes, pk=pk)
@@ -142,12 +168,17 @@ class RecipesViewSet(viewsets.ModelViewSet):
             if cart.exists():
                 cart.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({"error": "Рецепта нет в корзине"},
-                        status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "Рецепта нет в корзине"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     @action(
         detail=True,
-        methods=("post", "delete",),
+        methods=(
+            "post",
+            "delete",
+        ),
+        permission_classes=(IsAuthenticated,),
     )
     def favorite(self, request, pk=None):
         user = self.request.user
@@ -167,19 +198,26 @@ class RecipesViewSet(viewsets.ModelViewSet):
             if chosen.exists():
                 chosen.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({"error": "Рецепта нет в избранном"},
-                        status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "Рецепта нет в избранном"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
-    @action(detail=True, methods=("get",))
+    @action(detail=True, methods=("get",), permission_classes=(IsAuthenticated,))
     def download_shopping_cart(self, request, pk=None):
         user = self.request.user
         recipes = Recipes.objects.filter(shopping_cart__user=user)
         if not recipes:
             return Response(status=status.HTTP_204_NO_CONTENT)
         response = HttpResponse(content_type=TEXT_CSV)
-        response["Content-Disposition"] = 'attachment; filename=' + SHOPCART
+        response["Content-Disposition"] = "attachment; filename=" + \
+            SHOPCART_FILENAME
         writer = csv.writer(response)
-        writer.writerow(("Recipe name", "Ingredients",))
+        writer.writerow(
+            (
+                "Recipe name",
+                "Ingredients",
+            )
+        )
         for recipe in recipes:
             ingredients = ", ".join(
                 [
@@ -187,5 +225,10 @@ class RecipesViewSet(viewsets.ModelViewSet):
                     for amount, ingredient in recipe.amount_recipe.all()
                 ]
             )
-            writer.writerow((recipe.name, ingredients,))
+            writer.writerow(
+                (
+                    recipe.name,
+                    ingredients,
+                )
+            )
         return response
