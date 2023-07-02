@@ -9,8 +9,7 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from foodgram.settings import (
     MIN_COOKING_TIME,
     HEX_VALID,
-    INGREDIENT_AMOUNT,
-    INGREDIENT_COUNT_ERROR,
+    MIN_INGREDIENT_AMOUNT,
 )
 from recipes.models import (
     AmountIngredient,
@@ -182,8 +181,10 @@ class RecipesSerializer(serializers.ModelSerializer):
 
     def validate_ingredients(self, value):
         for ingredient in value:
-            if ingredient["amount"] < INGREDIENT_AMOUNT:
-                raise serializers.ValidationError(INGREDIENT_COUNT_ERROR)
+            if ingredient["amount"] < MIN_INGREDIENT_AMOUNT:
+                raise serializers.ValidationError(
+                    "Добавьте хотя бы {MIN_INGREDIENT_AMOUNT} ингридиент"
+                )
         return value
 
 
