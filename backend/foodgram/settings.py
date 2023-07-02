@@ -11,15 +11,15 @@ MAX_COOKING_TIME = 1000
 SHOPCART_FILENAME = "shopcart.csv"
 HEX_VALID = r"^#[0-9a-fA-F]{6}$"
 """Константа для проверки цвета тагов на соотвествие HEX."""
-INGREDIENT_AMOUNT = 1
-INGREDIENT_COUNT_ERROR = f"Добавьте хотя бы {INGREDIENT_AMOUNT} ингридиент"
-
+MIN_INGREDIENT_AMOUNT = 1
+MIN_AMOUNT = 1
+MAX_AMOUNT = 1000
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-DEBUG = True
+os.getenv("DEBUG").lower() == "true"
 
 ALLOWED_HOSTS = ["*"]
 
@@ -70,6 +70,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "foodgram.wsgi.application"
+
 
 DATABASES = {
     "default": {

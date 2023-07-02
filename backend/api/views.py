@@ -36,7 +36,11 @@ class UsersViewSet(UserViewSet):
     permission_classes = (AllowAny,)
     pagination_class = PageLimitPagination
 
-    @action(methods=("GET",), detail=False, permission_classes=(IsAuthenticated,))
+    @action(
+        methods=("GET",),
+        detail=False,
+        permission_classes=(IsAuthenticated,)
+    )
     def subscriptions(self, request):
         user = request.user
         serializer = SubscribeSerializer(user, context={"request": request})
@@ -58,11 +62,15 @@ class UsersViewSet(UserViewSet):
                 {"error": "Нельзя подписатся на себя"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        subscribers = Subscribe.objects.filter(user=user, author=author)
+        subscribers = Subscribe.objects.filter(
+            user=user,
+            author=author
+        )
         if self.request.method == "POST":
             if subscribers.exists():
                 return Response(
-                    {"error": "Уже подписан"}, status=status.HTTP_400_BAD_REQUEST
+                    {"error": "Уже подписан"},
+                    status=status.HTTP_400_BAD_REQUEST
                 )
             Subscribe.objects.create(user=request.user, author=author),
             serializer = SubscribeSerializer(
@@ -169,7 +177,8 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 cart.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(
-            {"error": "Рецепта нет в корзине"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "Рецепта нет в корзине"},
+            status=status.HTTP_400_BAD_REQUEST
         )
 
     @action(
@@ -199,10 +208,15 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 chosen.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(
-            {"error": "Рецепта нет в избранном"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "Рецепта нет в избранном"},
+            status=status.HTTP_400_BAD_REQUEST
         )
 
-    @action(detail=True, methods=("get",), permission_classes=(IsAuthenticated,))
+    @action(
+        detail=True,
+        methods=("get",),
+        permission_classes=(IsAuthenticated,)
+    )
     def download_shopping_cart(self, request, pk=None):
         user = self.request.user
         recipes = Recipes.objects.filter(shopping_cart__user=user)

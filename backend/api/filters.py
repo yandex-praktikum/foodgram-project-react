@@ -17,7 +17,9 @@ class RecipesFilter(filters.FilterSet):
     """Фильтры для Рецептов."""
 
     tags = filters.ModelMultipleChoiceFilter(
-        field_name="tag__slug", to_field_name="slug", queryset=Tag.objects.all()
+        field_name="tag__slug",
+        to_field_name="slug",
+        queryset=Tag.objects.all()
     )
     is_favorited = django_filters.BooleanFilter(
         field_name="favorite_recipes", method="filter_favorites"
@@ -34,7 +36,9 @@ class RecipesFilter(filters.FilterSet):
         )
 
     def filter_favorites(self, queryset, name, value):
-        return queryset.filter(favorite__user=self.request.user) if value else queryset
+        return queryset.filter(
+            favorite__user=self.request.user
+        ) if value else queryset
 
     def filter_shopping_cart(self, queryset, name, value):
         return (
