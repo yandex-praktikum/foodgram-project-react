@@ -86,7 +86,10 @@ class FavoriteAdmin(admin.ModelAdmin):
     ordering = ("user",)
 
     def get_recipe_count(self, obj):
-        return Favorite.objects.filter(user=obj.user, recipe=obj.recipe).count()
+        return Favorite.objects.filter(
+            user=obj.user,
+            recipe=obj.recipe
+        ).count()
 
     get_recipe_count.short_description = "Количество рецептов в избранном"
 
