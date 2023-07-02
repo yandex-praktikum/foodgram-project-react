@@ -2,11 +2,22 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
-from recipes.models import Favorite, Ingredient, Recipes, ShoppingCart, Tag
+from recipes.models import (
+    Favorite,
+    Ingredient,
+    Recipes,
+    ShoppingCart,
+    Tag,
+    AmountIngredient,
+)
 
 
 class TagAdmin(admin.ModelAdmin):
     """Управление Тегами через админку."""
+
+    list_display = ("name", "color", "slug")
+    list_filter = ("name", "color", "slug")
+    search_fields = ("name", "color", "slug")
 
 
 class IngredientResource(resources.ModelResource):
@@ -40,6 +51,11 @@ class RecipesAdmin(admin.ModelAdmin):
         "cooking_time",
         "preview",
     )
+    list_filter = (
+        "author",
+        "cooking_time",
+        "tags",
+    )
     fields = (
         "name",
         "author",
@@ -61,13 +77,51 @@ class RecipesAdmin(admin.ModelAdmin):
 class FavoriteAdmin(admin.ModelAdmin):
     """Управление Избранным через админку."""
 
+    list_display = (
+        "user",
+        "get_recipe_count",
+    )
+    list_filter = ("user",)
+    search_fields = ("user",)
+    ordering = ("user",)
+
+    def get_recipe_count(self, obj):
+        return Favorite.objects.filter(user=obj.user, recipe=obj.recipe).count()
+
+    get_recipe_count.short_description = "Количество рецептов в избранном"
+
 
 class ShoppingCartAdmin(admin.ModelAdmin):
     """Управление Корзиной через админку."""
 
+    list_display = (
+        "user",
+        "recipe",
+    )
+    list_filter = ("user",)
+    search_fields = (
+        "user",
+        "recipe",
+    )
+    ordering = ("user",)
+
+
+class AmountIngredientAdmin(admin.ModelAdmin):
+    """Управление количеством через админку."""
+
+    list_display = ("recipe", "ingredient", "amount")
+    list_filter = ("recipe",)
+    search_fields = (
+        "recipe",
+        "ingredient",
+        "amount",
+    )
+    ordering = ("recipe",)
+
 
 admin.site.register(Ingredient, IngredientAdmin)
-admin.site.register(Tag)
+admin.site.register(Tag, TagAdmin)
 admin.site.register(Recipes, RecipesAdmin)
-admin.site.register(Favorite)
-admin.site.register(ShoppingCart)
+admin.site.register(Favorite, FavoriteAdmin)
+admin.site.register(ShoppingCart, ShoppingCartAdmin)
+admin.site.register(AmountIngredient, AmountIngredientAdmin)
