@@ -183,7 +183,7 @@ class RecipesSerializer(serializers.ModelSerializer):
         for ingredient in value:
             if ingredient["amount"] < MIN_INGREDIENT_AMOUNT:
                 raise serializers.ValidationError(
-                    "Добавьте хотя бы {MIN_INGREDIENT_AMOUNT} ингридиент"
+                    f"Добавьте хотя бы {MIN_INGREDIENT_AMOUNT} ингридиент"
                 )
         return value
 

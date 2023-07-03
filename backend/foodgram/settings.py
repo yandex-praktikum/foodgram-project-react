@@ -12,8 +12,7 @@ SHOPCART_FILENAME = "shopcart.csv"
 HEX_VALID = r"^#[0-9a-fA-F]{6}$"
 """Константа для проверки цвета тагов на соотвествие HEX."""
 MIN_INGREDIENT_AMOUNT = 1
-MIN_AMOUNT = 1
-MAX_AMOUNT = 1000
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -71,23 +70,17 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "foodgram.wsgi.application"
 
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB', 'django'),
+        'USER': os.getenv('POSTGRES_USER', 'django'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', ''),
+        'PORT': os.getenv('DB_PORT', 5432)
     }
 }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.getenv('POSTGRES_DB', 'django'),
-#         'USER': os.getenv('POSTGRES_USER', 'django'),
-#         'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
-#         'HOST': os.getenv('DB_HOST', ''),
-#         'PORT': os.getenv('DB_PORT', 5432)
-#     }
-# }
 
 
 AUTH_PASSWORD_VALIDATORS = [

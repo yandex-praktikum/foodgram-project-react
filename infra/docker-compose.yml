@@ -1,5 +1,4 @@
 version: '3.3'
-name: dev_food
 
 services:
 
