@@ -4,12 +4,11 @@ from users.models import User
 from foodgram.settings import (
     MIN_COOKING_TIME,
     MAX_COOKING_TIME,
-    MIN_AMOUNT,
-    MAX_AMOUNT,
+    MIN_INGREDIENT_AMOUNT,
 )
 from recipes.validators import validate_hex_color
 
-
+MAX_INGREDIENT_AMOUNT = 1000
 COOKING_ERROR = f"Время в минутах от {MIN_COOKING_TIME} до {MAX_COOKING_TIME}."
 
 
@@ -167,12 +166,12 @@ class AmountIngredient(models.Model):
         verbose_name="Количество ингридиентов",
         default=1,
         validators=(
-            MinValueValidator(MIN_AMOUNT),
-            MaxValueValidator(MAX_AMOUNT),
+            MinValueValidator(MIN_INGREDIENT_AMOUNT),
+            MaxValueValidator(MAX_INGREDIENT_AMOUNT),
         ),
         error_messages={
             "invalid":
-            "Добавьте хотя бы {MIN_INGREDIENT_AMOUNT} ингридиент"
+            f"Добавьте хотя бы {MIN_INGREDIENT_AMOUNT} ингридиент"
         },
     )
 
