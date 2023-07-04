@@ -10,6 +10,7 @@ from foodgram.settings import (
     MIN_COOKING_TIME,
     HEX_VALID,
     MIN_INGREDIENT_AMOUNT,
+    MAX_INGREDIENT_AMOUNT,
 )
 from recipes.models import (
     AmountIngredient,
@@ -184,6 +185,10 @@ class RecipesSerializer(serializers.ModelSerializer):
             if ingredient["amount"] < MIN_INGREDIENT_AMOUNT:
                 raise serializers.ValidationError(
                     f"Добавьте хотя бы {MIN_INGREDIENT_AMOUNT} ингридиент"
+                )
+            if ingredient["amount"] > MAX_INGREDIENT_AMOUNT:
+                raise serializers.ValidationError(
+                    f"Не больше {MAX_INGREDIENT_AMOUNT} ингридиентов!"
                 )
         return value
 

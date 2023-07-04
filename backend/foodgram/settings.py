@@ -12,7 +12,7 @@ SHOPCART_FILENAME = "shopcart.csv"
 HEX_VALID = r"^#[0-9a-fA-F]{6}$"
 """Константа для проверки цвета тагов на соотвествие HEX."""
 MIN_INGREDIENT_AMOUNT = 1
-
+MAX_INGREDIENT_AMOUNT = 1000
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
