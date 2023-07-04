@@ -131,6 +131,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=("get",))
     def get_recipes(self, request):
         recipes = Recipes.objects.all()
+        print(recipes)
         serializer = RecipesSerializer(recipes, many=True)
         return Response(serializer.data)
 

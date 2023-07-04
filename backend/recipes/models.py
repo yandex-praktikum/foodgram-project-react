@@ -181,4 +181,4 @@ class AmountIngredient(models.Model):
         verbose_name_plural = "Количество ингридиентов для рецепта"
 
     def __str__(self):
-        return self.recipe.name, self.ingredient.name
+        return self.recipe.name
