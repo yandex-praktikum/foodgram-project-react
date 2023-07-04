@@ -5,10 +5,11 @@ from foodgram.settings import (
     MIN_COOKING_TIME,
     MAX_COOKING_TIME,
     MIN_INGREDIENT_AMOUNT,
+    MAX_INGREDIENT_AMOUNT,
 )
 from recipes.validators import validate_hex_color
 
-MAX_INGREDIENT_AMOUNT = 1000
+
 COOKING_ERROR = f"Время в минутах от {MIN_COOKING_TIME} до {MAX_COOKING_TIME}."
 
 
