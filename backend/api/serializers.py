@@ -176,7 +176,7 @@ class RecipesSerializer(serializers.ModelSerializer):
 
     def validate_tags(self, value):
         for tag in value:
-            if not Tag.objects.filter(name=tag["name"]).exists():
+            if not Tag.objects.filter(name=tag).exists():
                 raise serializers.ValidationError(TAG_VALID)
         return value
 
