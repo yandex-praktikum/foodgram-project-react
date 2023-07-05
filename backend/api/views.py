@@ -39,11 +39,13 @@ class UsersViewSet(UserViewSet):
     @action(
         methods=("GET",),
         detail=False,
-        permission_classes=(IsAuthenticated,)
+        permission_classes=(IsAuthenticated,),
+        pagination_class=None,
     )
     def subscriptions(self, request):
         user = request.user
         serializer = SubscribeSerializer(user, context={"request": request})
+        print(serializer.data, '__страница_подписки___')
         return Response(serializer.data)
 
     @action(
@@ -91,6 +93,7 @@ class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (AllowAny,)
+    pagination_class = None
 
     @action(detail=False)
     def get_tag(self, request):
@@ -106,6 +109,7 @@ class IngredientViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend, SearchFilter)
     filterset_class = IngredientsFilter
     search_fields = ("name",)
+    pagination_class = None
 
     @action(detail=False)
     def get_ingredients(self, request):
@@ -131,7 +135,6 @@ class RecipesViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=("get",))
     def get_recipes(self, request):
         recipes = Recipes.objects.all()
-        print(recipes)
         serializer = RecipesSerializer(recipes, many=True)
         return Response(serializer.data)
 
@@ -145,6 +148,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         permission_classes=(IsAuthenticated,),
     )
     def post_recipes(self, request):
+        print(request.data)
         serializer = RecipesPostUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
