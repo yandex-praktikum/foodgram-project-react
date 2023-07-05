@@ -40,12 +40,11 @@ class UsersViewSet(UserViewSet):
         methods=("GET",),
         detail=False,
         permission_classes=(IsAuthenticated,),
-        pagination_class=None,
+        # pagination_class=None,
     )
     def subscriptions(self, request):
         user = request.user
         serializer = SubscribeSerializer(user, context={"request": request})
-        print(serializer.data, '__страница_подписки___')
         return Response(serializer.data)
 
     @action(
