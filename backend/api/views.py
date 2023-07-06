@@ -1,7 +1,7 @@
 import csv
 
 from api.filters import IngredientsFilter, RecipesFilter
-from api.pagination import PageLimitPagination
+from api.pagination import PageNumberPagination
 from api.serializers import (
     CartSerializer,
     CustomUserSerializer,
@@ -17,7 +17,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import (
+    AllowAny, IsAuthenticated, SAFE_METHODS,
+)
+from .permissions import IsAuthorOrAdminOrReadOnly
 from rest_framework.response import Response
 from djoser.views import UserViewSet
 from foodgram.settings import SHOPCART_FILENAME
@@ -36,13 +39,11 @@ class UsersViewSet(UserViewSet):
     serializer_class = CustomUserSerializer
     search_fields = ("username", "email")
     permission_classes = (AllowAny,)
-    pagination_class = PageLimitPagination
 
     @action(
         methods=("GET",),
         detail=False,
         permission_classes=(IsAuthenticated,),
-        # pagination_class=None,
     )
     def subscriptions(self, request):
         user = request.user
@@ -122,16 +123,22 @@ class IngredientViewSet(viewsets.ModelViewSet):
 class RecipesViewSet(viewsets.ModelViewSet):
     """Вьюсет для создания рецептов"""
 
-    queryset = Recipes.objects.all().order_by("id")
-    permission_classes = (AllowAny,)
-    pagination_class = PageLimitPagination
+    queryset = Recipes.objects.all()
+    permission_classes = (IsAuthorOrAdminOrReadOnly,)
+    pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipesFilter
 
     def get_serializer_class(self):
-        if self.request.method == "GET":
+        if self.action == SAFE_METHODS:
             return RecipesSerializer
         return RecipesPostUpdateSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(author=self.request.user, partial=False)
 
     @action(detail=False, methods=("get",))
     def get_recipes(self, request):
