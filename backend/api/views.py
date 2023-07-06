@@ -1,7 +1,7 @@
 import csv
 
 from api.filters import IngredientsFilter, RecipesFilter
-from api.pagination import PageNumberPagination
+from api.pagination import PageLimitPagination
 from api.serializers import (
     CartSerializer,
     CustomUserSerializer,
@@ -39,6 +39,7 @@ class UsersViewSet(UserViewSet):
     serializer_class = CustomUserSerializer
     search_fields = ("username", "email")
     permission_classes = (AllowAny,)
+    pagination_class = PageLimitPagination
 
     @action(
         methods=("GET",),
@@ -125,7 +126,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
     queryset = Recipes.objects.all()
     permission_classes = (IsAuthorOrAdminOrReadOnly,)
-    pagination_class = PageNumberPagination
+    pagination_class = PageLimitPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipesFilter
 
