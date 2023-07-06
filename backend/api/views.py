@@ -21,7 +21,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from djoser.views import UserViewSet
 from foodgram.settings import SHOPCART_FILENAME
-from recipes.models import Favorite, Ingredient, Recipes, ShoppingCart, Tag
+from recipes.models import (
+    Favorite, Ingredient, Recipes, ShoppingCart, Tag, AmountIngredient
+)
 from users.models import Subscribe, User
 
 TEXT_CSV = "text/csv"
@@ -217,11 +219,11 @@ class RecipesViewSet(viewsets.ModelViewSet):
         )
 
     @action(
-        detail=True,
-        methods=("get",),
-        permission_classes=(IsAuthenticated,)
+        detail=False,
+        methods=['get'],
+        permission_classes=[IsAuthenticated, ]
     )
-    def download_shopping_cart(self, request, pk=None):
+    def download_shopping_cart(self, request):
         user = self.request.user
         recipes = Recipes.objects.filter(shopping_cart__user=user)
         if not recipes:
@@ -237,16 +239,21 @@ class RecipesViewSet(viewsets.ModelViewSet):
             )
         )
         for recipe in recipes:
-            ingredients = ", ".join(
-                [
-                    f"{amount} {ingredient.name}"
-                    for amount, ingredient in recipe.amount_recipe.all()
-                ]
-            )
+            print(recipe.id)
+            i = AmountIngredient.objects.filter(id=recipe.id)
+            print(i.recipe)
+            print(i.ingredient)
+
+            # ingredients = ", ".join(
+            #     [
+            #         f"{amount} {ingredient.name}"
+            #         for amount, ingredient in recipe.amount_recipe.all()
+            #     ]
+            # )
             writer.writerow(
                 (
                     recipe.name,
-                    ingredients,
+                    # ingredients,
                 )
             )
         return response
