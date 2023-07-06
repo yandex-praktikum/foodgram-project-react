@@ -236,24 +236,19 @@ class RecipesViewSet(viewsets.ModelViewSet):
             (
                 "Recipe name",
                 "Ingredients",
+                'Ingredient Amount',
             )
         )
         for recipe in recipes:
-            print(recipe.id)
-            i = AmountIngredient.objects.filter(id=recipe.id)
-            print(i.recipe)
-            print(i.ingredient)
-
-            # ingredients = ", ".join(
-            #     [
-            #         f"{amount} {ingredient.name}"
-            #         for amount, ingredient in recipe.amount_recipe.all()
-            #     ]
-            # )
-            writer.writerow(
-                (
-                    recipe.name,
-                    # ingredients,
+            ingredient_data = AmountIngredient.objects.filter(recipe=recipe)
+            for data in ingredient_data:
+                ingredient_name = data.ingredient.name
+                ingredient_amount = data.amount
+                writer.writerow(
+                    (
+                        recipe.name,
+                        ingredient_name,
+                        ingredient_amount,
+                    )
                 )
-            )
         return response
