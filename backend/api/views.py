@@ -17,7 +17,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import (
+    AllowAny, IsAuthenticated, SAFE_METHODS,
+)
+from .permissions import IsAuthorOrAdminOrReadOnly
 from rest_framework.response import Response
 from djoser.views import UserViewSet
 from foodgram.settings import SHOPCART_FILENAME
@@ -38,16 +41,23 @@ class UsersViewSet(UserViewSet):
     permission_classes = (AllowAny,)
     pagination_class = PageLimitPagination
 
+    def get_queryset(self):
+        return User.objects.filter(subscribing__user=self.request.user)
+
     @action(
         methods=("GET",),
         detail=False,
         permission_classes=(IsAuthenticated,),
-        # pagination_class=None,
     )
     def subscriptions(self, request):
-        user = request.user
-        serializer = SubscribeSerializer(user, context={"request": request})
-        return Response(serializer.data)
+        user = self.request.user
+        user_subscriptions = user.subscriber.all()
+        authors = [item.author.id for item in user_subscriptions]
+        queryset = User.objects.filter(pk__in=authors)
+        paginated_queryset = self.paginate_queryset(queryset)
+        serializer = SubscribeSerializer(paginated_queryset, many=True)
+
+        return self.get_paginated_response(serializer.data)
 
     @action(
         methods=(
@@ -122,16 +132,22 @@ class IngredientViewSet(viewsets.ModelViewSet):
 class RecipesViewSet(viewsets.ModelViewSet):
     """Вьюсет для создания рецептов"""
 
-    queryset = Recipes.objects.all().order_by("id")
-    permission_classes = (AllowAny,)
+    queryset = Recipes.objects.all()
+    permission_classes = (IsAuthorOrAdminOrReadOnly,)
     pagination_class = PageLimitPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipesFilter
 
     def get_serializer_class(self):
-        if self.request.method == "GET":
+        if self.action == SAFE_METHODS:
             return RecipesSerializer
         return RecipesPostUpdateSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(author=self.request.user, partial=False)
 
     @action(detail=False, methods=("get",))
     def get_recipes(self, request):

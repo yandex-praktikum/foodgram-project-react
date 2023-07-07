@@ -212,13 +212,12 @@ class RecipesPostUpdateSerializer(RecipesSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        tags_data = validated_data.pop("tags")
+        # print(validated_data)
+        tags_data = validated_data.pop('tags')
         ingredients_data = validated_data.pop("amount_recipe")
-        recipe = Recipes.objects.create(
-            author=self.context["request"].user, **validated_data
-        )
-        for tag in tags_data:
-            recipe.tags.add(tag)
+        recipe = Recipes.objects.create(**validated_data)
+        recipe.tags.set(tags_data)
+
         for ingredient_data in ingredients_data:
             pk = ingredient_data["ingredient"]["id"]
             ingredient = Ingredient.objects.get(pk=pk)
@@ -254,6 +253,14 @@ class RecipesPostUpdateSerializer(RecipesSerializer):
                 )
         return instance
 
+    def to_representation(self, instance):
+        """Преобразует объект модели в словарь. Создает экземпляр
+        RecipesSerializer и возвращает данные сериализатора.
+        Нужно что бы теги в модели возвращали не id, а список полей."""
+        request = self.context.get('request')
+        context = {'request': request}
+        return RecipesSerializer(instance, context=context).data
+
 
 class CartSerializer(RecipesSerializer):
     """Сериалайзер для получения части полей Рецепта."""
@@ -268,6 +275,7 @@ class SubscribeSerializer(CustomUserSerializer):
 
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -288,3 +296,11 @@ class SubscribeSerializer(CustomUserSerializer):
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
+
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return Subscribe.objects.filter(
+                user=request.user, author=obj
+            ).exists()
+        return False
