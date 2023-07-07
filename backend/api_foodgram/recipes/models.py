@@ -1,6 +1,8 @@
-from django.core.validators import MinValueValidator
+import re
+
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
-from ..users.models import User
+from ..users.models import CustomUser
 
 
 class Ingredient(models.Model):
@@ -37,7 +39,11 @@ class Tag(models.Model):
     slug = models.SlugField(
         verbose_name='Уникальный слаг',
         max_length=200,
-        unique=True
+        unique=True,
+        validators=RegexValidator(
+            regex=re.compile(r'^[-a-zA-Z0-9_]+$'),
+            message='Проверьте правильность написания слага'
+        )
     )
 
     def __str__(self):
@@ -55,19 +61,22 @@ class Recipe(models.Model):
         verbose_name='Время приготовления',
         validators=MinValueValidator(1)
     )
-    tags = models.ForeignKey(
+    tags = models.ManyToManyField(
         Tag,
         verbose_name='Список тегов',
+        related_name='recipes',
         on_delete=models.CASCADE
     )
     author = models.ForeignKey(
-        User,
+        CustomUser,
         verbose_name='Автор публикации',
+        related_name='recipes',
         on_delete=models.CASCADE
     )
-    ingredients = models.ForeignKey(
+    ingredients = models.ManyToManyField(
         Ingredient,
         verbose_name='Список ингредиентов',
+        related_name='recipes',
         on_delete=models.CASCADE
     )
 
