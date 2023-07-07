@@ -41,15 +41,23 @@ class UsersViewSet(UserViewSet):
     permission_classes = (AllowAny,)
     pagination_class = PageLimitPagination
 
+    def get_queryset(self):
+        return User.objects.filter(subscribing__user=self.request.user)
+
     @action(
         methods=("GET",),
         detail=False,
         permission_classes=(IsAuthenticated,),
     )
     def subscriptions(self, request):
-        user = request.user
-        serializer = SubscribeSerializer(user, context={"request": request})
-        return Response(serializer.data)
+        user = self.request.user
+        user_subscriptions = user.subscriber.all()
+        authors = [item.author.id for item in user_subscriptions]
+        queryset = User.objects.filter(pk__in=authors)
+        paginated_queryset = self.paginate_queryset(queryset)
+        serializer = SubscribeSerializer(paginated_queryset, many=True)
+
+        return self.get_paginated_response(serializer.data)
 
     @action(
         methods=(

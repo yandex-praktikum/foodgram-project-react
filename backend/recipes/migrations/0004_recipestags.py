@@ -14,9 +14,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='RecipesTags',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('recipe_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='recipes.recipes', verbose_name='id рецепта')),
-                ('tag_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='recipes.tag', verbose_name='id тега')),
+                ('id', models.BigAutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('recipe_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                 to='recipes.recipes', verbose_name='id рецепта')),
+                ('tag_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                 to='recipes.tag', verbose_name='id тега')),
             ],
             options={
                 'verbose_name': 'Тег рецепта',
