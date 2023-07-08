@@ -2,7 +2,7 @@
 
 ## Cервис для создания рецептов.
 
-(Перейти)[https://baronfel-foodgram.ddns.net/]
+[Перейти](https://baronfel-foodgram.ddns.net/)
 
 ### Автор:
 - [Михаил Приселков](https://github.com/BaronFAS "Github page")
