@@ -190,6 +190,7 @@ class RecipesMinifieldSerializer(serializers.ModelSerializer):
 
 class SubscriptionsSerializer(serializers.ModelSerializer, IsSubscribedMixin,
                               RecipesCountMixin):
+    recipes = RecipesMinifieldSerializer(many=True)
 
     class Meta:
         model = User
@@ -201,8 +202,9 @@ class SubscriptionsSerializer(serializers.ModelSerializer, IsSubscribedMixin,
         if request.GET.get('recipes_limit'):
             # int?
             recipes_limit = request.GET.get('recipes_limit')
-            queryset = Recipes.objects.filter(author__id=obj.id).order_by('id')[
-                :recipes_limit]
+            queryset = Recipes.objects.filter(
+                author__id=obj.id
+            ).order_by('id')[:recipes_limit]
         else:
             queryset = Recipes.objects.filter(author__id=obj.id).order_by('id')
         return RecipesMinifieldSerializer(queryset, many=True).data

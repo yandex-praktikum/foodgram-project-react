@@ -14,10 +14,11 @@ from .filters import RecipesFilter
 from .pagination import OnDemandResultsPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (FavoritesSerializer, IngredientsSerializer,
-                          RecipesGetSerializer, RecipesPostSerializer,
-                          SetPasswordSerializer, ShoppingCartSerializer,
-                          SubscriptionsSerializer, TagsSerializer,
-                          UserCreateSerializer, UserGetSerializer)
+                          RecipesGetSerializer, RecipesMinifieldSerializer,
+                          RecipesPostSerializer, SetPasswordSerializer,
+                          ShoppingCartSerializer, SubscriptionsSerializer,
+                          TagsSerializer, UserCreateSerializer,
+                          UserGetSerializer)
 from recipes.models import (Favorites, Ingredients, Recipes, Shopping_cart,
                             Subscriptions, Tags)
 
@@ -112,9 +113,13 @@ class RecipesViewSet(viewsets.ModelViewSet):
         return 'Рецепты'
 
 
-class SubscriptionsViewSet(viewsets.ModelViewSet):
+class SubscriptionsViewSet(mixins.CreateModelMixin,
+                           mixins.ListModelMixin,
+                           mixins.RetrieveModelMixin,
+                           viewsets.GenericViewSet):
     serializer_class = SubscriptionsSerializer
     permission_classes = (IsAuthenticated,)
+    pagination_class = OnDemandResultsPagination
 
     def get_queryset(self):
         return get_list_or_404(User, following__user=self.request.user)
@@ -137,14 +142,20 @@ class SubscriptionsViewSet(viewsets.ModelViewSet):
             return Response(data, status=HTTPStatus.BAD_REQUEST)
         Subscriptions.objects.create(
             user=request.user, following=following)
-        return Response(status=HTTPStatus.CREATED)
+
+        new_queryset = Recipes.objects.filter(author=author_id)
+        serializer = RecipesMinifieldSerializer(new_queryset,
+                                                context={'request': request},
+                                                many=True,)
+
+        return Response(serializer.data, status=HTTPStatus.CREATED)
 
     def delete(self, request, *args, **kwargs):
 
         author_id = self.kwargs['users_id']
         user_id = request.user.id
 
-        following, subscribe = self.check_subscriptions(user_id, author_id)
+        _, subscribe = self.check_subscriptions(user_id, author_id)
 
         if subscribe:
             subscribe.delete()
