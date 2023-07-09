@@ -1,0 +1,28 @@
+version: '3.7'
+
+services:
+
+  db:
+    container_name: db
+    image: postgres:14.1
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    volumes:
+      - "./volumes/data:/data"
+    environment:
+      - POSTGRES_PASSWORD=<password>
+      - PGDATA=/data
+
+  adminer:
+    container_name: adminer
+    image: adminer
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+
+  backend:
+    env_file: ../.env
+    build:
+      context: ../backend
+      dockerfile: Dockerfile

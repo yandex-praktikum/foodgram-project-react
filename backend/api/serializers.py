@@ -50,7 +50,8 @@ class UserCreateSerializer(serializers.ModelSerializer, IsSubscribedMixin):
 
     class Meta:
         model = User
-        fields = ('email', 'username', 'first_name', 'last_name',)
+        fields = ('email', 'pk', 'username', 'first_name', 'last_name',)
+        read_only_fields = ('pk',)
 
 
 class SetPasswordSerializer(serializers.Serializer):

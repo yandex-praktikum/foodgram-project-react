@@ -12,7 +12,7 @@ from django.shortcuts import get_object_or_404, get_list_or_404
 
 from .filters import RecipesFilter
 from .pagination import OnDemandResultsPagination
-from .permissions import IsAuthorOrReadOnly
+from .permissions import IsAuthorOrReadOnly, IsAuthenticatedOrPostOnly
 from .serializers import (FavoritesSerializer, IngredientsSerializer,
                           RecipesGetSerializer, RecipesMinifieldSerializer,
                           RecipesPostSerializer, SetPasswordSerializer,
@@ -33,10 +33,11 @@ class UsersViewSet(
     queryset = User.objects.all()
     serializer_class = UserGetSerializer
     pagination_class = OnDemandResultsPagination
+    permission_classes = (IsAuthenticatedOrPostOnly,)
 
     def get_serializer_class(self):
 
-        if self.action == "reset_password":
+        if self.action == "set_password":
             return SetPasswordSerializer
         if self.request.method == 'POST':
             return UserCreateSerializer
@@ -58,7 +59,7 @@ class UsersViewSet(
         detail=False,
         permission_classes=(IsAuthenticated,),
     )
-    def reset_password(self, request):
+    def set_password(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.request.user.set_password(serializer.data["new_password"])
