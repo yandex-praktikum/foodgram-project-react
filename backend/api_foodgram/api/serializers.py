@@ -23,8 +23,8 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     tags = TagSerializer(read_only=True, many=True)
     ingredients = IngredientSerializer(read_only=True, many=True)
-    is_favorited = serializers.BooleanField()
-    is_in_shopping_cart = serializers.BooleanField()
+    is_favorited = serializers.BooleanField()  # where should be this field?
+    is_in_shopping_cart = serializers.BooleanField()  # where should be this field?
 
     class Meta:
         model = Recipe
