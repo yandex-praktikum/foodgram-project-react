@@ -42,7 +42,23 @@ class UsersViewSet(UserViewSet):
     pagination_class = PageLimitPagination
 
     def get_queryset(self):
+        id = self.kwargs.get("id")
+        if id is not None:
+            return User.objects.filter(pk=id)
+        else:
+            return User.objects.all()
+
+    def get_subscription_queryset(self):
         return User.objects.filter(subscribing__user=self.request.user)
+
+    @action(
+        methods=("GET",),
+        detail=False,
+        permission_classes=(IsAuthenticated,),
+    )
+    def my(self, request):
+        serializer = CustomUserSerializer(request.user)
+        return Response(serializer.data)
 
     @action(
         methods=("GET",),
