@@ -164,6 +164,8 @@ class RecipesSerializer(serializers.ModelSerializer):
         return ShoppingCart.objects.filter(user=user, recipe=obj.id).exists()
 
     def validate_name(self, value):
+        if self.context["request"].method == "PATCH":
+            return value
         if Recipes.objects.filter(name=value).exists():
             raise serializers.ValidationError(RECIPES_VALID)
         return value
