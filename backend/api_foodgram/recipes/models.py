@@ -113,8 +113,30 @@ class IngredientInRecipe(models.Model):
         return f'{self.ingredient} – {self.amount}'
 
 
-class Favourite(models.Model):
-    pass
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        CustomUser,
+        verbose_name='Пользователь',
+        related_name='favorites',
+        on_delete=models.CASCADE
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        verbose_name='Рецепт',
+        related_name='favorites',
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_favorite_recipe'
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.recipe} в списке избранного у {self.user}'
 
 
 class ShoppingCart(models.Model):
