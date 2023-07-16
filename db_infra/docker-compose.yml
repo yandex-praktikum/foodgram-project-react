@@ -1,3 +1,4 @@
+# TODO удалить docker-compose up -d --build
 version: '3.7'
 
 services:
@@ -11,7 +12,7 @@ services:
     volumes:
       - "./volumes/data:/data"
     environment:
-      - POSTGRES_PASSWORD=<password>
+      - POSTGRES_PASSWORD=mysecretpassword
       - PGDATA=/data
 
   adminer:
@@ -23,6 +24,8 @@ services:
 
   backend:
     env_file: ../.env
+    depends_on:
+      - db
     build:
       context: ../backend
       dockerfile: Dockerfile
