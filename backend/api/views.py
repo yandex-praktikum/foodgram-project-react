@@ -1,8 +1,12 @@
+from datetime import datetime
 from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
+from django.db.models import Sum
 from django_filters.rest_framework import DjangoFilterBackend
+from django.http import HttpResponse
+
 from djoser import utils
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
@@ -19,8 +23,8 @@ from .serializers import (FavoritesSerializer, IngredientsSerializer,
                           ShoppingCartSerializer, SubscriptionsSerializer,
                           TagsSerializer, UserCreateSerializer,
                           UserGetSerializer)
-from recipes.models import (Favorites, Ingredients, Recipes, Shopping_cart,
-                            Subscriptions, Tags)
+from recipes.models import (Favorites, Ingredients, Recipes, RecipeIngredient,
+                            Shopping_cart, Subscriptions, Tags)
 
 User = get_user_model()
 
@@ -94,7 +98,6 @@ class TagsViewSet(viewsets.ReadOnlyModelViewSet):
 
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = Recipes.objects.all().select_related()
-    serializer_class = RecipesGetSerializer
     permission_classes = (IsAuthorOrReadOnly,)
     pagination_class = OnDemandResultsPagination
     filter_backends = (DjangoFilterBackend,)
@@ -109,6 +112,41 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    @action(
+        detail=False,
+        permission_classes=[IsAuthenticated]
+    )
+    def download_shopping_cart(self, request):
+        user = request.user
+        if not user.buyer.all().exists():
+            return Response(status=HTTPStatus.BAD_REQUEST)
+
+        ingredients = RecipeIngredient.objects.filter(
+            recipe__purchase__user=request.user
+        ).values(
+            'ingredient__name',
+            'ingredient__measurement_unit'
+        ).annotate(amount=Sum('amount'))
+
+        today = datetime.today()
+        shopping_list = (
+            f'Список покупок для: {user.get_full_name()}\n\n'
+            f'Дата: {today:%Y-%m-%d}\n\n'
+        )
+        shopping_list += '\n'.join([
+            f'- {ingredient["ingredient__name"]} '
+            f'({ingredient["ingredient__measurement_unit"]})'
+            f' - {ingredient["amount"]}'
+            for ingredient in ingredients
+        ])
+        shopping_list += f'\n\nFoodgram ({today:%Y})'
+
+        filename = f'{user.username}_shopping_list.txt'
+        response = HttpResponse(shopping_list, content_type='text/plain')
+        response['Content-Disposition'] = f'attachment; filename={filename}'
+
+        return response
 
     def get_view_name(self):
         return 'Рецепты'
