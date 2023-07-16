@@ -102,7 +102,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
 
-        if self.request.method == 'GET':
+        if self.request.method in SAFE_METHODS:
             return RecipesGetSerializer
         else:
             return RecipesPostSerializer

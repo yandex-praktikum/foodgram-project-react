@@ -13,13 +13,6 @@ from users.models import FoodgramUser
 class Command(BaseCommand):
     def handle(self, *args, **options):
 
-        bulk_data = []
-        for index in range(10):
-            bulk_data.append(FoodgramUser(username=f'user{index}', email=f'{index}@ya.ru'))
-        FoodgramUser.objects.bulk_create(bulk_data)
-
-        return
-
         with open('../data/ingredients.json', 'rb') as f:
             data = json.load(f)
             nubmber_import = 0

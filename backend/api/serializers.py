@@ -6,7 +6,7 @@ from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
 from foodgram_backend.settings import PASSWORD_MAX_LENGTH
-from recipes.models import Ingredients, RecipeIngredient, Recipes, Tags
+from recipes.models import Ingredients, RecipeIngredient, RecipeTag, Recipes, Tags
 
 User = get_user_model()
 
@@ -166,6 +166,65 @@ class RecipesPostSerializer(serializers.ModelSerializer):
         model = Recipes
         fields = ('tags', 'ingredients', 'name', 'image', 'text',
                   'cooking_time')
+
+    def validate_ingredients(self, value):
+        ingredients_list = []
+        ingredients = value
+        for ingredient in ingredients:
+            if ingredient['amount'] < 1:
+                raise serializers.ValidationError(
+                    'Количество должно быть не менее 1!')
+            id_to_check = ingredient['ingredient']['id']
+            ingredient_to_check = Ingredients.objects.filter(id=id_to_check)
+            if not ingredient_to_check.exists():
+                raise serializers.ValidationError(
+                    'Продукта нет в базе!')
+            if ingredient_to_check in ingredients_list:
+                raise serializers.ValidationError(
+                    'Продукты повторяются в рецепте!')
+            ingredients_list.append(ingredient_to_check)
+        return value
+
+    def add_tags_and_ingredients(self, tags_data, ingredients, recipe):
+        for tag_data in tags_data:
+            recipe.tags.add(tag_data)
+            recipe.save()
+        for ingredient in ingredients:
+            ingredientrecipe = RecipeIngredient.objects.create(
+                ingredient_id=ingredient['ingredient']['id'],
+                recipe=recipe)
+            ingredientrecipe.amount = ingredient['amount']
+            ingredientrecipe.save()
+        return recipe
+
+    def create(self, validated_data):
+        author = validated_data.get('author')
+        tags_data = validated_data.pop('tags')
+        name = validated_data.get('name')
+        image = validated_data.get('image')
+        text = validated_data.get('text')
+        cooking_time = validated_data.get('cooking_time')
+        ingredients = validated_data.pop('ingredientrecipes')
+        recipe = Recipes.objects.create(
+            author=author,
+            name=name,
+            image=image,
+            text=text,
+            cooking_time=cooking_time,
+        )
+        recipe = self.add_tags_and_ingredients(tags_data, ingredients, recipe)
+        return recipe
+
+    def update(self, instance, validated_data):
+        tags_data = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredientrecipes')
+        RecipeTag.objects.filter(recipe=instance).delete()
+        RecipeIngredient.objects.filter(recipe=instance).delete()
+        instance = self.add_tags_and_ingredients(
+            tags_data, ingredients, instance)
+        super().update(instance, validated_data)
+        instance.save()
+        return instance
 
 
 # TODO зачем два одинаковых сериалайзера?

@@ -145,3 +145,4 @@ static/
 */media
 
 .vscode
+*.bak
