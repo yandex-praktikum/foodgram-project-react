@@ -119,6 +119,7 @@ class RecipesGetSerializer(serializers.ModelSerializer):
         many=True,
         source='ingredientrecipes',)
     author = UserGetSerializer(read_only=True)
+    image = Base64ImageField()
 
     class Meta:
         model = Recipes
@@ -141,6 +142,19 @@ class RecipesGetSerializer(serializers.ModelSerializer):
             return request.user.buyer.filter(recipe=obj.id).exists()
 
         return False
+
+
+class RecipesShortSerializer(serializers.ModelSerializer):
+    image = Base64ImageField()
+
+    class Meta:
+        model = Recipes
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time'
+        )
 
 
 class RecipesImageFild(serializers.ImageField):
@@ -228,14 +242,7 @@ class RecipesPostSerializer(serializers.ModelSerializer):
 
 
 # TODO зачем два одинаковых сериалайзера?
-class FavoritesSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    name = serializers.CharField()
-    cooking_time = serializers.IntegerField()
-    image = Base64ImageField(max_length=None, use_url=False,)
-
-
-class ShoppingCartSerializer(serializers.Serializer):
+class CollectionSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
     cooking_time = serializers.IntegerField()

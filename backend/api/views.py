@@ -17,10 +17,10 @@ from django.shortcuts import get_object_or_404, get_list_or_404
 from .filters import RecipesFilter
 from .pagination import OnDemandResultsPagination
 from .permissions import IsAuthorOrReadOnly, IsAuthenticatedOrPostOnly
-from .serializers import (FavoritesSerializer, IngredientsSerializer,
+from .serializers import (CollectionSerializer, IngredientsSerializer,
                           RecipesGetSerializer, RecipesMinifieldSerializer,
-                          RecipesPostSerializer, SetPasswordSerializer,
-                          ShoppingCartSerializer, SubscriptionsSerializer,
+                          RecipesPostSerializer, RecipesShortSerializer,
+                          SetPasswordSerializer, SubscriptionsSerializer,
                           TagsSerializer, UserCreateSerializer,
                           UserGetSerializer)
 from recipes.models import (Favorites, Ingredients, Recipes, RecipeIngredient,
@@ -113,6 +113,45 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+    def add_to_collection(self, model, user, recipe__id):
+        if model.objects.filter(user=user, recipe__id=recipe__id).exists():
+            return Response({'errors': 'Рецепт уже добавлен'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        recipe = get_object_or_404(Recipes, id=recipe__id)
+        model.objects.create(user=user, recipe=recipe)
+        serializer = RecipesShortSerializer(recipe)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete_from_collection(self, model, user, recipe__id):
+        obj = model.objects.filter(user=user, recipe__id=recipe__id)
+        if obj.exists():
+            obj.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({'errors': 'Рецепт уже удален'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    @action(
+        detail=True,
+        methods=['post', 'delete'],
+        permission_classes=[IsAuthenticated]
+    )
+    def favorite(self, request, pk):
+        if request.method == 'POST':
+            return self.add_to_collection(Favorites, request.user, pk)
+        else:
+            return self.delete_from_collection(Favorites, request.user, pk)
+
+    @action(
+        detail=True,
+        methods=['post', 'delete'],
+        permission_classes=[IsAuthenticated]
+    )
+    def shopping_cart(self, request, pk):
+        if request.method == 'POST':
+            return self.add_to_collection(Shopping_cart, request.user, pk)
+        else:
+            return self.delete_from_collection(Shopping_cart, request.user, pk)
+
     @action(
         detail=False,
         permission_classes=[IsAuthenticated]
@@ -120,7 +159,10 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request):
         user = request.user
         if not user.buyer.all().exists():
-            return Response(status=HTTPStatus.BAD_REQUEST)
+            return Response(
+                {'errors': 'Корзина пуста'},
+                status=HTTPStatus.BAD_REQUEST
+            )
 
         ingredients = RecipeIngredient.objects.filter(
             recipe__purchase__user=request.user
@@ -205,45 +247,3 @@ class SubscriptionsViewSet(mixins.CreateModelMixin,
 
     def get_view_name(self):
         return 'Подписка'
-
-
-class BaseFavoriteShoppingCartViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
-
-    def create(self, request, *args, **kwargs):
-        recipe_id = self.kwargs['recipes_id']
-        try:
-            recipe = Recipes.objects.get(id=recipe_id)
-            self.model.objects.create(user=request.user, recipe=recipe)
-            return Response(status=HTTPStatus.CREATED)
-        except (Recipes.DoesNotExist, IntegrityError):
-            return Response(status=HTTPStatus.BAD_REQUEST)
-
-    def delete(self, request, *args, **kwargs):
-        recipe_id = self.kwargs['recipes_id']
-        user_id = request.user.id
-        try:
-            object = self.model.objects.get(
-                user__id=user_id, recipe__id=recipe_id)
-            object.delete()
-        except self.model.DoesNotExist:
-            return Response(status=HTTPStatus.BAD_REQUEST)
-        return Response(status=HTTPStatus.NO_CONTENT)
-
-
-class FavoritesViewSet(BaseFavoriteShoppingCartViewSet):
-    serializer_class = FavoritesSerializer
-    queryset = Favorites.objects.all()
-    model = Favorites
-
-    def get_view_name(self):
-        return 'В избранное'
-
-
-class ShoppingCartViewSet(BaseFavoriteShoppingCartViewSet):
-    serializer_class = ShoppingCartSerializer
-    queryset = Shopping_cart.objects.all()
-    model = Shopping_cart
-
-    def get_view_name(self):
-        return 'В корзину'
