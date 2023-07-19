@@ -5,12 +5,12 @@ from django.core.validators import RegexValidator
 from django.db import models
 
 
-class CustomUser(AbstractUser):
+class CustomUser(AbstractUser):  # Надо ли user roles?
     email = models.EmailField(
         verbose_name='Адрес электронной почты',
         max_length=254,
         unique=True
-    )  # unique or not?
+    )
     username = models.CharField(
         verbose_name='Логин',
         max_length=150,
@@ -38,4 +38,26 @@ class CustomUser(AbstractUser):
 
 
 class Subscription(models.Model):
-    pass
+    user = models.ForeignKey(
+        CustomUser,
+        verbose_name='Подписчик',
+        related_name='subscriber',
+        on_delete=models.CASCADE
+    )
+    author = models.ForeignKey(
+        CustomUser,
+        verbose_name='Автор рецепта',
+        related_name='author',
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'],
+                name='unique_subscription'
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.user} подписался на {self.author}'
