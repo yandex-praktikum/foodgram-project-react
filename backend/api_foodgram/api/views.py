@@ -1,7 +1,7 @@
 from rest_framework import mixins, viewsets, filters
 
 from .serializers import IngredientSerializer, TagSerializer
-from ..services import ingredients, tags
+from services import ingredients, tags
 
 
 class CreateRetrieveListViewSet(mixins.CreateModelMixin,

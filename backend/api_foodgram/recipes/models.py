@@ -2,7 +2,8 @@ import re
 
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
-from ..users.models import CustomUser
+from users.models import CustomUser
+# from backend.api_foodgram.users.models import CustomUser
 
 
 class Ingredient(models.Model):
@@ -36,10 +37,12 @@ class Tag(models.Model):
         verbose_name='Уникальный слаг',
         max_length=200,
         unique=True,
-        validators=RegexValidator(
-            regex=re.compile(r'^[-a-zA-Z0-9_]+$'),
-            message='Проверьте правильность написания слага'
-        )
+        validators=[
+            RegexValidator(
+                regex=re.compile(r'^[-a-zA-Z0-9_]+$'),
+                message='Проверьте правильность написания слага'
+            )
+        ]
     )
 
     def __str__(self):
@@ -58,7 +61,7 @@ class Recipe(models.Model):
     )
     cooking_time = models.IntegerField(
         verbose_name='Время приготовления',
-        validators=MinValueValidator(1)
+        validators=[MinValueValidator(1)]
     )
     tags = models.ManyToManyField(
         Tag,
@@ -98,7 +101,7 @@ class IngredientInRecipe(models.Model):
     )
     amount = models.IntegerField(
         verbose_name='Количество',
-        validators=MinValueValidator(1)
+        validators=[MinValueValidator(1)]
     )
 
     class Meta:

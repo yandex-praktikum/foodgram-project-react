@@ -6,7 +6,7 @@ from .views import IngredientViewSet, RecipeViewSet, TagViewSet
 router = DefaultRouter()
 router.register(r'ingredients', IngredientViewSet)
 router.register(r'tags', TagViewSet)
-router.register(r'recipes', RecipeViewSet)  #wip
+# router.register(r'recipes', RecipeViewSet, basename='recipes')  #wip
 # router_v1.register(
 #     r'titles/(?P<title_id>\d+)/reviews',
 #     ReviewViewSet,

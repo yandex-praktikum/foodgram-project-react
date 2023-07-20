@@ -1,4 +1,4 @@
-from ..recipes.models import Ingredient
+from recipes.models import Ingredient
 
 
 def get_all_ingredients() -> Ingredient:

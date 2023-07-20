@@ -5,3 +5,5 @@ sqlparse==0.4.4
 typing_extensions==4.6.3
 djangorestframework=3.14.0
 django-filter==23.2
+psycopg2-binary
+Pillow==10.0.0

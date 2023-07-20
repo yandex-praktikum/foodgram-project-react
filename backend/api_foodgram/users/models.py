@@ -15,10 +15,12 @@ class CustomUser(AbstractUser):  # Надо ли user roles?
         verbose_name='Логин',
         max_length=150,
         unique=True,
-        validators=RegexValidator(
-            regex=re.compile(r'^[\w.@+-]+\z'),
-            message='Проверьте правильность написания никнейма'
-        )
+        validators=[
+            RegexValidator(
+                regex=re.compile(r'^[\w.@+-]+\Z'),
+                message='Проверьте правильность написания никнейма'
+            )
+        ]
     )
     first_name = models.CharField(
         verbose_name='Имя пользователя',

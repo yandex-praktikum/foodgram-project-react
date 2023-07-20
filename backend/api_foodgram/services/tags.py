@@ -1,4 +1,4 @@
-from ..recipes.models import Tag
+from recipes.models import Tag
 
 
 def get_all_tags() -> Tag:
