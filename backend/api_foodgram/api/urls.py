@@ -24,5 +24,7 @@ router.register(r'tags', TagViewSet)
 urlpatterns = [
     # path('auth/signup/', SignUpView.as_view(), name='signup'),
     # path('auth/token/', TokenView.as_view(), name='token'),
-    path('', include(router.urls))
+    path('', include(router.urls)),
+    path('', include('djoser.urls')),
+    path('auth/', include('djoser.urls.authtoken')),
     ]
