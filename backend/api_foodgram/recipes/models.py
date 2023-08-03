@@ -3,7 +3,6 @@ import re
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 from users.models import CustomUser
-# from backend.api_foodgram.users.models import CustomUser
 
 
 class Ingredient(models.Model):

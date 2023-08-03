@@ -31,6 +31,18 @@ class RecipeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class IngredientInRecipeSerializer(serializers.ModelSerializer):
+    pass
+
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    pass
+
+
+class ShoppingCartSerializer(serializers.ModelSerializer):
+    pass
+
+
 # class RecipePostSerializer(serializers.ModelSerializer):
 #     """Обработчик создания рецептов."""
 #

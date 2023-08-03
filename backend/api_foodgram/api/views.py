@@ -26,11 +26,15 @@ class IngredientViewSet(CreateRetrieveListViewSet):
 
 
 class TagViewSet(CreateRetrieveListViewSet):
-    """Обрабатывает теги.
-    """
+    """Вьюсет для создания тегов."""
+
     queryset = tags.get_all_tags()
     serializer_class = TagSerializer
 
 
 class RecipeViewSet():
+    pass
+
+
+class CustomUserViewSet():
     pass
