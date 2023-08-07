@@ -1,4 +1,13 @@
-from django.contrib import admin
-from .models import CustomUser
+from django.contrib.admin import ModelAdmin, register
+from .models import CustomUser, Subscription
 
-admin.site.register(CustomUser)
+
+@register(CustomUser)
+class CustomUserAdmin(ModelAdmin):
+    list_display = ('username', 'email', 'first_name', 'last_name')
+    list_filter = ('email', 'username')
+
+
+@register(Subscription)
+class SubscriptionAdmin(ModelAdmin):
+    list_display = ('user', 'author')
