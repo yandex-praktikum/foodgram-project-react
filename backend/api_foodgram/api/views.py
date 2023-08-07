@@ -1,9 +1,11 @@
 from rest_framework import mixins, viewsets, filters, response, status
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 from .serializers import IngredientSerializer, RecipeReadSerializer, TagSerializer
 from services import ingredients, recipes, tags, users
 from users.serializers import CustomUserSerializer, SubscriptionSerializer
+from .permissions import IsAdminOrReadOnly
 
 
 class CreateRetrieveListViewSet(mixins.CreateModelMixin,
@@ -21,7 +23,7 @@ class IngredientViewSet(CreateRetrieveListViewSet):
     """
     queryset = ingredients.get_all_ingredients()
     serializer_class = IngredientSerializer
-    # permission_classes
+    permission_classes = (IsAdminOrReadOnly, )
     pagination_class = None
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
@@ -33,6 +35,7 @@ class TagViewSet(CreateRetrieveListViewSet):
 
     queryset = tags.get_all_tags()
     serializer_class = TagSerializer
+    permission_classes = (IsAdminOrReadOnly, )
     pagination_class = None
 
 
@@ -41,6 +44,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     queryset = recipes.get_all_recipes()
     serializer_class = RecipeReadSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly, )
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -48,6 +52,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
 
     queryset = users.get_all_users()
     serializer_class = CustomUserSerializer
+    permission_classes = (IsAuthenticated, )
     # filter_backends = (filters.SearchFilter,)
     # search_fields = ('username',)
     # lookup_field = 'username'

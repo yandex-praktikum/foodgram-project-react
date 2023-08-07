@@ -12,7 +12,14 @@ class CustomUserSerializer(UserSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed')
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed'
+        )
 
     def get_is_subscribed(self, obj):
         """Метод проверяет, подписан ли
@@ -28,7 +35,14 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
     class Meta:
         model = CustomUser
-        fields = '__all__'
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'password'
+        )
         extra_kwargs = {'password': {'write_only': True}}
 
 
@@ -42,6 +56,7 @@ class SubscriptionSerializer(CustomUserSerializer):
         model = Subscription
         fields = (
             'email',
+            'id'
             'username',
             'first_name',
             'last_name',
