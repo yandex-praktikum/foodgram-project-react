@@ -1,7 +1,9 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets, filters, response, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
+from .filters import RecipeFilter
 from .serializers import IngredientSerializer, RecipeReadSerializer, TagSerializer
 from services import ingredients, recipes, tags, users
 from users.serializers import CustomUserSerializer, SubscriptionSerializer
@@ -25,7 +27,7 @@ class IngredientViewSet(CreateRetrieveListViewSet):
     serializer_class = IngredientSerializer
     permission_classes = (IsAdminOrReadOnly, )
     pagination_class = None
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (filters.SearchFilter, )
     search_fields = ('name',)
     # Вернуть ответ в виде файла, а не текстового списка
 
@@ -45,6 +47,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = recipes.get_all_recipes()
     serializer_class = RecipeReadSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
+    filter_backends = (DjangoFilterBackend, )
+    filterset_class = RecipeFilter
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
