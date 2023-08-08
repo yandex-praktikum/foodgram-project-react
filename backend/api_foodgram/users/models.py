@@ -5,7 +5,7 @@ from django.core.validators import RegexValidator
 from django.db import models
 
 
-class CustomUser(AbstractUser):  # Надо ли user roles?
+class CustomUser(AbstractUser):
     email = models.EmailField(
         verbose_name='Адрес электронной почты',
         max_length=254,

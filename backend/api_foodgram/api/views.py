@@ -24,7 +24,7 @@ class IngredientViewSet(CreateRetrieveListViewSet):
     """
     queryset = ingredients.get_all_ingredients()
     serializer_class = IngredientSerializer
-    permission_classes = (IsAdminOrReadOnly, )
+    permission_classes = (IsAdminOrReadOnly, )  # ????
     pagination_class = None
     filter_backends = (filters.SearchFilter, )
     search_fields = ('name',)

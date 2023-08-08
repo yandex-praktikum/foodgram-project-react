@@ -40,17 +40,3 @@ def delete_subscription(user: CustomUser, author: CustomUser) -> None:
                                      author=author
                                      )
     subscription.delete()
-
-
-
-# def user_exists(username: str) -> bool:
-#     """Возвращает True при наличии пользователя в БД."""
-#
-#     return User.objects.filter(username=username).exists()
-#
-#
-# def get_user_with_username_email(username: str, email: str) -> User:
-#     """Возвращает пользователя по username и email."""
-#
-#     return User.objects.filter(username=username,
-#                                email=email).first()
