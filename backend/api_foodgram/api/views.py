@@ -13,8 +13,7 @@ from .permissions import IsAdminOrReadOnly
 class CreateRetrieveListViewSet(mixins.CreateModelMixin,
                                 mixins.ListModelMixin,
                                 viewsets.GenericViewSet):
-    """Создаёт, возвращает объект и список объектов.
-    """
+    """Создаёт, возвращает объект и список объектов."""
 
     pass
 

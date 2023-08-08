@@ -3,6 +3,8 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from .models import CustomUser, Subscription
+from ..services import recipes
+from ..api.serializers import RecipeInSubscriptionSerializer
 
 
 class CustomUserSerializer(UserSerializer):
@@ -27,7 +29,11 @@ class CustomUserSerializer(UserSerializer):
         """
 
         user = self.context.get('request').user
-        return Subscription.objects.filter(user=user, author=obj).exists()  # wip
+
+        if user.is_anonymous:
+            return False
+
+        return Subscription.objects.filter(user=user, author=obj).exists()
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -89,4 +95,12 @@ class SubscriptionSerializer(CustomUserSerializer):
 
     def get_recipes(self, obj):
         """Метод для получения рецептов."""
-        pass
+
+        request = self.context.get('request')
+        recipes_limit = request.GET.get('recipes_limit')
+        all_recipes = recipes.get_user_recipes(obj)
+
+        if recipes_limit:
+            all_recipes = all_recipes[:int(recipes_limit)]
+
+        return RecipeInSubscriptionSerializer(all_recipes, many=True).data

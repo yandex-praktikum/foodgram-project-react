@@ -100,6 +100,21 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         )
 
 
+class RecipeInSubscriptionSerializer(serializers.ModelSerializer):
+    """Обработчик выдачи рецептов в подписках пользователя."""
+
+    image = Base64DecodingImageField()
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time'
+        )
+
+
 class FavoriteSerializer(serializers.ModelSerializer):
     pass
 
