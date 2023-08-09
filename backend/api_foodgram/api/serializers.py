@@ -161,13 +161,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         """Метод обновления модели Recipe."""
 
         tags = validated_data.pop('tags')
-        instance.tags.set(tags)
+        instance.tags.clear()
+        self.create_tags(tags, instance)
 
         ingredients = validated_data.pop('ingredients')
         instance.ingredients.clear()
-
         self.create_ingredients(ingredients, instance)
-        self.create_tags(tags, instance)
 
         return super().update(instance, validated_data)
 
@@ -188,8 +187,20 @@ class RecipeInSubscriptionSerializer(serializers.ModelSerializer):
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
-    pass
+    """Обработчик добавления рецепта в список избранного."""
+
+    image = Base64DecodingImageField()
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class ShoppingCartSerializer(serializers.ModelSerializer):
-    pass
+    """Обработчик добавления рецепта в список покупок."""
+
+    image = Base64DecodingImageField()
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')

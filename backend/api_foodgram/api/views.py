@@ -1,13 +1,26 @@
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets, filters, response, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import (
+    IsAuthenticatedOrReadOnly,
+    IsAuthenticated
+)
+from rest_framework.response import Response
 
 from .filters import RecipeFilter
-from .serializers import IngredientSerializer, RecipeReadSerializer, TagSerializer
+from .serializers import (
+    FavoriteSerializer,
+    IngredientSerializer,
+    RecipeCreateSerializer,
+    RecipeReadSerializer,
+    ShoppingCartSerializer,
+    TagSerializer
+)
 from services import ingredients, recipes, tags, users
 from users.serializers import CustomUserSerializer, SubscriptionSerializer
 from .permissions import IsAdminOrReadOnly
+from recipes.models import Favorite, Recipe, ShoppingCart
 
 
 class CreateRetrieveListViewSet(mixins.CreateModelMixin,
@@ -44,10 +57,127 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для обработки запросов, связанных с рецептами."""
 
     queryset = recipes.get_all_recipes()
-    serializer_class = RecipeReadSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
     filter_backends = (DjangoFilterBackend, )
     filterset_class = RecipeFilter
+
+    def get_serializer_class(self):
+        """Метод для вызова сериализатора."""
+
+        if self.action in ('list', 'retrieve'):
+            return RecipeReadSerializer
+        elif self.action in ('create', 'partial_update'):
+            return RecipeCreateSerializer
+
+    @action(
+        detail=True,
+        methods=['post', 'delete'],
+        permission_classes=(IsAuthenticated, ),
+        url_path='favorite',
+        url_name='favorite'
+    )
+    def manage_favorite(self, request, id):
+        """Метод управления списком избранного."""
+
+        user = request.user
+        recipe = get_object_or_404(Recipe, id=id)
+
+        if request.method == 'POST':
+            if Favorite.objects.filter(user=user, recipe=recipe).exists():
+                return Response(
+                    {'errors': 'Рецепт уже находится в списке избранного.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            Favorite.objects.create(user=user, recipe=recipe)
+            serializer = FavoriteSerializer(recipe)
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        if request.method == 'DELETE':
+            recipe_in_favorite = Favorite.objects.filter(
+                user=user,
+                recipe=recipe
+            )
+
+            if recipe_in_favorite.exists():
+                recipe_in_favorite.delete()
+
+                return Response(status=status.HTTP_204_NO_CONTENT)
+
+            return Response(
+                {'errors': f'В списке избранного нет рецепта {recipe.name}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    @action(
+        detail=True,
+        methods=('post', 'delete'),
+        permission_classes=(IsAuthenticated, ),
+        url_path='shopping_cart',
+        url_name='shopping_cart',
+    )
+    def shopping_cart(self, request, id):
+        """Метод управления списком покупок."""
+
+        user = request.user
+        recipe = get_object_or_404(Recipe, id=id)
+
+        if request.method == 'POST':
+            if ShoppingCart.objects.filter(user=user, recipe=recipe).exists():
+
+                return Response(
+                    {'errors': f'Рецепт уже находится в покупок.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            ShoppingCart.objects.create(user=user, recipe=recipe)
+            serializer = ShoppingCartSerializer(recipe)
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        if request.method == 'DELETE':
+            recipe_in_shopping_cart = ShoppingCart.objects.filter(user=user, recipe=recipe)
+
+            if recipe_in_shopping_cart.exists():
+                recipe_in_shopping_cart.delete()
+
+                return Response(status=status.HTTP_204_NO_CONTENT)
+
+            return Response(
+                {'errors': f'В списке покупок нет рецепта {recipe.name}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    @staticmethod
+    def ingredients_to_txt(ingredients):
+        """Метод для объединения ингредиентов в список для загрузки"""
+
+        shopping_list = ''
+        for ingredient in ingredients:
+            shopping_list += (
+                f"{ingredient['ingredient__name']}  - "
+                f"{ingredient['sum']}"
+                f"({ingredient['ingredient__measurement_unit']})\n"
+            )
+        return shopping_list
+
+    @action(
+        detail=False,
+        permission_classes=(IsAuthenticated,),
+        url_path='download_shopping_cart',
+        url_name='download_shopping_cart',
+    )
+    def download_shopping_cart(self, request):
+        """Метод для скачивания PDF файла со списком покупок."""
+
+        ingredients = IngredientInRecipe.objects.filter(
+            recipe__shopping_recipe__user=request.user
+        ).values(
+            'ingredient__name',
+            'ingredient__measurement_unit'
+        ).annotate(sum=Sum('amount'))
+        shopping_list = self.ingredients_to_txt(ingredients)
+        return HttpResponse(shopping_list, content_type='text/plain')
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
