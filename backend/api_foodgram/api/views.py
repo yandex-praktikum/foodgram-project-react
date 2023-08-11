@@ -1,3 +1,5 @@
+from django.db.models import Sum
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets, filters, response, status
@@ -20,7 +22,7 @@ from .serializers import (
 from services import ingredients, recipes, tags, users
 from users.serializers import CustomUserSerializer, SubscriptionSerializer
 from .permissions import IsAdminOrReadOnly
-from recipes.models import Favorite, Recipe, ShoppingCart
+from recipes.models import Favorite, IngredientInRecipe, Recipe, ShoppingCart
 
 
 class CreateRetrieveListViewSet(mixins.CreateModelMixin,
@@ -65,8 +67,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """Метод для вызова сериализатора."""
 
         if self.action in ('list', 'retrieve'):
+
             return RecipeReadSerializer
+
         elif self.action in ('create', 'partial_update'):
+
             return RecipeCreateSerializer
 
     @action(
@@ -84,10 +89,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         if request.method == 'POST':
             if Favorite.objects.filter(user=user, recipe=recipe).exists():
+
                 return Response(
                     {'errors': 'Рецепт уже находится в списке избранного.'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
             Favorite.objects.create(user=user, recipe=recipe)
             serializer = FavoriteSerializer(recipe)
 
@@ -136,7 +143,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if request.method == 'DELETE':
-            recipe_in_shopping_cart = ShoppingCart.objects.filter(user=user, recipe=recipe)
+            recipe_in_shopping_cart = ShoppingCart.objects.filter(
+                user=user,
+                recipe=recipe
+            )
 
             if recipe_in_shopping_cart.exists():
                 recipe_in_shopping_cart.delete()
@@ -149,16 +159,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
             )
 
     @staticmethod
-    def ingredients_to_txt(ingredients):
-        """Метод для объединения ингредиентов в список для загрузки"""
+    def ingredients_to_txt(ingredients: dict) -> str:
+        """Метод для объединения всех ингредиентов
+        в список покупок для выгрузки.
+        """
 
         shopping_list = ''
+
         for ingredient in ingredients:
             shopping_list += (
                 f"{ingredient['ingredient__name']}  - "
                 f"{ingredient['sum']}"
                 f"({ingredient['ingredient__measurement_unit']})\n"
             )
+
         return shopping_list
 
     @action(
@@ -167,16 +181,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_path='download_shopping_cart',
         url_name='download_shopping_cart',
     )
-    def download_shopping_cart(self, request):
-        """Метод для скачивания PDF файла со списком покупок."""
+    def download_shopping_cart(self, request) -> HttpResponse:
+        """Метод для скачивания файла со списком покупок."""
 
         ingredients = IngredientInRecipe.objects.filter(
-            recipe__shopping_recipe__user=request.user
+            recipe__shopping_cart__user=request.user
         ).values(
             'ingredient__name',
             'ingredient__measurement_unit'
+        ).order_by(
+                'ingredient__name'
         ).annotate(sum=Sum('amount'))
         shopping_list = self.ingredients_to_txt(ingredients)
+
         return HttpResponse(shopping_list, content_type='text/plain')
 
 
@@ -205,6 +222,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
                                             many=True,
                                             context={'request': request}
                                             )
+
         return self.get_paginated_response(serializer.data)
 
     @action(
@@ -224,11 +242,17 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         if request.method == 'POST':
             serializer = SubscriptionSerializer(author,
                                                 data=request.data,
-                                                context={'request': request})
+                                                context={'request': request}
+                                                )
             serializer.is_valid(raise_exception=True)
             users.create_subscription(user, author)
-            return response.Response(serializer.data, status=status.HTTP_201_CREATED)
+
+            return response.Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED
+            )
 
         if request.method == 'DELETE':
             users.delete_subscription(user, author)
+
             return response.Response(status=status.HTTP_204_NO_CONTENT)
