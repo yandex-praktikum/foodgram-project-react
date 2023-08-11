@@ -4,10 +4,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets, filters, response, status
 from rest_framework.decorators import action
-from rest_framework.permissions import (
-    IsAuthenticatedOrReadOnly,
-    IsAuthenticated
-)
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .filters import RecipeFilter
@@ -21,7 +18,7 @@ from .serializers import (
 )
 from services import ingredients, recipes, tags, users
 from users.serializers import CustomUserSerializer, SubscriptionSerializer
-from .permissions import IsAdminOrReadOnly
+from .permissions import IsAdminOrReadOnly, IsAdminOrAuthorOrReadOnly
 from recipes.models import Favorite, IngredientInRecipe, Recipe, ShoppingCart
 
 
@@ -39,11 +36,10 @@ class IngredientViewSet(CreateRetrieveListViewSet):
     """
     queryset = ingredients.get_all_ingredients()
     serializer_class = IngredientSerializer
-    permission_classes = (IsAdminOrReadOnly, )  # ????
+    permission_classes = (IsAdminOrReadOnly, )
     pagination_class = None
     filter_backends = (filters.SearchFilter, )
     search_fields = ('name',)
-    # Вернуть ответ в виде файла, а не текстового списка
 
 
 class TagViewSet(CreateRetrieveListViewSet):
@@ -59,7 +55,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для обработки запросов, связанных с рецептами."""
 
     queryset = recipes.get_all_recipes()
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAdminOrAuthorOrReadOnly, )
     filter_backends = (DjangoFilterBackend, )
     filterset_class = RecipeFilter
 
@@ -123,7 +119,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_path='shopping_cart',
         url_name='shopping_cart',
     )
-    def shopping_cart(self, request, id):
+    def shopping_cart(self, request, id: int):
         """Метод управления списком покупок."""
 
         user = request.user
@@ -177,7 +173,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=False,
-        permission_classes=(IsAuthenticated,),
+        permission_classes=(IsAuthenticated, ),
         url_path='download_shopping_cart',
         url_name='download_shopping_cart',
     )
@@ -202,14 +198,10 @@ class CustomUserViewSet(viewsets.ModelViewSet):
 
     queryset = users.get_all_users()
     serializer_class = CustomUserSerializer
-    permission_classes = (IsAuthenticated, )
-    # filter_backends = (filters.SearchFilter,)
-    # search_fields = ('username',)
-    # lookup_field = 'username'
 
     @action(
         detail=False,
-        # permission_classes=(IsAuthenticated, ),
+        permission_classes=(IsAuthenticated, ),
         url_path='subscriptions',
         url_name='subscriptions',
     )
@@ -228,7 +220,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=['post', 'delete'],
-        # permission_classes=[IsAuthenticated]
+        permission_classes=(IsAuthenticated, ),
         url_path='subscribe',
         url_name='subscribe',
     )
