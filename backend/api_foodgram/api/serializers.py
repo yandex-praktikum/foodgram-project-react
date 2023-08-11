@@ -1,3 +1,6 @@
+import base64, uuid
+
+from django.core.files.base import ContentFile
 from rest_framework import serializers
 from recipes.models import Ingredient, IngredientInRecipe, Favorite, Recipe, ShoppingCart, Tag
 from users.serializers import CustomUserSerializer
@@ -39,16 +42,19 @@ class TagSerializer(serializers.ModelSerializer):
 class Base64DecodingImageField(serializers.ImageField):
     """Обработчик изображения, декодирующий строку Base64."""
 
-    def to_internal_value(self, data):
+    def to_internal_value(self, data) -> ContentFile:
         """Метод декодирования изображения."""
 
-        # if isinstance(data, str) and data.startswith('data:image'):
-        #     format, imgstr = data.split(';base64,')
-        #     ext = format.split('/')[-1]
-        #     data = ContentFile(base64.b64decode(imgstr), name='photo.' + ext)
-        #
-        # return super().to_internal_value(data)
-        pass
+        if isinstance(data, str) and data.startswith('data:image'):
+            image_format, str_image = data.split(';base64,')
+            file_extension = image_format.split('/')[-1]
+            random_unique_id = uuid.uuid4()
+            data = ContentFile(
+                content=base64.b64decode(str_image),
+                name=random_unique_id.urn[9:] + '.' + file_extension
+            )
+
+        return super().to_internal_value(data)
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
