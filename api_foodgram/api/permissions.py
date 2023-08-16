@@ -26,3 +26,11 @@ class IsAdminOrAuthorOrReadOnly(BasePermission):
                 or obj.author == request.user
                 or request.method in SAFE_METHODS
         )
+
+
+class IsAuthorizedAndAuthor(BasePermission):
+    """Доступ только для авторизированного автора."""
+
+    def has_object_permission(self, request, view, obj):
+
+        return request.user.is_authenticated and obj.author == request.user

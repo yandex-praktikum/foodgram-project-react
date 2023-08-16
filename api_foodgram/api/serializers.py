@@ -1,11 +1,10 @@
-import base64
-import uuid
+import base64, uuid
 
 from django.core.files.base import ContentFile
-from recipes.models import Ingredient, IngredientInRecipe, Favorite, Recipe, ShoppingCart, Tag
 from rest_framework import serializers
-from services import tags
+from recipes.models import Ingredient, IngredientInRecipe, Favorite, Recipe, ShoppingCart, Tag
 from users.serializers import CustomUserSerializer
+from services import tags
 
 
 class IngredientSerializer(serializers.ModelSerializer):
