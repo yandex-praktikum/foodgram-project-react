@@ -1,11 +1,11 @@
-import base64, uuid
+import base64
+import uuid
 
 from django.core.files.base import ContentFile
-from django.db import transaction
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from djoser.serializers import UserSerializer
 from recipes.models import Ingredient, IngredientInRecipe, Favorite, Recipe, ShoppingCart, Tag
-from users.serializers import CustomUserSerializer
+# from users.serializers import CustomUserSerializer
 from services import tags
 
 
@@ -71,7 +71,8 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     """Обработчик получения рецептов."""
 
     tags = TagSerializer(many=True)
-    author = CustomUserSerializer()
+    # author = CustomUserSerializer()
+    author = UserSerializer()
     ingredients = IngredientInRecipeReadSerializer(
         many=True,
         read_only=True,

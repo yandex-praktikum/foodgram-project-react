@@ -2,17 +2,18 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from djoser.serializers import SetPasswordSerializer
 from djoser.views import UserViewSet
-from rest_framework import mixins, viewsets, filters, response, status
-from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework import mixins, viewsets, filters, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
-from users.models import CustomUser, Subscription
+from recipes.models import Favorite, IngredientInRecipe, Recipe, ShoppingCart
+from services import ingredients, recipes, tags, users
+from users.models import Subscription
+from users.serializers import CustomUserSerializer, SubscriptionSerializer
 from .filters import RecipeFilter
+from .permissions import IsAuthorOrReadOnly
 from .serializers import (
     FavoriteSerializer,
     IngredientSerializer,
@@ -21,10 +22,6 @@ from .serializers import (
     ShoppingCartSerializer,
     TagSerializer
 )
-from services import ingredients, recipes, tags, users
-from users.serializers import CustomUserSerializer, CustomUserCreateSerializer, SubscriptionSerializer
-from .permissions import IsAdminOrReadOnly, IsAdminOrAuthorOrReadOnly, IsAuthorOrReadOnly
-from recipes.models import Favorite, IngredientInRecipe, Recipe, ShoppingCart
 
 
 class RetrieveListViewSet(mixins.RetrieveModelMixin,
