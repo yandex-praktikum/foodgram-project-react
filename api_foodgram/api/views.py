@@ -22,7 +22,7 @@ from .serializers import (
 )
 from services import ingredients, recipes, tags, users
 from users.serializers import CustomUserSerializer, CustomUserCreateSerializer, SubscriptionSerializer
-from .permissions import IsAdminOrReadOnly, IsAdminOrAuthorOrReadOnly
+from .permissions import IsAdminOrReadOnly, IsAdminOrAuthorOrReadOnly, IsAuthorOrReadOnly
 from recipes.models import Favorite, IngredientInRecipe, Recipe, ShoppingCart
 
 
@@ -59,7 +59,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для обработки запросов, связанных с рецептами."""
 
     queryset = recipes.get_all_recipes()
-    permission_classes = (IsAdminOrAuthorOrReadOnly, IsAuthenticatedOrReadOnly, )
+    # permission_classes = (IsAdminOrAuthorOrReadOnly, IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthorOrReadOnly, )
     filter_backends = (DjangoFilterBackend, )
     filterset_class = RecipeFilter
 
@@ -81,11 +82,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_path='favorite',
         url_name='favorite'
     )
-    def manage_favorite(self, request, id):
+    def manage_favorite(self, request, pk: int):
         """Метод управления списком избранного."""
 
         user = request.user
-        recipe = get_object_or_404(Recipe, id=id)
+        recipe = get_object_or_404(Recipe, id=pk)
 
         if request.method == 'POST':
             if Favorite.objects.filter(user=user, recipe=recipe).exists():
@@ -123,11 +124,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_path='shopping_cart',
         url_name='shopping_cart',
     )
-    def shopping_cart(self, request, id: int):
+    def shopping_cart(self, request, pk: int):
         """Метод управления списком покупок."""
 
         user = request.user
-        recipe = get_object_or_404(Recipe, id=id)
+        recipe = get_object_or_404(Recipe, id=pk)
 
         if request.method == 'POST':
             if ShoppingCart.objects.filter(user=user, recipe=recipe).exists():
