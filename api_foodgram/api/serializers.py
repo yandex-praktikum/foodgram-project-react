@@ -2,10 +2,17 @@ import base64
 import uuid
 
 from django.core.files.base import ContentFile
+from django.db import transaction
 from rest_framework import serializers
 from djoser.serializers import UserSerializer
-from recipes.models import Ingredient, IngredientInRecipe, Favorite, Recipe, ShoppingCart, Tag
-# from users.serializers import CustomUserSerializer
+from recipes.models import (
+    Ingredient,
+    IngredientInRecipe,
+    Favorite,
+    Recipe,
+    ShoppingCart,
+    Tag
+)
 from services import tags
 
 
@@ -22,8 +29,9 @@ class IngredientInRecipeReadSerializer(serializers.ModelSerializer):
 
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
-    measurement_unit = serializers.ReadOnlyField(source='ingredient.measurement_unit')
-    # amount = serializers.IntegerField()
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit'
+    )
 
     class Meta:
         model = IngredientInRecipe
@@ -34,7 +42,6 @@ class IngredientInRecipeCreateSerializer(serializers.ModelSerializer):
     """Обработчик ингредиентов при создании рецепта."""
 
     id = serializers.IntegerField()
-    # amount = serializers.IntegerField()
 
     class Meta:
         model = IngredientInRecipe
@@ -71,7 +78,6 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     """Обработчик получения рецептов."""
 
     tags = TagSerializer(many=True)
-    # author = CustomUserSerializer()
     author = UserSerializer()
     ingredients = IngredientInRecipeReadSerializer(
         many=True,
@@ -102,9 +108,8 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
 
         if request is None or request.user.is_anonymous:
-            return False
 
-        # user = self.context.get('request').user
+            return False
 
         return Favorite.objects.filter(
             user=request.user,
@@ -117,9 +122,8 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
 
         if request is None or request.user.is_anonymous:
-            return False
 
-        # user = self.context.get('request').user
+            return False
 
         return ShoppingCart.objects.filter(
             user=request.user,
@@ -159,18 +163,13 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 'request': self.context.get('request')
             }
         )
+
         return serializer.data
 
     def create_ingredients(self, ingredients, recipe) -> None:
         """Метод добавления ингредиента."""
 
         for elem in ingredients:
-            # id = elem['id']
-            # ingredient_id = Ingredient.objects.get(id=id)
-
-            # ingredient_id = elem.get('id')
-            # amount = elem['amount']
-            # ingredient_id = get_object_or_404(Ingredient, id=elem.get('id'))
             ingredient_id = elem.get('id')
             amount = elem.pop('amount')
 
@@ -185,16 +184,14 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
         recipe.tags.set(tags)
 
-    # @transaction.atomic
+    @transaction.atomic
     def create(self, validated_data) -> Recipe:
         """Метод создания модели Recipe."""
 
         ingredients = validated_data.pop('ingredients')
-        print(ingredients)
         tags = validated_data.pop('tags')
 
         user = self.context.get('request').user
-
         recipe = Recipe.objects.create(**validated_data, author=user)
 
         self.create_tags(tags, recipe)
@@ -202,7 +199,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
         return recipe
 
-    def update(self, instance, validated_data):
+    def update(self, instance, validated_data) -> Recipe:
         """Метод обновления модели Recipe."""
 
         tags = validated_data.pop('tags')

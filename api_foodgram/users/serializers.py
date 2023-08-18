@@ -1,10 +1,9 @@
 from djoser.serializers import UserSerializer, UserCreateSerializer
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 
 from api.serializers import RecipeInSubscriptionSerializer
-from .models import CustomUser, Subscription
 from services import recipes
+from .models import CustomUser, Subscription
 
 
 class CustomUserSerializer(UserSerializer):
@@ -31,6 +30,7 @@ class CustomUserSerializer(UserSerializer):
         user = self.context.get('request').user
 
         if user.is_anonymous:
+
             return False
 
         return Subscription.objects.filter(user=user, author=obj).exists()
@@ -49,7 +49,6 @@ class CustomUserCreateSerializer(UserCreateSerializer):
             'last_name',
             'password'
         )
-        # extra_kwargs = {'password': {'write_only': True}}
 
 
 class SubscriptionSerializer(CustomUserSerializer):
@@ -76,46 +75,6 @@ class SubscriptionSerializer(CustomUserSerializer):
             'recipes',
             'recipes_count'
         )
-        # validators = [
-        #     UniqueTogetherValidator(
-        #         queryset=Subscription.objects.all(),
-        #         fields=('user', 'author'),
-        #         message='Вы уже подписаны на данного автора.'
-        #     )
-        # ]
-
-    # def validate(self, data):
-    #     author = self.instance
-    #     user = self.context.get('request').user
-    #     if Subscription.objects.filter(author=author, user=user).exists():
-    #         raise serializers.ValidationError(
-    #             detail='Вы уже подписаны на этого пользователя!'
-    #         )
-    #     if user == author:
-    #         raise serializers.ValidationError(
-    #             detail='Нельзя подписаться на самого себя!'
-    #         )
-    #     return data
-
-    # def validate_subscription(self, data):
-    #     """Метод проверяет, что пользователь не подписан на самого себя."""
-    #
-    #     user = self.context['user']
-    #     author = self.context['author']
-    #
-    #     # if not author:
-    #     #     raise serializers.ValidationError('Автор не найден.')
-    #
-    #     if user == author:
-    #         raise serializers.ValidationError(
-    #             'Нельзя подписаться на самого себя.'
-    #         )
-    #     # if Subscription.objects.filter(
-    #     #     user=user,
-    #     #     author=author
-    #     # ).exists():
-    #     #     raise serializers.ValidationError('')
-    #     return data
 
     def get_recipes_count(self, obj) -> int:
         """Метод, считающий общее количество рецептов пользователя."""

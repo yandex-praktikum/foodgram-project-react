@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = os.getenv('SECRET_KEY', default='key_default')  # ???
+SECRET_KEY = os.getenv('SECRET_KEY', default='key_default')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -38,7 +38,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'api_foodgram.urls'
-# TEMPLATES_DIR = BASE_DIR / 'docs'
 
 TEMPLATES = [
     {

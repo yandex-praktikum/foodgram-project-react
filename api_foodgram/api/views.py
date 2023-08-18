@@ -36,6 +36,7 @@ class IngredientViewSet(RetrieveListViewSet):
     """Обрабатывает ингредиенты и
     делает поиск по названию ингредиента.
     """
+
     queryset = ingredients.get_all_ingredients()
     serializer_class = IngredientSerializer
     permission_classes = (AllowAny, )
@@ -57,7 +58,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для обработки запросов, связанных с рецептами."""
 
     queryset = recipes.get_all_recipes()
-    # permission_classes = (IsAdminOrAuthorOrReadOnly, IsAuthenticatedOrReadOnly, )
     permission_classes = (IsAuthorOrReadOnly, )
     filter_backends = (DjangoFilterBackend, )
     filterset_class = RecipeFilter
@@ -229,10 +229,11 @@ class CustomUserViewSet(UserViewSet):
 
         queryset = users.get_user_subscriptions(request.user)
         pages = self.paginate_queryset(queryset)
-        serializer = SubscriptionSerializer(pages,
-                                            many=True,
-                                            context={'request': request}
-                                            )
+        serializer = SubscriptionSerializer(
+            pages,
+            many=True,
+            context={'request': request}
+        )
 
         return self.get_paginated_response(serializer.data)
 
@@ -249,70 +250,51 @@ class CustomUserViewSet(UserViewSet):
         user = request.user
         author = users.get_author_id(id=id)
         subscription_status = Subscription.objects.filter(
-            user=user, author=author
+            user=user,
+            author=author
         )
 
         if request.method == 'POST':
+
             if user == author:
-                return Response('Нельзя подписаться на самого себя.',
-                                status=status.HTTP_400_BAD_REQUEST)
+
+                return Response(
+                    'Нельзя подписаться на самого себя.',
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
             if subscription_status.exists():
-                return Response('Вы уже подписаны на данного автора.',
-                                status=status.HTTP_400_BAD_REQUEST)
-        #     serializer = SubscriptionSerializer(
-        #         data=request.data,
-        #         context={
-        #             'request': request,
-        #             'author': author,
-        #             'user': user
-        #         }
-        #     )
-        #     serializer.is_valid(raise_exception=True)
+
+                return Response(
+                    'Вы уже подписаны на данного автора.',
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
             users.create_subscription(user, author)
 
-            return Response(f'Вы подписались на {author}',
-                            status=status.HTTP_201_CREATED)
+            return Response(
+                f'Вы подписались на {author}',
+                status=status.HTTP_201_CREATED
+            )
 
         if request.method == 'DELETE':
+
             if subscription_status.exists():
                 subscription_status.delete()
-                return Response(f'Вы отписались от {author}',
-                                status=status.HTTP_204_NO_CONTENT)
+
+                return Response(
+                    f'Вы отписались от {author}',
+                    status=status.HTTP_204_NO_CONTENT
+                )
+
             if user == author:
-                return Response('Нельзя отписаться от самого себя.',
-                                status=status.HTTP_400_BAD_REQUEST)
 
-            return Response(f'Вы не подписаны на {author}',
-                            status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    'Нельзя отписаться от самого себя.',
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-            # users.delete_subscription(user, author)
-
-            # return response.Response(status=status.HTTP_204_NO_CONTENT)
-
-
-
-        # user = request.user
-        # author = get_object_or_404(CustomUser, id=id)
-        # subscription_status = Subscription.objects.filter(
-        #     user=user.id, author=author.id
-        # )
-        # if request.method == 'POST':
-        #     if user == author:
-        #         return Response('Нельзя подписаться на самого себя.',
-        #                         status=status.HTTP_400_BAD_REQUEST)
-        #     if subscription_status.exists():
-        #         return Response('Вы уже подписаны на данного автора.',
-        #                         status=status.HTTP_400_BAD_REQUEST)
-        #     subscribe = Subscription.objects.create(
-        #         user=user,
-        #         author=author
-        #     )
-        #     subscribe.save()
-        #     return Response(f'Вы подписались на {author}',
-        #                     status=status.HTTP_201_CREATED)
-        # if subscription_status.exists():
-        #     subscription_status.delete()
-        #     return Response(f'Вы отписались от {author}',
-        #                     status=status.HTTP_204_NO_CONTENT)
-        # return Response(f'Вы не подписаны на {author}',
-        #                 status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                f'Вы не подписаны на {author}',
+                status=status.HTTP_400_BAD_REQUEST
+            )
