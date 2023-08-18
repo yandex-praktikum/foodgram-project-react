@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticate
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from users.models import CustomUser, Subscription
 from .filters import RecipeFilter
 from .serializers import (
     FavoriteSerializer,
@@ -245,27 +246,76 @@ class CustomUserViewSet(UserViewSet):
         url_path='subscribe',
         url_name='subscribe',
     )
-    def manage_subscriptions(self, request, **kwargs) -> response.Response:
+    def manage_subscriptions(self, request, id: int) -> Response:
         """Метод управления подписками пользователя (подписка/отписка)."""
 
         user = request.user
-        author_id = self.kwargs.get('id')
-        author = users.get_author(author_id)
+        author = users.get_author_id(id=id)
+        subscription_status = Subscription.objects.filter(
+            user=user, author=author
+        )
 
         if request.method == 'POST':
-            serializer = SubscriptionSerializer(author,
-                                                data=request.data,
-                                                context={'request': request}
-                                                )
-            serializer.is_valid(raise_exception=True)
+            if user == author:
+                return Response('Нельзя подписаться на самого себя.',
+                                status=status.HTTP_400_BAD_REQUEST)
+            if subscription_status.exists():
+                return Response('Вы уже подписаны на данного автора.',
+                                status=status.HTTP_400_BAD_REQUEST)
+        #     serializer = SubscriptionSerializer(
+        #         data=request.data,
+        #         context={
+        #             'request': request,
+        #             'author': author,
+        #             'user': user
+        #         }
+        #     )
+        #     serializer.is_valid(raise_exception=True)
             users.create_subscription(user, author)
 
-            return response.Response(
-                serializer.data,
-                status=status.HTTP_201_CREATED
-            )
+            return Response(f'Вы подписались на {author}',
+                            status=status.HTTP_201_CREATED)
 
         if request.method == 'DELETE':
-            users.delete_subscription(user, author)
+            if subscription_status.exists():
+                subscription_status.delete()
+                return Response(f'Вы отписались от {author}',
+                                status=status.HTTP_204_NO_CONTENT)
+            if user == author:
+                return Response('Нельзя отписаться от самого себя.',
+                                status=status.HTTP_400_BAD_REQUEST)
 
-            return response.Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(f'Вы не подписаны на {author}',
+                            status=status.HTTP_400_BAD_REQUEST)
+
+            # users.delete_subscription(user, author)
+
+            # return response.Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+        # user = request.user
+        # author = get_object_or_404(CustomUser, id=id)
+        # subscription_status = Subscription.objects.filter(
+        #     user=user.id, author=author.id
+        # )
+        # if request.method == 'POST':
+        #     if user == author:
+        #         return Response('Нельзя подписаться на самого себя.',
+        #                         status=status.HTTP_400_BAD_REQUEST)
+        #     if subscription_status.exists():
+        #         return Response('Вы уже подписаны на данного автора.',
+        #                         status=status.HTTP_400_BAD_REQUEST)
+        #     subscribe = Subscription.objects.create(
+        #         user=user,
+        #         author=author
+        #     )
+        #     subscribe.save()
+        #     return Response(f'Вы подписались на {author}',
+        #                     status=status.HTTP_201_CREATED)
+        # if subscription_status.exists():
+        #     subscription_status.delete()
+        #     return Response(f'Вы отписались от {author}',
+        #                     status=status.HTTP_204_NO_CONTENT)
+        # return Response(f'Вы не подписаны на {author}',
+        #                 status=status.HTTP_400_BAD_REQUEST)

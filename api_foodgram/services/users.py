@@ -20,16 +20,17 @@ def get_user_subscriptions(user: CustomUser) -> CustomUser:
     return CustomUser.objects.filter(author__user=user)
 
 
-def get_author(author_id: int) -> CustomUser:
+def get_author_id(id: int) -> CustomUser:
     """Возврашает автора по id."""
 
-    return get_object_or_404(CustomUser, id=author_id)
+    return get_object_or_404(CustomUser, id=id)
 
 
 def create_subscription(user: CustomUser, author: CustomUser) -> None:
     """Подписка на автора."""
 
-    Subscription.objects.create(user=user, author=author)
+    subscription = Subscription.objects.create(user=user, author=author)
+    subscription.save()
 
 
 def delete_subscription(user: CustomUser, author: CustomUser) -> None:
