@@ -23,17 +23,18 @@ class IngredientInRecipeReadSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(source='ingredient.measurement_unit')
-    amount = serializers.IntegerField()
+    # amount = serializers.IntegerField()
 
     class Meta:
         model = IngredientInRecipe
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
+
 class IngredientInRecipeCreateSerializer(serializers.ModelSerializer):
     """Обработчик ингредиентов при создании рецепта."""
 
     id = serializers.IntegerField()
-    amount = serializers.IntegerField()
+    # amount = serializers.IntegerField()
 
     class Meta:
         model = IngredientInRecipe
@@ -71,7 +72,11 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
     tags = TagSerializer(many=True)
     author = CustomUserSerializer()
-    ingredients = IngredientInRecipeReadSerializer(many=True)
+    ingredients = IngredientInRecipeReadSerializer(
+        many=True,
+        read_only=True,
+        source='ingredientinrecipe_set'
+    )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
@@ -93,20 +98,30 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, obj) -> bool:
         """Метод проверки добавления рецепта в избранное."""
 
-        user = self.context.get('request').user
+        request = self.context.get('request')
+
+        if request is None or request.user.is_anonymous:
+            return False
+
+        # user = self.context.get('request').user
 
         return Favorite.objects.filter(
-            user=user,
+            user=request.user,
             recipe=obj
         ).exists()
 
     def get_is_in_shopping_cart(self, obj) -> bool:
         """Метод проверки добавления рецепта в корзину."""
 
-        user = self.context.get('request').user
+        request = self.context.get('request')
+
+        if request is None or request.user.is_anonymous:
+            return False
+
+        # user = self.context.get('request').user
 
         return ShoppingCart.objects.filter(
-            user=user,
+            user=request.user,
             recipe=obj
         ).exists()
 
@@ -154,14 +169,14 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
             # ingredient_id = elem.get('id')
             # amount = elem['amount']
-            print(elem)
             # ingredient_id = get_object_or_404(Ingredient, id=elem.get('id'))
-            ingredient = elem.get('id')
-            print(ingredient)
+            ingredient_id = elem.get('id')
             amount = elem.pop('amount')
 
             IngredientInRecipe.objects.create(
-                ingredient_id=ingredient, recipe=recipe, amount=amount
+                ingredient_id=ingredient_id,
+                recipe=recipe,
+                amount=amount
             )
 
     def create_tags(self, tags, recipe) -> None:
