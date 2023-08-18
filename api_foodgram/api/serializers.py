@@ -1,6 +1,8 @@
 import base64, uuid
 
 from django.core.files.base import ContentFile
+from django.db import transaction
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from recipes.models import Ingredient, IngredientInRecipe, Favorite, Recipe, ShoppingCart, Tag
 from users.serializers import CustomUserSerializer
@@ -18,13 +20,20 @@ class IngredientSerializer(serializers.ModelSerializer):
 class IngredientInRecipeReadSerializer(serializers.ModelSerializer):
     """Обработчик получения ингредиентов в рецепте."""
 
+    id = serializers.ReadOnlyField(source='ingredient.id')
+    name = serializers.ReadOnlyField(source='ingredient.name')
+    measurement_unit = serializers.ReadOnlyField(source='ingredient.measurement_unit')
+    amount = serializers.IntegerField()
+
     class Meta:
         model = IngredientInRecipe
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
-
 class IngredientInRecipeCreateSerializer(serializers.ModelSerializer):
     """Обработчик ингредиентов при создании рецепта."""
+
+    id = serializers.IntegerField()
+    amount = serializers.IntegerField()
 
     class Meta:
         model = IngredientInRecipe
@@ -107,7 +116,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     ingredients = IngredientInRecipeCreateSerializer(many=True)
     tags = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=tags.get_all_tags()
+        queryset=tags.get_all_tags(),
+        many=True
     )
     image = Base64DecodingImageField(use_url=True)
 
@@ -139,11 +149,19 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         """Метод добавления ингредиента."""
 
         for elem in ingredients:
-            id = elem['id']
-            ingredient = Ingredient.objects.get(id=id)
-            amount = elem['amount']
+            # id = elem['id']
+            # ingredient_id = Ingredient.objects.get(id=id)
+
+            # ingredient_id = elem.get('id')
+            # amount = elem['amount']
+            print(elem)
+            # ingredient_id = get_object_or_404(Ingredient, id=elem.get('id'))
+            ingredient = elem.get('id')
+            print(ingredient)
+            amount = elem.pop('amount')
+
             IngredientInRecipe.objects.create(
-                ingredient=ingredient, recipe=recipe, amount=amount
+                ingredient_id=ingredient, recipe=recipe, amount=amount
             )
 
     def create_tags(self, tags, recipe) -> None:
@@ -151,16 +169,21 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
         recipe.tags.set(tags)
 
+    # @transaction.atomic
     def create(self, validated_data) -> Recipe:
         """Метод создания модели Recipe."""
 
         ingredients = validated_data.pop('ingredients')
+        print(ingredients)
         tags = validated_data.pop('tags')
 
         user = self.context.get('request').user
+
         recipe = Recipe.objects.create(**validated_data, author=user)
-        self.create_ingredients(ingredients, recipe)
+
         self.create_tags(tags, recipe)
+        self.create_ingredients(ingredients, recipe)
+
         return recipe
 
     def update(self, instance, validated_data):

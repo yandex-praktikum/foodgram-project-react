@@ -7,7 +7,7 @@ from djoser.views import UserViewSet
 from rest_framework import mixins, viewsets, filters, response, status
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -26,7 +26,7 @@ from .permissions import IsAdminOrReadOnly, IsAdminOrAuthorOrReadOnly
 from recipes.models import Favorite, IngredientInRecipe, Recipe, ShoppingCart
 
 
-class CreateRetrieveListViewSet(mixins.CreateModelMixin,
+class RetrieveListViewSet(mixins.RetrieveModelMixin,
                                 mixins.ListModelMixin,
                                 viewsets.GenericViewSet):
     """Создаёт, возвращает объект и список объектов."""
@@ -34,7 +34,7 @@ class CreateRetrieveListViewSet(mixins.CreateModelMixin,
     pass
 
 
-class IngredientViewSet(CreateRetrieveListViewSet):
+class IngredientViewSet(RetrieveListViewSet):
     """Обрабатывает ингредиенты и
     делает поиск по названию ингредиента.
     """
@@ -46,7 +46,7 @@ class IngredientViewSet(CreateRetrieveListViewSet):
     search_fields = ('name',)
 
 
-class TagViewSet(CreateRetrieveListViewSet):
+class TagViewSet(RetrieveListViewSet):
     """Вьюсет для создания тегов."""
 
     queryset = tags.get_all_tags()
@@ -59,7 +59,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для обработки запросов, связанных с рецептами."""
 
     queryset = recipes.get_all_recipes()
-    permission_classes = (IsAdminOrAuthorOrReadOnly, )
+    permission_classes = (IsAdminOrAuthorOrReadOnly, IsAuthenticatedOrReadOnly, )
     filter_backends = (DjangoFilterBackend, )
     filterset_class = RecipeFilter
 
@@ -205,6 +205,21 @@ class CustomUserViewSet(UserViewSet):
     permission_classes = (AllowAny, )
 
     @action(
+        methods=['get'],
+        detail=False,
+        url_path='me',
+        url_name='me',
+        permission_classes=(IsAuthenticated, )
+    )
+    def get_me(self, request):
+        serializer = CustomUserSerializer(
+            request.user,
+            context={"request": self.request}
+        )
+
+        return Response(serializer.data, status.HTTP_200_OK)
+
+    @action(
         detail=False,
         permission_classes=(IsAuthenticated, ),
         url_path='subscriptions',
@@ -229,7 +244,7 @@ class CustomUserViewSet(UserViewSet):
         url_path='subscribe',
         url_name='subscribe',
     )
-    def manage_subscriptions(self, request) -> response.Response:
+    def manage_subscriptions(self, request, **kwargs) -> response.Response:
         """Метод управления подписками пользователя (подписка/отписка)."""
 
         user = request.user
@@ -253,56 +268,3 @@ class CustomUserViewSet(UserViewSet):
             users.delete_subscription(user, author)
 
             return response.Response(status=status.HTTP_204_NO_CONTENT)
-
-
-    # def get_serializer_class(self):
-    #     """Метод для вызова сериализатора."""
-    #
-    #     if self.action in ('list', 'retrieve'):
-    #
-    #         return CustomUserSerializer
-    #
-    #     return CustomUserCreateSerializer
-
-    # @action(
-    #     methods=['get'],
-    #     detail=False,
-    #     url_path='me',
-    #     permission_classes=(IsAuthenticated, )
-    # )
-    # def me(self, request):
-    #     serializer = CustomUserSerializer
-    #     return Response(serializer(request.user).data, status.HTTP_200_OK)
-    #     # serializer = self.get_serializer_class()
-    #     # return Response(serializer(request.user).data, status.HTTP_200_OK)
-
-    # @action(
-    #     methods=['post'],
-    #     detail=False,
-    #     url_path='set_password',
-    #     permission_classes=(IsAuthenticated, )
-    # )
-    # def set_password(self, request):
-    #     serializer = SetPasswordSerializer(
-    #         data=request.data,
-    #         context={'request': request}
-    #     )
-    #     serializer.is_valid(raise_exception=True)
-    #     request.user.set_password(serializer.data['new_password'])
-    #     request.user.save()
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
-
-# class AuthTokenView(APIView):
-#     """Обрабатывает получения токена."""
-#
-#     serializer_class = TokenSerializer
-#     permission_classes = (AllowAny,)
-#
-#     def post(self, request, *args, **kwargs):
-#         serializer = self.get_serializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         user = serializer.validated_data['user']
-#         token, created = Token.objects.get_or_create(user=user)
-#         return Response(
-#             {'auth_token': token.key},
-#             status=status.HTTP_201_CREATED)
