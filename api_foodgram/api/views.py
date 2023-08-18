@@ -40,7 +40,7 @@ class IngredientViewSet(RetrieveListViewSet):
     """
     queryset = ingredients.get_all_ingredients()
     serializer_class = IngredientSerializer
-    permission_classes = (IsAdminOrReadOnly, )
+    permission_classes = (AllowAny, )
     pagination_class = None
     filter_backends = (filters.SearchFilter, )
     search_fields = ('name',)
@@ -51,7 +51,7 @@ class TagViewSet(RetrieveListViewSet):
 
     queryset = tags.get_all_tags()
     serializer_class = TagSerializer
-    permission_classes = (IsAdminOrReadOnly, )
+    permission_classes = (AllowAny, )
     pagination_class = None
 
 
