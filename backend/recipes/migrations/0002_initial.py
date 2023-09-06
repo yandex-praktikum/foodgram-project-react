@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='recipe',
             name='ingredients',
-            field=models.ManyToManyField(related_name='recipes', through='recipes.IngredientsRecipe', to='recipes.Ingredient', verbose_name='Ингредиенты'),
+            field=models.ManyToManyField(related_name='recipes', through='recipes.IngredientInRecipe', to='recipes.Ingredient', verbose_name='Ингредиенты'),
         ),
         migrations.AddField(
             model_name='recipe',
@@ -36,12 +36,12 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(related_name='recipes', to='recipes.Tag', verbose_name='Тег'),
         ),
         migrations.AddField(
-            model_name='ingredientsrecipe',
+            model_name='IngredientInRecipe',
             name='ingredient',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='recipes.ingredient', verbose_name='Ингредиент'),
         ),
         migrations.AddField(
-            model_name='ingredientsrecipe',
+            model_name='IngredientInRecipe',
             name='recipe',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='recipes.recipe', verbose_name='Рецепт'),
         ),
@@ -68,7 +68,7 @@ class Migration(migrations.Migration):
             constraint=models.UniqueConstraint(fields=('title', 'description'), name='unique_recipe'),
         ),
         migrations.AddConstraint(
-            model_name='ingredientsrecipe',
+            model_name='IngredientInRecipe',
             constraint=models.UniqueConstraint(fields=('ingredient', 'amount'), name='unique_ingredient_amount'),
         ),
         migrations.AddConstraint(

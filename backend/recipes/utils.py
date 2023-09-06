@@ -1,13 +1,13 @@
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
-from recipes.models import FavoriteList, Ingredient, IngredientsRecipe
+from recipes.models import FavoriteList, Ingredient, IngredientInRecipe
 from rest_framework import status
 from rest_framework.response import Response
 
 
 def create_shopping_list_report(shopping_cart):
     recipes = shopping_cart.values_list('recipe_id', flat=True)
-    buy_list = IngredientsRecipe.objects.filter(
+    buy_list = IngredientInRecipe.objects.filter(
         recipe__in=recipes
     ).values(
         'ingredient'

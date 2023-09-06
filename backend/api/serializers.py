@@ -1,6 +1,6 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import (FavoriteList, Ingredient, IngredientsRecipe,
+from recipes.models import (FavoriteList, Ingredient, IngredientInRecipe,
                             Recipe, ShoppingList, Tag)
 from rest_framework import serializers
 from users.models import Follow, User
@@ -78,7 +78,7 @@ class TagSerializer (serializers.ModelSerializer):
         fields = ('id', 'name', 'color', 'slug',)
 
 
-class IngredientsRecipeSerializer(serializers.ModelSerializer):
+class IngredientInRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для просмотра и обновления ингредиентов."""
     id = serializers.IntegerField()
     name = serializers.SerializerMethodField(source='ingredient.name',
@@ -86,7 +86,7 @@ class IngredientsRecipeSerializer(serializers.ModelSerializer):
     unit = serializers.CharField(source='ingredient.unit', read_only=True)
 
     class Meta:
-        model = IngredientsRecipe
+        model = IngredientInRecipe
         fields = (
             'id',
             'name',
@@ -106,7 +106,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для создания, просмотра и обновления рецептов."""
     author = UserSerializer(read_only=True)
     image = Base64ImageField(required=False, allow_null=True)
-    ingredients = IngredientsRecipeSerializer(many=True)
+    ingredients = IngredientInRecipeSerializer(many=True)
     tags = TagSerializer(many=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
@@ -138,9 +138,7 @@ class RecipeCreateSerializer(RecipeSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True
     )
-    ingredients = IngredientsRecipeSerializer(
-        source='ingredients', many=True
-    )
+    ingredients = IngredientInRecipeSerializer(many=True)
     image = Base64ImageField()
 
     class Meta:
@@ -153,7 +151,7 @@ class RecipeCreateSerializer(RecipeSerializer):
 
     def create_ingredients(self, ingredients, recipe):
         for ingredient in ingredients:
-            IngredientsRecipe.objects.get_or_create(
+            IngredientInRecipe.objects.get_or_create(
                 ingredient_id=ingredient['ingredient']['id'],
                 recipe=recipe,
                 amount=ingredient['amount']

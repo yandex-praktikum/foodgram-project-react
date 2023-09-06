@@ -22,10 +22,10 @@ class CustomUserViewSet(UserViewSet):
             permission_classes = [AllowAny]
         return [permission() for permission in permission_classes]
 
-    @action(detail=True, permission_classes=[IsAuthenticated])
+    @action(detail=True, permission_classes=[IsAuthenticated], methods=['GET'])
     def subscriptions(self, request):
         """Список подписок."""
-        user = request.user
+        user = self.get_object()
         queryset = Follow.objects.filter(user=user)
         pages = self.paginate_queryset(queryset)
         serializer = FollowSerializer(
