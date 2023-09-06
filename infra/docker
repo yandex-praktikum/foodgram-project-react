@@ -1,0 +1,10 @@
+      PID    PPID    PGID     WINPID   TTY         UID    STIME COMMAND
+S    2617       1    2617        920  pty0      197609   Aug 31 /usr/bin/ssh
+     8967    8964    8964      27008  cons0     197609 16:38:25 /c/Program Files/Docker/Docker/resources/bin/docker
+     8192    7864    8192      22040  pty1      197609 02:03:31 /mingw64/bin/git
+     8992    8610    8992      27672  cons1     197609 16:53:23 /usr/bin/PS
+     8558       1    8558       1460  cons0     197609 15:52:00 /usr/bin/bash
+     7863       1    7863      26244  ?         197609 00:23:22 /usr/bin/mintty
+     8610       1    8610      28876  cons1     197609 15:54:01 /usr/bin/bash
+     8964    8558    8964      26724  cons0     197609 16:38:24 /usr/bin/sh
+     7864    7863    7864      25780  pty1      197609 00:23:22 /usr/bin/bash

@@ -1,8 +1,9 @@
-from api.filters import IngredientFilter
+from api.filters import IngredientFilter, RecipeFilter
 from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from api.serializers import (FavoriteListSerializer, IngredientSerializer,
                              RecipeSerializer, ShoppingListSerializer,
-                             ShortRecipeSerializer, TagSerializer)
+                             ShortRecipeSerializer, TagSerializer,
+                             RecipeCreateSerializer)
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
@@ -44,7 +45,13 @@ def recipe_detail(request, recipe_id):
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+    filterset_class = RecipeFilter
     pagination_class = PageNumberPagination
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return RecipeSerializer
+        return RecipeCreateSerializer
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

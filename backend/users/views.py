@@ -1,9 +1,9 @@
-from api.serializers import CustomUserSerializer, FollowSerializer
+from api.serializers import FollowSerializer, UserSerializer
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from users.models import Follow, User
 
@@ -11,16 +11,18 @@ from users.models import Follow, User
 class CustomUserViewSet(UserViewSet):
     """Вьюсет пользователей."""
     queryset = User.objects.all()
-    serializer_class = CustomUserSerializer
+    serializer_class = UserSerializer
 
-    @action(methods=['GET'], detail=False,
-            permission_classes=[IsAuthenticated])
-    def me(self, request):
-        serializer = CustomUserSerializer(request.user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get_permissions(self):
+        if self.action == 'create':
+            permission_classes = [AllowAny]
+        elif self.action == 'actioned':
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [AllowAny]
+        return [permission() for permission in permission_classes]
 
-    @action(detail=True, methods=['GET'],
-            permission_classes=[IsAuthenticated])
+    @action(detail=True, permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
         """Список подписок."""
         user = request.user
