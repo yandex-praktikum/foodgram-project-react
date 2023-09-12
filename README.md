@@ -45,8 +45,8 @@
 1.  Замените username на ваш логин на DockerHub:
 
     ```bash
-docker build -t username/foodgram_backend:latest backend/
-docker build -t username/foodgram_frontend:latest frontend/
+    docker build -t username/foodgram_backend:latest backend/
+    docker build -t username/foodgram_frontend:latest frontend/
     ```
 
 2. Загрузите образы на DockerHub:
