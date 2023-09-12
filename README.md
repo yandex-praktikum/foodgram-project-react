@@ -152,7 +152,7 @@
     DOCKER_PASSWORD                # пароль пользователя в DockerHub
     HOST                           # ip_address сервера
     USER                           # имя пользователя
-    SSH_KEY                        # приватный ssh-ключ (cat ~/.ssh/id_rsa)
+    SSH_KEY                        # приватный ssh-ключ (cat ~/.ssh/id_rsa) (файл без разсширения)
     SSH_PASSPHRASE                 # кодовая фраза (пароль) для ssh-ключа
 
     TELEGRAM_TO                    # id телеграм-аккаунта (можно узнать у @userinfobot, команда /start)
