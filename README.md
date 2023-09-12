@@ -6,7 +6,6 @@
 [![gunicorn](https://img.shields.io/badge/-gunicorn-464646?style=flat-square&logo=gunicorn)](https://gunicorn.org/)
 [![docker](https://img.shields.io/badge/-Docker-464646?style=flat-square&logo=docker)](https://www.docker.com/)
 <br>
-![badge](https://github.com/devlili/foodgram-project-react/actions/workflows/main.yml/badge.svg)
 
 
 # Cервис Foodgram - продуктовый помощник
