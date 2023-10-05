@@ -3,8 +3,9 @@ from djoser.views import UserViewSet
 from rest_framework.viewsets import ModelViewSet
 
 
-from recipes.models import Tag, Recipe
-from api.serializers import TagSerializer, RecipeSerializer, RecipeCreateSerializer
+from recipes.models import Tag, Recipe, Ingredient
+from api.serializers import (TagSerializer, IngredientSerializer,
+                             RecipeSerializer, RecipeCreateSerializer)
 
 
 def index(request):
@@ -18,6 +19,11 @@ class CustomUserViewSet(UserViewSet):
 class TagViewSet(ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+
+
+class IngredientViewSet(ModelViewSet):
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
 
 
 class RecipeViewSet(ModelViewSet):
