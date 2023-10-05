@@ -69,7 +69,7 @@ class GetIngredientsMixin:
     def get_ingredients(self, obj):
         return obj.ingredients.values(
             'id', 'name', 'measurement_unit',
-            amount=F('recipeingredient__amount')
+            amount=F('recipe_ingredients__amount')
         )
 
 
