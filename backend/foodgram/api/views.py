@@ -1,57 +1,71 @@
-from django.shortcuts import render, HttpResponse
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.db.models import Count, Prefetch, Sum
+from django.http import FileResponse
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from rest_framework.viewsets import ModelViewSet
+from rest_framework import generics, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 
 
-from recipes.models import Tag, Recipe, Ingredient
-from api.serializers import (TagSerializer, IngredientSerializer,
-                             RecipeSerializer, RecipeCreateSerializer)
+from api.serializers import (
+                             IngredientsSerializer, RecipesPostSerializer,
+                             RecipesSerializer, TagsSerializer)
+from api.viewsets import CreateDestroyViewSet, ListViewSet
+from recipes.models import (Ingredient,
+                            IngredientRecipe, Recipe, Tag, )
+
+User = get_user_model()
 
 
-def index(request):
-    return HttpResponse('YES, I DO')
+class CustomSerializerContext(generics.GenericAPIView):
+
+    def get_serializer_context(self):
+        subscribtions = None
+        favorites = None
+        shopping_carts = None
+        recipes = None
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+            'subscribtions': subscribtions,
+            'favorites': favorites,
+            'shopping_carts': shopping_carts,
+            'recipes': recipes
+        }
 
 
 class CustomUserViewSet(UserViewSet):
     pass
 
 
-class TagViewSet(ModelViewSet):
+class IngridientsViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Ingredient.objects.select_related('measurement_unit').all()
+    serializer_class = IngredientsSerializer
+    pagination_class = None
+    ordering = ('name',)
+
+
+class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
-    serializer_class = TagSerializer
+    serializer_class = TagsSerializer
+    pagination_class = None
+    ordering = ('name',)
 
 
-class IngredientViewSet(ModelViewSet):
-    queryset = Ingredient.objects.all()
-    serializer_class = IngredientSerializer
+class RecipesViewSet(viewsets.ModelViewSet, CustomSerializerContext):
+    queryset = Recipe.objects.select_related(
+        'author').prefetch_related('tags', 'ingredients_recipes').all()
+    serializer_class = RecipesSerializer
+    ordering = ('-pub_date',)
 
-
-class RecipeViewSet(ModelViewSet):
-    queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
-
-    def dispatch(self, request, *args, **kwargs):
-        print(request)
-        res = super().dispatch(request, *args, **kwargs)
-
-        from django.db import connection
-        print(len(connection.queries))
-        for q in connection.queries:
-            print('>>>>', q['sql'])
-
-        return res
-    
-    def get_queryset(self):
-        recipes = Recipe.objects.prefetch_related(
-          'recipe_ingredients__ingredient', 'tags'  
-        ).all()
-        return recipes
-    
-    def get_serializer_class(self):
-        if self.action == 'create':  # добавить обновление
-            return RecipeCreateSerializer
-        return RecipeSerializer
-    
     def perform_create(self, serializer):
-        self.author=self.request.user
         serializer.save(author=self.request.user)
+
+    def get_serializer_class(self):
+        if self.action in ['create', 'partial_update']:
+            return RecipesPostSerializer
+        return RecipesSerializer
