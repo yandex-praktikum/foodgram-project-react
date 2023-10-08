@@ -57,10 +57,22 @@ class TagsViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RecipesViewSet(viewsets.ModelViewSet, CustomSerializerContext):
+
     queryset = Recipe.objects.select_related(
         'author').prefetch_related('tags', 'ingredients_recipes').all()
     serializer_class = RecipesSerializer
     ordering = ('-pub_date',)
+
+    def dispatch(self, request, *args, **kwargs):
+        print(request)
+        res = super().dispatch(request, *args, **kwargs)
+
+        from django.db import connection
+        print(len(connection.queries))
+        for q in connection.queries:
+            print('>>>>', q['sql'])
+
+        return res
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
