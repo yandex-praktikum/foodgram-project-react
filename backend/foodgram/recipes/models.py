@@ -20,7 +20,7 @@ class MeasurementUnit(models.Model):
 class Ingredient(models.Model):
     name = models.CharField(max_length=200)
     measurement_unit = models.ForeignKey(
-        MeasurementUnit, on_delete=models.CASCADE, related_name='ingridients')
+        MeasurementUnit, on_delete=models.PROTECT, related_name='ingridients')
 
     def __str__(self):
         return self.name
