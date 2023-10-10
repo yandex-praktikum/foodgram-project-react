@@ -15,7 +15,7 @@ class CustomUserSerializer(UserSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'id', 'username')
+        fields = ('email', 'id', 'username', 'first_name', 'last_name',)
 
 
 class IngredientsSerializer(serializers.ModelSerializer):
@@ -67,7 +67,7 @@ class RecipesPostSerializer(RecipesSerializer):
                                               queryset=Tag.objects.all())
     ingredients = IngredientRecipePostSerializer(many=True)
 
-    @transaction.atomic
+    # @transaction.atomic
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
@@ -83,7 +83,7 @@ class RecipesPostSerializer(RecipesSerializer):
              for ingredient in ingredients])
         return recipe
 
-    @transaction.atomic
+    # @transaction.atomic
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
         instance.text = validated_data.get('text', instance.text)

@@ -1,28 +1,9 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 
 
-from recipes.models import (Ingredient,
-                            IngredientRecipe, MeasurementUnit, Recipe,
-                            Tag)
-
-
-class MeasurementUnitAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name')
-    empty_value_display = '-пусто-'
-    ordering = ('name',)
-
-
-class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'measurement_unit')
-    list_filter = ('name',)
-    empty_value_display = '-пусто-'
-    ordering = ('name',)
-
-
-class TagAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'color', 'slug')
-    empty_value_display = '-пусто-'
-    ordering = ('slug',)
+from recipes.models import (Ingredient, IngredientRecipe, MeasurementUnit, 
+                            Recipe, Tag, User)
 
 
 class IngredientRecipeInline(admin.TabularInline):
@@ -30,6 +11,29 @@ class IngredientRecipeInline(admin.TabularInline):
     extra = 0
 
 
+@admin.register(MeasurementUnit)
+class MeasurementUnitAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'name')
+    empty_value_display = '-пусто-'
+    ordering = ('name',)
+
+
+@admin.register(Ingredient)
+class IngredientAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'name', 'measurement_unit')
+    list_filter = ('name',)
+    empty_value_display = '-пусто-'
+    ordering = ('name',)
+
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'name', 'color', 'slug')
+    empty_value_display = '-пусто-'
+    ordering = ('slug',)
+
+
+@admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'pub_date', 'text', 'cooking_time',
                     'author', '_tags', '_ingredients')
@@ -48,10 +52,11 @@ class RecipeAdmin(admin.ModelAdmin):
         return ", ".join([f'{i[0]} ({i[1]}) - {i[2]}' for i in ingredients])
 
 
-
-
-
-admin.site.register(MeasurementUnit, MeasurementUnitAdmin)
-admin.site.register(Ingredient, IngredientAdmin)
-admin.site.register(Tag, TagAdmin)
-admin.site.register(Recipe, RecipeAdmin)
+@admin.register(User)
+class MyUserAdmin(UserAdmin):
+    change_user_password_template = True
+    list_display = ('username', 'email', 'first_name', 'last_name',
+                    'is_superuser', 'is_staff', 'is_active')
+    search_fields = ('username', 'email')
+    list_filter = ('is_staff', 'username', 'email')
+    empty_value_display = '-пусто-'

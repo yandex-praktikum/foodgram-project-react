@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -5,8 +6,29 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.authtoken.models import Token
 
 
-User = get_user_model()
+# User = get_user_model()
 
+class User(AbstractUser):
+    email = models.EmailField(
+        _('email address'),
+        max_length=254,
+        unique=True)
+    password = models.CharField(
+        _('password'),
+        max_length=150)
+    first_name = models.CharField(
+        _('first name'),
+        max_length=150)
+    last_name = models.CharField(
+        _('last name'),
+        max_length=150)
+
+
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+    USERNAME_FIELD = 'email'
+
+    class Meta:
+        ordering = ['pk']
 
 
 class MeasurementUnit(models.Model):
@@ -81,5 +103,3 @@ class TagRecipe(models.Model):
 
     def __str__(self):
         return f'{self.tag} {self.recipe}'
-
-

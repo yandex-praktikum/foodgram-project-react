@@ -83,6 +83,12 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': str(BASE_DIR / 'db.sqlite3'),
         # 'NAME': BASE_DIR / 'db.sqlite3',
+    },
+
+    "OPTIONS": {
+    # ...
+    "timeout": 30,
+    # ...
     }
 }
 
@@ -140,6 +146,10 @@ REST_FRAMEWORK = {
     # 'DEFAULT_PAGINATION_CLASS': 'api.pagination.CustomPageNumberPagination',
     # 'PAGE_SIZE': 6
 }
+
+
+AUTH_USER_MODEL = 'recipes.User'
+
 
 DJOSER = {
     'LOGIN_FIELD': 'email',

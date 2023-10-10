@@ -38,7 +38,7 @@ class CustomSerializerContext(generics.GenericAPIView):
         }
 
 
-class CustomUserViewSet(UserViewSet):
+class CustomUserViewSet(UserViewSet, CustomSerializerContext):
     pass
 
 
