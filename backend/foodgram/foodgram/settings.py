@@ -155,7 +155,7 @@ AUTH_USER_MODEL = 'recipes.User'
 DJOSER = {
     # 'LOGIN_FIELD': 'email',
 
-    #'SERIALIZERS':
-        # {'user': 'api.serializers.CustomUserSerializer',
-        # 'current_user': 'api.serializers.CustomUserSerializer'}
+    'SERIALIZERS':
+        {'user': 'api.serializers.CustomUserSerializer',
+        'current_user': 'api.serializers.CustomUserSerializer'}
 }
