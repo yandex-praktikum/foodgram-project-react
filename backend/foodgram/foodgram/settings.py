@@ -138,13 +138,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-    'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ),
-    # 'DEFAULT_PERMISSION_CLASSES': [ 
-        # 'rest_framework.permissions.IsAdminUser',
-    # ],
-    # 'DEFAULT_PAGINATION_CLASS': 'api.pagination.CustomPageNumberPagination',
-    # 'PAGE_SIZE': 6
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'api.pagination.CustomPageNumberPagination',
+    'PAGE_SIZE': 6
 }
 
 
@@ -152,5 +153,9 @@ AUTH_USER_MODEL = 'recipes.User'
 
 
 DJOSER = {
-    'LOGIN_FIELD': 'email',
+    # 'LOGIN_FIELD': 'email',
+
+    #'SERIALIZERS':
+        # {'user': 'api.serializers.CustomUserSerializer',
+        # 'current_user': 'api.serializers.CustomUserSerializer'}
 }

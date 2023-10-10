@@ -19,7 +19,7 @@ from recipes.models import (Ingredient,
 
 User = get_user_model()
 
-
+"""
 class CustomSerializerContext(generics.GenericAPIView):
 
     def get_serializer_context(self):
@@ -36,9 +36,10 @@ class CustomSerializerContext(generics.GenericAPIView):
             'shopping_carts': shopping_carts,
             'recipes': recipes
         }
+"""
 
 
-class CustomUserViewSet(UserViewSet, CustomSerializerContext):
+class CustomUserViewSet(UserViewSet):   # , CustomSerializerContext
     pass
 
 
@@ -56,13 +57,25 @@ class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ('name',)
 
 
-class RecipesViewSet(viewsets.ModelViewSet, CustomSerializerContext):
+class RecipesViewSet(viewsets.ModelViewSet):  # , CustomSerializerContext
 
     queryset = Recipe.objects.select_related(
         'author').prefetch_related('tags', 'ingredients_recipes').all()
     serializer_class = RecipesSerializer
     ordering = ('-pub_date',)
 
+    """
+        def dispatch(self, request, *args, **kwargs):
+        print(request)
+        res = super().dispatch(request, *args, **kwargs)
+
+        from django.db import connection
+        print(len(connection.queries))
+        for q in connection.queries:
+            print('>>>>', q['sql'])
+
+        return res
+    """
     def dispatch(self, request, *args, **kwargs):
         print(request)
         res = super().dispatch(request, *args, **kwargs)
