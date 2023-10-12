@@ -7,10 +7,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import generics, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 
-from api.serializers import (
+from api.serializers import (CustomUserSerializer,                         ###
                              IngredientsSerializer, RecipesPostSerializer,
                              RecipesSerializer, TagsSerializer)
 from api.viewsets import CreateDestroyViewSet, ListViewSet
@@ -47,6 +47,7 @@ class CustomUserViewSet(UserViewSet): # , CustomSerializerContext
 class IngridientsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.select_related('measurement_unit').all()
     serializer_class = IngredientsSerializer
+    permission_classes = (AllowAny, )
     pagination_class = None
     ordering = ('name',)
 
@@ -54,6 +55,7 @@ class IngridientsViewSet(viewsets.ReadOnlyModelViewSet):
 class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagsSerializer
+    permission_classes = (AllowAny, )
     pagination_class = None
     ordering = ('name',)
 
@@ -78,8 +80,8 @@ class RecipesViewSet(viewsets.ModelViewSet):  # , CustomSerializerContext
         return res
     """
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+    # def perform_create(self, serializer):
+        # serializer.save(author=self.request.user)
 
     def get_serializer_class(self):
         if self.action in ['create', 'partial_update']:

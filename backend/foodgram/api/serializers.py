@@ -71,6 +71,12 @@ class RecipesPostSerializer(RecipesSerializer):
     tags = serializers.PrimaryKeyRelatedField(many=True,
                                               queryset=Tag.objects.all())
     ingredients = IngredientRecipePostSerializer(many=True)
+    author = serializers.HiddenField(default=serializers.CurrentUserDefault()) # 
+
+    class Meta: # 
+        model = Recipe #
+        fields = ('id', 'tags', 'author', 'ingredients', 'name', 'text', 'cooking_time') # 
+        read_only_fields = ('author',) # 
 
     # @transaction.atomic
     def create(self, validated_data):
