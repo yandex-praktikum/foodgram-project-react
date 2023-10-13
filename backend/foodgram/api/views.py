@@ -13,7 +13,6 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from api.serializers import (CustomUserSerializer,                         ###
                              IngredientsSerializer, RecipesPostSerializer,
                              RecipesSerializer, TagsSerializer)
-from api.viewsets import CreateDestroyViewSet, ListViewSet
 from recipes.models import (Ingredient,
                             IngredientRecipe, Recipe, Tag, )
 
@@ -47,7 +46,7 @@ class CustomUserViewSet(UserViewSet): # , CustomSerializerContext
 class IngridientsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.select_related('measurement_unit').all()
     serializer_class = IngredientsSerializer
-    permission_classes = (AllowAny, )
+    # permission_classes = (AllowAny, )
     pagination_class = None
     ordering = ('name',)
 
@@ -55,13 +54,12 @@ class IngridientsViewSet(viewsets.ReadOnlyModelViewSet):
 class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagsSerializer
-    permission_classes = (AllowAny, )
+    # permission_classes = (AllowAny, )
     pagination_class = None
     ordering = ('name',)
 
 
 class RecipesViewSet(viewsets.ModelViewSet):  # , CustomSerializerContext
-
     queryset = Recipe.objects.select_related(
         'author').prefetch_related('tags', 'ingredients_recipes').all()
     serializer_class = RecipesSerializer
