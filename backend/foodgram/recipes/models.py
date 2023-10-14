@@ -68,6 +68,7 @@ class Recipe(models.Model):
     pub_date = models.DateTimeField(auto_now_add=True)
     text = models.TextField()
     cooking_time = models.IntegerField(validators=[MinValueValidator(1)])
+    image = models.ImageField(upload_to='recipes/images/')  #
     tags = models.ManyToManyField(Tag, related_name='recipes')
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='recipes')

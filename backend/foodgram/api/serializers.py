@@ -1,4 +1,7 @@
+import base64  # Модуль с функциями кодирования и декодирования base64
+import webcolors
 
+from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from rest_framework import serializers
@@ -50,21 +53,57 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
+class Hex2NameColor(serializers.Field):
+    # При чтении данных ничего не меняем - просто возвращаем как есть
+    def to_representation(self, value):
+        return value
+    # При записи код цвета конвертируется в его название
+    def to_internal_value(self, data):
+        # Доверяй, но проверяй
+        try:
+            # Если имя цвета существует, то конвертируем код в название
+            data = webcolors.hex_to_name(data)
+        except ValueError:
+            # Иначе возвращаем ошибку
+            raise serializers.ValidationError('Для этого цвета нет имени')
+        # Возвращаем данные в новом формате
+        return data
+
+
 class TagsSerializer(serializers.ModelSerializer):
+    color = Hex2NameColor()  # Вот он - наш собственный тип поля
     
     class Meta:
         model = Tag
         fields = ('id', 'name', 'color', 'slug')
 
 
+class Base64ImageField(serializers.ImageField):
+    def to_internal_value(self, data):
+        # Если полученный объект строка, и эта строка 
+        # начинается с 'data:image'...
+        if isinstance(data, str) and data.startswith('data:image'):
+            # ...начинаем декодировать изображение из base64.
+            # Сначала нужно разделить строку на части.
+            format, imgstr = data.split(';base64,')  
+            # И извлечь расширение файла.
+            ext = format.split('/')[-1]  
+            # Затем декодировать сами данные и поместить результат в файл,
+            # которому дать название по шаблону.
+            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+
+        return super().to_internal_value(data)
+
+
 class RecipesSerializer(serializers.ModelSerializer):
     tags = TagsSerializer(many=True)
     ingredients = IngredientRecipeSerializer(source='ingredients_recipes', many=True)
     author = CustomUserSerializer(default=serializers.CurrentUserDefault())
+    image = Base64ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Recipe
-        fields = ('id', 'tags', 'author', 'ingredients', 'name', 'text', 'cooking_time')
+        fields = ('id', 'tags', 'author', 'ingredients', 'name','image', 'text', 'cooking_time')
 
 
 class RecipesPostSerializer(RecipesSerializer):
@@ -72,10 +111,11 @@ class RecipesPostSerializer(RecipesSerializer):
                                               queryset=Tag.objects.all())
     ingredients = IngredientRecipePostSerializer(many=True)
     author = serializers.HiddenField(default=serializers.CurrentUserDefault()) # 
+    image = Base64ImageField(required=False, allow_null=True)
 
     class Meta: # 
         model = Recipe #
-        fields = ('id', 'tags', 'author', 'ingredients', 'name', 'text', 'cooking_time') # 
+        fields = ('id', 'tags', 'author', 'ingredients', 'name', 'image', 'text', 'cooking_time') # 
         read_only_fields = ('author',) # 
 
     # @transaction.atomic
