@@ -3,15 +3,18 @@ import webcolors
 
 from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
+from django.db.models import Count, Prefetch
 from django.db import transaction
 from rest_framework import serializers
 from djoser.serializers import UserSerializer
 
 from recipes.models import (Ingredient,
                             IngredientRecipe, Recipe, Tag,
-                            TagRecipe)
+                            TagRecipe, Subscription)
 
 User = get_user_model()
+
 
 
 class CustomUserSerializer(UserSerializer):
@@ -99,11 +102,18 @@ class RecipesSerializer(serializers.ModelSerializer):
     tags = TagsSerializer(many=True)
     ingredients = IngredientRecipeSerializer(source='ingredients_recipes', many=True)
     author = CustomUserSerializer(default=serializers.CurrentUserDefault())
-    image = Base64ImageField(required=False, allow_null=True)
+    image = Base64ImageField() # required=False, allow_null=True
 
     class Meta:
         model = Recipe
-        fields = ('id', 'tags', 'author', 'ingredients', 'name','image', 'text', 'cooking_time')
+        fields = ('id', 'tags', 'author', 'ingredients', 'name', 'image', 'text', 'cooking_time')
+
+
+class RecipesShortSerializer(RecipesSerializer):
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class RecipesPostSerializer(RecipesSerializer):
@@ -161,4 +171,66 @@ class RecipesPostSerializer(RecipesSerializer):
 
     def to_representation(self, instance):
         serializer = RecipesSerializer(instance, context=self.context)
+        return serializer.data
+
+
+
+class SubscriptionSerializer(CustomUserSerializer):
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.IntegerField()
+
+    class Meta:
+        model = User
+        fields = ('email', 'id', 'username', 'first_name', 'last_name',
+                  'is_subscribed', 'recipes', 'recipes_count')
+
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        if request.method == 'POST':
+            recipes = obj.recipes.all()
+        else:
+            recipes_all = self.context.get('recipes', [])
+            recipes = recipes_all.filter(author=obj)
+        if request:
+            recipes_limit = request.GET.get("recipes_limit")
+            if recipes_limit:
+                recipes = recipes[:int(recipes_limit)]
+        serializer = RecipesShortSerializer(recipes, many=True)
+        return serializer.data
+
+
+class SubscribeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ()
+        model = Subscription
+
+    def validate(self, data):
+        request = self.context.get('request')
+        author = get_object_or_404(
+            User,
+            pk=self.context.get('view').kwargs.get('id')
+        )
+        subscriber = request.user
+        if request.method == 'POST':
+            if author == subscriber:
+                raise serializers.ValidationError(
+                    'Нельзя подписаться на самого себя!')
+            if Subscription.objects.filter(author=author,
+                                           subscriber=subscriber
+                                           ).exists():
+                raise serializers.ValidationError(
+                    'Вы уже подписаны на этого автора!')
+        return data
+
+    def to_representation(self, instance):
+        user_query = User.objects.all().annotate(
+            recipes_count=Count('recipes'))
+        sub_query = Subscription.objects.select_related(
+            'subscriber').prefetch_related(Prefetch('author',
+                                                    queryset=user_query))
+        instance = get_object_or_404(sub_query, subscriber=instance.subscriber,
+                                     author=instance.author)
+        serializer = SubscriptionSerializer(instance.author,
+                                            context=self.context)
         return serializer.data

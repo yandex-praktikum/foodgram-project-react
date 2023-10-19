@@ -6,8 +6,6 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.authtoken.models import Token
 
 
-# User = get_user_model()
-
 class User(AbstractUser):
     email = models.EmailField(
         _('email address'),
@@ -68,7 +66,7 @@ class Recipe(models.Model):
     pub_date = models.DateTimeField(auto_now_add=True)
     text = models.TextField()
     cooking_time = models.IntegerField(validators=[MinValueValidator(1)])
-    image = models.ImageField(upload_to='recipes/images/')  #
+    image = models.ImageField(upload_to='recipes/images/')
     tags = models.ManyToManyField(Tag, related_name='recipes')
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='recipes')
@@ -104,3 +102,15 @@ class TagRecipe(models.Model):
 
     def __str__(self):
         return f'{self.tag} {self.recipe}'
+
+
+class Subscription(models.Model):
+    subscriber = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriber')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='author')
+
+    class Meta:
+        ordering = ['author']
+        constraints = [
+            models.UniqueConstraint(fields=['subscriber', 'author'],
+                                    name='unique subscriber author')
+        ]
