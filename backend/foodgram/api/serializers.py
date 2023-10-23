@@ -16,17 +16,19 @@ from recipes.models import (Ingredient,
 User = get_user_model()
 
 
-
 class CustomUserSerializer(UserSerializer):
     is_subscribed = serializers.SerializerMethodField()
+    # pagination_class = None
 
     class Meta:
         model = User
         fields = ('email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed')
 
     def get_is_subscribed(self, obj):
-        #
-        return False
+        if not self.context['subscriptions']:
+            return False
+        return obj.id in self.context.get('subscriptions', [])
+        # return False
 
 
 class IngredientsSerializer(serializers.ModelSerializer):
@@ -174,7 +176,6 @@ class RecipesPostSerializer(RecipesSerializer):
         return serializer.data
 
 
-
 class SubscriptionSerializer(CustomUserSerializer):
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.IntegerField()
@@ -197,7 +198,29 @@ class SubscriptionSerializer(CustomUserSerializer):
                 recipes = recipes[:int(recipes_limit)]
         serializer = RecipesShortSerializer(recipes, many=True)
         return serializer.data
+    
+"""
+class SubscribeSerializer(serializers.ModelSerializer): # ryb
+    id = serializers.SlugRelatedField(
+        slug_field="id", queryset=User.objects.all(), source="author"
+    )
+    print("id", id)
+    subscriber = serializers.PrimaryKeyRelatedField(
+        read_only=True, default=serializers.CurrentUserDefault()
+    )
+    print("sub", subscriber)
 
+    class Meta:
+        fields = ["id", "subscriber"]
+        model = Subscription
+
+    def create(self, validated_data):
+        print("validated_data", validated_data)
+        if "subscriber" not in validated_data:
+            validated_data["subscriber"] = self.context["request"].user
+        return Subscription.objects.create(**validated_data)
+
+"""
 
 class SubscribeSerializer(serializers.ModelSerializer):
 

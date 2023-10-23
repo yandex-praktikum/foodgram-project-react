@@ -9,17 +9,18 @@ from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from rest_framework import generics, viewsets
+from rest_framework import generics, viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from api.exceptions import BadRequestException
 from api.serializers import (CustomUserSerializer, IngredientsSerializer, RecipesPostSerializer,
-                             RecipesSerializer, TagsSerializer, SubscribeSerializer, SubscriptionSerializer)
+                             RecipesSerializer, TagsSerializer, SubscribeSerializer, SubscriptionSerializer) # 
 from api.viewsets import CreateDestroyViewSet, ListViewSet
 from recipes.models import (Ingredient,
                             IngredientRecipe, Recipe, Tag, Subscription)
+from rest_framework.response import Response
 
 User = get_user_model()
 
@@ -28,18 +29,18 @@ User = get_user_model()
 class CustomSerializerContext(generics.GenericAPIView):
 
     def get_serializer_context(self):
-        subscribtions = None
+        subscriptions = None
         recipes = None
         if self.request.user.is_authenticated:
-            subscribtions = set(Subscription.objects.filter(
+            subscriptions = set(Subscription.objects.filter(
                 subscriber=self.request.user).values_list(
                     'author_id', flat=True))
-            recipes = Recipe.objects.filter(author__in=subscribtions)
+            recipes = Recipe.objects.filter(author__in=subscriptions)
         return {
             'request': self.request,
             'format': self.format_kwarg,
             'view': self,
-            'subscribtions': subscribtions,
+            'subscriptions': subscriptions,
             'recipes': recipes
         }
 
@@ -65,7 +66,7 @@ class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ('name',)
 
 
-class RecipesViewSet(viewsets.ModelViewSet):  # , CustomSerializerContext
+class RecipesViewSet(viewsets.ModelViewSet, CustomSerializerContext):
     queryset = Recipe.objects.select_related(
         'author').prefetch_related('tags', 'ingredients_recipes').all()
     serializer_class = RecipesSerializer
@@ -92,7 +93,8 @@ class RecipesViewSet(viewsets.ModelViewSet):  # , CustomSerializerContext
             return RecipesPostSerializer
         return RecipesSerializer
 
-class SubscriptionsViewSet(ListViewSet, CustomSerializerContext):
+
+class SubscriptionsViewSet(ListViewSet, CustomSerializerContext): # 
     serializer_class = SubscriptionSerializer
     permission_classes = (IsAuthenticated,)
     ordering = ('author',)
@@ -105,20 +107,10 @@ class SubscriptionsViewSet(ListViewSet, CustomSerializerContext):
 
 
 class SubscribeViewSet(CreateDestroyViewSet, CustomSerializerContext):
+    queryset = Subscription.objects.all()
     serializer_class = SubscribeSerializer
     permission_classes = (IsAuthenticated,)
     ordering = ('author',)
-
-    def dispatch(self, request, *args, **kwargs):
-        print(request)
-        res = super().dispatch(request, *args, **kwargs)
-
-        from django.db import connection
-        print(len(connection.queries))
-        for q in connection.queries:
-            print('>>>>', q['sql'])
-
-        return res
 
     def get_object(self):
         queryset = self.filter_queryset(self.get_queryset())
@@ -130,19 +122,9 @@ class SubscribeViewSet(CreateDestroyViewSet, CustomSerializerContext):
                 {'errors': 'Вы не подписаны на этого автора!'})
         return get_object_or_404(queryset, subscriber=subscriber,
                                  author=author)
-
-    def get_queryset(self):
-        user_query = User.objects.all().annotate(
-            recipes_count=Count('recipes'))
-        return Subscription.objects.select_related(
-            'subscriber').prefetch_related(Prefetch('author',
-                                                    queryset=user_query))
-
+                                                
     def perform_create(self, serializer):
         author = get_object_or_404(User, id=self.kwargs['id'])
         serializer.save(subscriber=self.request.user, author=author)
-   
-
-
-
+  
 
