@@ -16,10 +16,12 @@ from rest_framework.response import Response
 
 from api.exceptions import BadRequestException
 from api.serializers import (CustomUserSerializer, IngredientsSerializer, RecipesPostSerializer,
-                             RecipesSerializer, TagsSerializer, SubscribeSerializer, SubscriptionSerializer) # 
+                             RecipesSerializer, TagsSerializer, SubscribeSerializer,
+                             SubscriptionSerializer, FavoriteSerializer, RecipeMinifiedSerializer,
+                             ShoppingCartSerializer) # 
 from api.viewsets import CreateDestroyViewSet, ListViewSet
-from recipes.models import (Ingredient,
-                            IngredientRecipe, Recipe, Tag, Subscription)
+from recipes.models import (Ingredient, ShoppingCart,
+                            IngredientRecipe, Recipe, Tag, Subscription, Favorite)
 from rest_framework.response import Response
 
 User = get_user_model()
@@ -106,25 +108,49 @@ class SubscriptionsViewSet(ListViewSet, CustomSerializerContext): #
                 recipes_count=Count('recipes'))
 
 
-class SubscribeViewSet(CreateDestroyViewSet, CustomSerializerContext):
+class SubscribeViewSet(CreateDestroyViewSet, CustomSerializerContext): # 
     queryset = Subscription.objects.all()
     serializer_class = SubscribeSerializer
-    permission_classes = (IsAuthenticated,)
-    ordering = ('author',)
 
     def get_object(self):
         queryset = self.filter_queryset(self.get_queryset())
         author = get_object_or_404(User, pk=self.kwargs['id'])
         subscriber = self.request.user
-        if not Subscription.objects.filter(author=author,
-                                           subscriber=subscriber).exists():
-            raise BadRequestException(
-                {'errors': 'Вы не подписаны на этого автора!'})
         return get_object_or_404(queryset, subscriber=subscriber,
                                  author=author)
                                                 
     def perform_create(self, serializer):
-        author = get_object_or_404(User, id=self.kwargs['id'])
+        author = get_object_or_404(User, pk=self.kwargs['id'])
         serializer.save(subscriber=self.request.user, author=author)
-  
+        
 
+class FavoriteViewSet(viewsets.ModelViewSet):
+    queryset = Favorite.objects.all()
+    serializer_class = FavoriteSerializer
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        recipe = get_object_or_404(Recipe, pk=self.kwargs['id'])
+        user = self.request.user
+        return get_object_or_404(queryset, recipe=recipe,
+                                 user=user)
+                                                
+    def perform_create(self, serializer):
+        recipe = get_object_or_404(Recipe, pk=self.kwargs['id'])
+        serializer.save(user=self.request.user, recipe=recipe)
+
+
+class ShoppingCartViewSet(viewsets.ModelViewSet):
+    queryset = ShoppingCart.objects.all()
+    serializer_class = ShoppingCartSerializer
+    
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        recipe = get_object_or_404(Recipe, pk=self.kwargs['id'])
+        user = self.request.user
+        return get_object_or_404(queryset, recipe=recipe,
+                                 user=user)
+                                                
+    def perform_create(self, serializer):
+        recipe = get_object_or_404(Recipe, pk=self.kwargs['id'])
+        serializer.save(user=self.request.user, recipe=recipe)

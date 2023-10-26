@@ -11,7 +11,8 @@ from djoser.serializers import UserSerializer
 
 from recipes.models import (Ingredient,
                             IngredientRecipe, Recipe, Tag,
-                            TagRecipe, Subscription)
+                            TagRecipe, Subscription, Favorite,
+                            ShoppingCart)
 
 User = get_user_model()
 
@@ -111,7 +112,7 @@ class RecipesSerializer(serializers.ModelSerializer):
         fields = ('id', 'tags', 'author', 'ingredients', 'name', 'image', 'text', 'cooking_time')
 
 
-class RecipesShortSerializer(RecipesSerializer):
+class RecipeMinifiedSerializer(RecipesSerializer):
 
     class Meta:
         model = Recipe
@@ -196,31 +197,9 @@ class SubscriptionSerializer(CustomUserSerializer):
             recipes_limit = request.GET.get("recipes_limit")
             if recipes_limit:
                 recipes = recipes[:int(recipes_limit)]
-        serializer = RecipesShortSerializer(recipes, many=True)
+        serializer = RecipeMinifiedSerializer(recipes, many=True)
         return serializer.data
     
-"""
-class SubscribeSerializer(serializers.ModelSerializer): # ryb
-    id = serializers.SlugRelatedField(
-        slug_field="id", queryset=User.objects.all(), source="author"
-    )
-    print("id", id)
-    subscriber = serializers.PrimaryKeyRelatedField(
-        read_only=True, default=serializers.CurrentUserDefault()
-    )
-    print("sub", subscriber)
-
-    class Meta:
-        fields = ["id", "subscriber"]
-        model = Subscription
-
-    def create(self, validated_data):
-        print("validated_data", validated_data)
-        if "subscriber" not in validated_data:
-            validated_data["subscriber"] = self.context["request"].user
-        return Subscription.objects.create(**validated_data)
-
-"""
 
 class SubscribeSerializer(serializers.ModelSerializer):
 
@@ -257,3 +236,27 @@ class SubscribeSerializer(serializers.ModelSerializer):
         serializer = SubscriptionSerializer(instance.author,
                                             context=self.context)
         return serializer.data
+
+
+class FavoriteSerializer(serializers.ModelSerializer):
+   
+    class Meta:
+        model = Favorite
+        fields = ()
+
+    def to_representation(self, data):
+        serializer = RecipeMinifiedSerializer(data.recipe)
+        return serializer.data
+
+
+class ShoppingCartSerializer(serializers.ModelSerializer):
+   
+    class Meta:
+        model = ShoppingCart
+        fields = ()
+
+    def to_representation(self, data):
+        serializer = RecipeMinifiedSerializer(data.recipe)
+        return serializer.data
+
+

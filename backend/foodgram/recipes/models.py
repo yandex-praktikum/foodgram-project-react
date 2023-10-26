@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.authtoken.models import Token
 
 
+
 class User(AbstractUser):
     email = models.EmailField(
         _('email address'),
@@ -113,4 +114,28 @@ class Subscription(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['subscriber', 'author'],
                                     name='unique subscriber author')
+        ]
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user')
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='recipe')
+
+    class Meta:
+        ordering = ['user']
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'recipe'],
+                                    name='unique user recipe')
+        ]
+
+
+class ShoppingCart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cart')
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='cart')
+
+    class Meta:
+        ordering = ['-id']
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'recipe'],
+                                    name='unique user cart')
         ]

@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 
 
 from recipes.models import (Ingredient, IngredientRecipe, MeasurementUnit, 
-                            Recipe, Tag, User)
+                            Recipe, Tag, User, Favorite)
 
 
 class IngredientRecipeInline(admin.TabularInline):
@@ -60,3 +60,10 @@ class MyUserAdmin(UserAdmin):
     search_fields = ('username', 'email')
     list_filter = ('is_staff', 'username', 'email')
     empty_value_display = '-пусто-'
+
+
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'user', 'recipe')
+    empty_value_display = '-пусто-'
+    ordering = ('user',)
+    
