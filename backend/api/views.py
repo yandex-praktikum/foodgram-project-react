@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
+from pagination import FoodPagination
 
 
 class TagsViewSet(ModelViewSet):
@@ -14,6 +15,7 @@ class UsersViewSet(ModelViewSet):
 
 class RecipesViewSet(ModelViewSet):
     '''Вьювсет для работы с API рецептов'''
+    pagination_class = FoodPagination
     pass
 
 
