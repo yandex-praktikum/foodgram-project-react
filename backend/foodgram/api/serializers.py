@@ -16,7 +16,25 @@ from recipes.models import (Ingredient,
 
 User = get_user_model()
 
+class GetIsSubscribedMixin:
+    """Миксина отображения подписки на пользователя"""
+    def get_is_subscribed(self, obj):
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return user.subscriber.filter(author=obj.id).exists()
 
+class CustomUserSerializer(GetIsSubscribedMixin, UserSerializer):
+    """Сериализатор просмотра пользователя"""
+    is_subscribed = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('email', 'id', 'username', 'first_name', 'last_name',
+                  'is_subscribed')
+        read_only_fields = ('is_subscribed', )
+
+"""
 class CustomUserSerializer(UserSerializer):
     is_subscribed = serializers.SerializerMethodField()
     # pagination_class = None
@@ -26,14 +44,14 @@ class CustomUserSerializer(UserSerializer):
         fields = ('email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed')
 
     def get_is_subscribed(self, obj):
-        if not self.context['subscriptions']:
-            return False
-        return obj.id in self.context.get('subscriptions', [])
-        # return False
-
+        # if not self.context['subscriptions']:
+            # return False
+        # return obj.id in self.context.get('subscriptions')
+        return False
+"""
 
 class IngredientsSerializer(serializers.ModelSerializer):
-    measurement_unit = serializers.StringRelatedField(read_only=True)
+    # measurement_unit = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         fields = ('name', 'measurement_unit', 'id')
@@ -52,7 +70,7 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(source='ingredient.id')
     name = serializers.CharField(source='ingredient.name')
     measurement_unit = serializers.CharField(
-        source='ingredient.measurement_unit.name')
+        source='ingredient.measurement_unit') # source='ingredient.measurement_unit.name
 
     class Meta:
         model = IngredientRecipe
@@ -105,7 +123,7 @@ class RecipesSerializer(serializers.ModelSerializer):
     tags = TagsSerializer(many=True)
     ingredients = IngredientRecipeSerializer(source='ingredients_recipes', many=True)
     author = CustomUserSerializer(default=serializers.CurrentUserDefault())
-    image = Base64ImageField() # required=False, allow_null=True
+    image = Base64ImageField(required=False, allow_null=True) # required=False, allow_null=True
 
     class Meta:
         model = Recipe

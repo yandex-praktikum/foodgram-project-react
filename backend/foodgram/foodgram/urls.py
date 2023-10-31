@@ -24,7 +24,8 @@ urlpatterns = [
     path('api/', include('api.urls'))
 ]
 
+admin.site.site_header = 'Кабинет шеф-повара'
+admin.site.index_title = 'Рецепты поварят'
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    

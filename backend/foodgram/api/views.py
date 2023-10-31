@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Count, Prefetch, Sum
+from django.http import HttpResponse
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -26,6 +27,8 @@ from rest_framework.response import Response
 
 User = get_user_model()
 
+FILENAME = 'shopping_cart.txt'
+HEADER_FILE_CART = 'Не порть продукты, сходи в ресторан:\n\nИнгредиент   -   Кол-во/Ед.изм.\n'
 
 
 class CustomSerializerContext(generics.GenericAPIView):
@@ -87,13 +90,29 @@ class RecipesViewSet(viewsets.ModelViewSet, CustomSerializerContext):
         return res
     """
 
-    # def perform_create(self, serializer):
-        # serializer.save(author=self.request.user)
-
     def get_serializer_class(self):
         if self.action in ['create', 'partial_update']:
             return RecipesPostSerializer
         return RecipesSerializer
+    
+    @action(methods=['get'], detail=False)
+    def download_shopping_cart(self, request):
+        ingredients = IngredientRecipe.objects.filter(
+            recipe__cart__user=request.user
+        ).values(
+            'ingredient__name',
+            'ingredient__measurement_unit'
+        ).order_by('ingredient__name').annotate(total=Sum('amount'))
+        result = HEADER_FILE_CART
+        result += '\n'.join([
+            f'{ingredient["ingredient__name"]}     -     {ingredient["total"]}/'
+            f'{ingredient["ingredient__measurement_unit"]}'
+            for ingredient in ingredients
+        ])
+        response = HttpResponse(result, content_type='text/plain')
+        response['Content-Disposition'] = f'attachment; filename={FILENAME}'
+        print(response)
+        return response
 
 
 class SubscriptionsViewSet(ListViewSet, CustomSerializerContext): # 
