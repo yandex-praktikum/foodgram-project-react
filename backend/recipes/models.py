@@ -1,6 +1,7 @@
 from django.db import models
 
 from users.models import UserFoodgram
+from validators import HexCheckValidation, MinValueTimeCookingValidator
 
 class Ingredient(models.Model):
     '''Модель рецепта'''
@@ -35,13 +36,14 @@ class Tag(models.Model):
         help_text='введите цвет тега в HEX-формате',
         max_length=7,
         unique=True,
-        validators=!!!!!!!! нужен валидатор цвета!!
+        validators=[HexCheckValidation]
     )
     slug = models.CharField(
         verbose_name='slug тега',
         help_text='slug имя тега',
         max_length='200',
     )
+
 
 class Recipe(models.Model):
     '''Модель рецептов'''
@@ -86,7 +88,8 @@ class Recipe(models.Model):
     cooking_time = models.PositiveIntegerField(
         verbose_name='время приговления по рецепту в минутах',
         help_text='введите время приговления по рецепту в минутах',
-        validators=!!!!!!!!!!,
+        validators=[MinValueTimeCookingValidator],
+    )
 
     class Meta:
         '''Метамодель для модели Recipe'''
@@ -144,6 +147,6 @@ class Favorites(models.Model):
         Recipe,
         verbose_name='рецепт',
         related_name='favorites_recipes_user',
-        on_delete = models.CASCADE
+        on_delete=models.CASCADE
     )
 
