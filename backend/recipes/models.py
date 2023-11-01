@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import CharField
-
+from django.core.validators import MinValueValidator
 from users.models import UserFoodgram
 from validators import HexCheckValidation, MinValueTimeCookingValidator
 
@@ -10,12 +10,12 @@ class Ingredient(models.Model):
     name = models.CharField(
         max_length=200,
         db_index=True,
-        verbose_name='Название ингредиента')
-
+        verbose_name='Название ингредиента'
+    )
     measurement_unit = models.CharField(
         max_length=200,
-        verbose_name='Единицы измерения')
-
+        verbose_name='Единицы измерения'
+    )
     class Meta:
         """Метамодель для модели Ingridient"""
         verbose_name = 'Ингридиент'
@@ -39,6 +39,7 @@ class Tag(models.Model):
         help_text='введите цвет тега в HEX-формате',
         max_length=7,
         unique=True,
+        default='#ffffff',
         validators=[HexCheckValidation]
     )
     slug = models.CharField(
@@ -110,7 +111,7 @@ class ShopCart(models.Model):
     user = models.ForeignKey(
         UserFoodgram,
         verbose_name='покупатель',
-        related_name='shop_carts_user',
+        related_name='shop_carts_users',
         on_delete=models.CASCADE,
     )
     recipe = models.ForeignKey(
@@ -142,12 +143,49 @@ class Favorites(models.Model):
     user = models.ForeignKey(
         UserFoodgram,
         verbose_name='пользователь',
-        related_name='favorites_recipes_user',
+        related_name='favorites_recipes_users',
         on_delete=models.CASCADE,
     )
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='рецепт',
-        related_name='favorites_recipes_user',
+        related_name='favorites_recipes_users',
         on_delete=models.CASCADE
     )
+
+
+class IngredientInRecipe(models.Model):
+    """Модель колличества ингридиентов в рецептах.
+        Many-to-Many Ingredient and Recipe"""
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        verbose_name='ингредиент',
+        related_name='ingridients_recipe'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name='рецепт',
+        related_name='ingridients_recipe'
+    )
+    amount = models.PositiveSmallIntegerField(
+        verbose_name='количество',
+        default=1,
+        validators=[MinValueValidator,]
+    )
+
+    class Meta:
+        """Метамодель для модели IngredientInRecipe"""
+        verbose_name = 'ингредиент в рецепте'
+        verbose_name_plural = 'ингредиенты в рецептах'
+        ordering = ("-recipe",)
+        constraints = (
+            models.UniqueConstraint(
+                fields=("recipe", "ingredients"),
+                name="%(app_label)s_%(class)s_ingredient_already_added"
+            ),
+        )
+
+    def __str__(self):
+        return f'{self.ingredient} {self.recipe}'

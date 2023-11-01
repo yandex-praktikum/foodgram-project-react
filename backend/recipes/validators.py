@@ -12,3 +12,10 @@ class MinValueTimeCookingValidator(MinValueValidator):
      приготовления в рецепте'''
     limit_value = 1
     message = 'не менее 1 минуты!'
+
+
+class MinValueAmountIngridient(MinValueValidator):
+    """Валидатор корректности вводимого значения
+     колличества единиц ингридиентов в рецепте"""
+    limit_value = 1
+    message = 'не менее 1 единицы/штуки'
