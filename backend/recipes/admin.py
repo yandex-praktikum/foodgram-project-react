@@ -5,7 +5,8 @@ from .models import (
     Tag,
     Recipe,
     ShopCart,
-    Favorites
+    Favorites,
+    IngredientInRecipe,
 )
 
 
@@ -42,3 +43,11 @@ class FavoriteAdmin(ModelAdmin):
     """Настройка полей модели Favorites в админке"""
     list_display = ('pk', 'user', 'recipe')
     list_filter = ('user', 'recipe')
+
+
+@register(IngredientInRecipe)
+class IngredientInRecipeAdmin(ModelAdmin):
+    """Настройка полей модели IngredientInRecipe
+    в админке"""
+    list_display = ('pk', 'ingredient', 'recipe', 'amount',)
+    list_filter = ('ingredient', 'recipe',)
