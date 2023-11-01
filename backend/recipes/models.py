@@ -1,10 +1,12 @@
 from django.db import models
+from django.db.models import CharField
 
 from users.models import UserFoodgram
 from validators import HexCheckValidation, MinValueTimeCookingValidator
 
+
 class Ingredient(models.Model):
-    '''Модель рецепта'''
+    """Модель рецепта"""
     name = models.CharField(
         max_length=200,
         db_index=True,
@@ -15,16 +17,17 @@ class Ingredient(models.Model):
         verbose_name='Единицы измерения')
 
     class Meta:
-        '''Метамодель для модели Ingridient'''
+        """Метамодель для модели Ingridient"""
         verbose_name = 'Ингридиент'
         verbose_name_plural = 'Ингридиенты'
         ordering = ['-name',]
 
-        def __str__(self) -> str:
-            return f'{self.name}, {self.measurement_unit}'
+    def __str__(self) -> str:
+        return f'{self.name}, {self.measurement_unit}'
+
 
 class Tag(models.Model):
-    '''Модель тега'''
+    """Модель тега"""
     name = models.CharField(
         verbose_name='название тега',
         help_text='введите имя тега',
@@ -46,10 +49,10 @@ class Tag(models.Model):
 
 
 class Recipe(models.Model):
-    '''Модель рецептов'''
+    """Модель рецептов"""
     author = models.ForeignKey(
         UserFoodgram,
-        verbose_name= 'автор рецепта',
+        verbose_name='автор рецепта',
         related_name='recipes',
         on_delete=models.CASCADE,
     )
@@ -60,8 +63,8 @@ class Recipe(models.Model):
     )
     tags = models.ForeignKey(
         Tag,
-        verbose_name='тэг рецепта',
         related_name='recipes',
+        on_delete=models.CASCADE
     )
     image = models.ImageField(
         verbose_name='фотография рецепта',
@@ -92,18 +95,18 @@ class Recipe(models.Model):
     )
 
     class Meta:
-        '''Метамодель для модели Recipe'''
+        """Метамодель для модели Recipe"""
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
         ordering = ['-created',]
 
-        def __str__(self) -> str:
-            return self.name
+    def __str__(self) -> str:
+        return self.name
 
 
 class ShopCart(models.Model):
-    '''Модель списка покупок.
-    Many-to-Many Recipe and UserFoodgram'''
+    """Модель списка покупок.
+    Many-to-Many Recipe and UserFoodgram"""
     user = models.ForeignKey(
         UserFoodgram,
         verbose_name='покупатель',
@@ -118,7 +121,7 @@ class ShopCart(models.Model):
     )
 
     class Meta:
-        '''Метамодель для модели ShopCart'''
+        """Метамодель для модели ShopCart"""
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
         constraints = [
@@ -130,13 +133,12 @@ class ShopCart(models.Model):
 
     def __str__(self):
         """Метод строкового представления модели."""
-
         return f'{self.user} {self.recipe}'
 
 
 class Favorites(models.Model):
-    '''Модель списка избранных рецептов.
-    Many-to-Many Recipe and UserFoodgram'''
+    """Модель списка избранных рецептов.
+    Many-to-Many Recipe and UserFoodgram"""
     user = models.ForeignKey(
         UserFoodgram,
         verbose_name='пользователь',
@@ -149,4 +151,3 @@ class Favorites(models.Model):
         related_name='favorites_recipes_user',
         on_delete=models.CASCADE
     )
-
