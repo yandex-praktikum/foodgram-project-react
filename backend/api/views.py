@@ -1,25 +1,39 @@
-from django.shortcuts import render
-from rest_framework.viewsets import ModelViewSet
-from pagination import FoodPagination
+from rest_framework import viewsets
+
+from pagination import CustomPagination, IngridientsPagination
+from ..recipes.models import (
+    Tag,
+    Recipe,
+    Ingredient,
+)
+from ..users.models import UserFoodgram
+from .serializer import (TagSerializer, )
 
 
-class TagsViewSet(ModelViewSet):
-    '''Вьювсет для работы с API тегов'''
-    pass
+class TagsViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьювсет для работы с API тегов"""
+    queryset = Tag.objects.all()
+    pagination_class = CustomPagination
+    serializer_class = TagSerializer
 
 
-class UsersViewSet(ModelViewSet):
-    '''Вьювсет для работы с API юзеров'''
-    pass
+class UsersViewSet(viewsets.ModelViewSet):
+    """Вьювсет для работы с API юзеров"""
+    queryset = UserFoodgram.objects.all()
+    pagination_class = [CustomPagination,]
 
 
-class RecipesViewSet(ModelViewSet):
-    '''Вьювсет для работы с API рецептов'''
-    pagination_class = FoodPagination
-    pass
+class RecipesViewSet(viewsets.ModelViewSet):
+    """Вьювсет для работы с API рецептов"""
+    queryset = Recipe.objects.all()
+    pagination_class = CustomPagination
 
 
-class IngridientsViewSet(ModelViewSet):
-    '''Вьювсет для работы с API ингридиентов'''
-    pass
+
+class IngridientsViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьювсет для работы с API ингридиентов"""
+    queryset = Ingredient.objects.all()
+    pagination_class = [IngridientsPagination,]
+
+
 
