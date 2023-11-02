@@ -7,7 +7,7 @@ from ..recipes.models import (
     Ingredient,
 )
 from ..users.models import UserFoodgram
-from .serializer import (TagSerializer, UserSerializer)
+from .serializer import (TagSerializer, UserFoodgramSerializer)
 from .permissions import AuthorStaffOrReadOnly, AdminOrReadOnly
 
 
@@ -22,7 +22,7 @@ class UsersViewSet(viewsets.ModelViewSet):
     """Вьювсет для работы с API юзеров"""
     queryset = UserFoodgram.objects.all()
     pagination_class = [CustomPagination,]
-    serializer_class = UserSerializer
+    serializer_class = UserFoodgramSerializer
     permission_classes = AuthorStaffOrReadOnly
 
 
