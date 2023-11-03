@@ -1,4 +1,4 @@
-from django.contrib.admin import ModelAdmin, register, site
+from django.contrib.admin import ModelAdmin, register
 from django.db.models import Model
 from .models import (
     Ingredient,
@@ -11,9 +11,6 @@ from .models import (
 )
 
 
-site.site_header = "Админская панель управления проекта 'Фудграмм' "
-
-@register(Ingredient)
 class IngridientAdmin(ModelAdmin):
     """Настройка полей модели Ingredient в админке"""
     list_display = ('pk', 'name', 'measurement_unit',)
