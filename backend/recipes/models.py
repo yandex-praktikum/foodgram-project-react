@@ -1,8 +1,10 @@
 from django.db import models
-from django.db.models import CharField
-from django.core.validators import MinValueValidator
 from users.models import UserFoodgram
-from .validators import HexCheckValidation, MinValueTimeCookingValidator
+from .validators import (color_hex_validator,
+                         MinValueTimeCookingValidator,
+                         MinValueAmountIngridient,
+                         min_long_name_validator
+                         )
 
 
 class Ingredient(models.Model):
@@ -10,12 +12,14 @@ class Ingredient(models.Model):
     name = models.CharField(
         max_length=200,
         db_index=True,
-        verbose_name='Название ингредиента'
+        verbose_name='Название ингредиента',
+        validators=[min_long_name_validator]
     )
     measurement_unit = models.CharField(
         max_length=200,
         verbose_name='Единицы измерения'
     )
+
     class Meta:
         """Метамодель для модели Ingridient"""
         verbose_name = 'Ингридиент'
@@ -33,6 +37,7 @@ class Tag(models.Model):
         help_text='введите имя тега',
         max_length=200,
         unique=True,
+        validators=[min_long_name_validator]
     )
     color = models.CharField(
         verbose_name='цвет тега',
@@ -40,12 +45,13 @@ class Tag(models.Model):
         max_length=7,
         unique=True,
         default='#ffffff',
-        validators=[HexCheckValidation]
+        validators=[color_hex_validator]
     )
     slug = models.CharField(
         verbose_name='slug тега',
         help_text='slug имя тега',
         max_length=200,
+        validators=[min_long_name_validator]
     )
 
     class Meta:
@@ -69,6 +75,7 @@ class Recipe(models.Model):
         verbose_name='название рецепта',
         help_text='введите название рецепта',
         max_length=200,
+        validators=[min_long_name_validator]
     )
     tags = models.ForeignKey(
         Tag,
@@ -100,7 +107,10 @@ class Recipe(models.Model):
     cooking_time = models.PositiveIntegerField(
         verbose_name='время приговления по рецепту в минутах',
         help_text='введите время приговления по рецепту в минутах',
-        validators=[MinValueTimeCookingValidator],
+        default=1,
+        validators=[MinValueTimeCookingValidator(
+            limit_value=1
+        )],
     )
 
     class Meta:
@@ -185,7 +195,9 @@ class IngredientInRecipe(models.Model):
     amount = models.PositiveSmallIntegerField(
         verbose_name='количество',
         default=1,
-        validators=[MinValueValidator,]
+        validators=[MinValueAmountIngridient(
+            limit_value=1
+        ),]
     )
 
     class Meta:
