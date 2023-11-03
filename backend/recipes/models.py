@@ -48,6 +48,12 @@ class Tag(models.Model):
         max_length=200,
     )
 
+    class Meta:
+        """Метамодель для модели Tag"""
+        verbose_name = 'Тэг'
+        verbose_name_plural = 'Теги'
+        ordering = ['-name',]
+
 
 class Recipe(models.Model):
     """Модель рецептов"""
@@ -153,6 +159,11 @@ class Favorites(models.Model):
         on_delete=models.CASCADE
     )
 
+    class Meta:
+        """Метамодель Favorites"""
+        verbose_name = 'нравится'
+        verbose_name_plural = 'нравится'
+
 
 class IngredientInRecipe(models.Model):
     """Модель колличества ингридиентов в рецептах.
@@ -182,7 +193,7 @@ class IngredientInRecipe(models.Model):
         ordering = ("-recipe",)
         constraints = (
             models.UniqueConstraint(
-                fields=("recipe", "ingredients"),
+                fields=("recipe", "ingredient"),
                 name="%(app_label)s_%(class)s_ingredient_already_added"
             ),
         )
