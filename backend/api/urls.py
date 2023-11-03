@@ -1,7 +1,7 @@
 import djoser.urls.authtoken
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from views import (TagsViewSet, UsersViewSet, RecipesViewSet, IngridientsViewSet)
+from .views import (TagsViewSet, UsersViewSet, RecipesViewSet, IngridientsViewSet)
 
 app_name = 'api'
 

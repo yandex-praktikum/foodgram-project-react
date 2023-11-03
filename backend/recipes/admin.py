@@ -1,5 +1,5 @@
 from django.contrib.admin import ModelAdmin, register
-
+from django.db.models import Model
 from .models import (
     Ingredient,
     Tag,
@@ -11,7 +11,6 @@ from .models import (
 )
 
 
-@register(Ingredient)
 class IngridientAdmin(ModelAdmin):
     """Настройка полей модели Ingredient в админке"""
     list_display = ('pk', 'name', 'measurement_unit',)
@@ -33,7 +32,7 @@ class RecipeAdmin(ModelAdmin):
 
 
 @register(ShopCart)
-class ShopCart(ModelAdmin):
+class ShopCartAdmin(ModelAdmin):
     """Настройка полей модели ShopCart в админке"""
     list_display = ('pk', 'user', 'recipe')
     list_filter = ('user', 'recipe')

@@ -4,7 +4,7 @@ from djoser.serializers import UserSerializer
 from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError
 
-from ..recipes.models import (
+from recipes.models import (
     Tag,
     Recipe,
     Ingredient,
@@ -14,7 +14,7 @@ from ..recipes.models import (
     TagInRecipe
 
 )
-from ..users.models import UserFoodgram, Fallow
+from users.models import UserFoodgram, Fallow
 
 
 class Base64ImageField(ImageField):

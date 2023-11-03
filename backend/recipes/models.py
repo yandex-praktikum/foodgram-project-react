@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models import CharField
 from django.core.validators import MinValueValidator
 from users.models import UserFoodgram
-from validators import HexCheckValidation, MinValueTimeCookingValidator
+from .validators import HexCheckValidation, MinValueTimeCookingValidator
 
 
 class Ingredient(models.Model):
@@ -45,7 +45,7 @@ class Tag(models.Model):
     slug = models.CharField(
         verbose_name='slug тега',
         help_text='slug имя тега',
-        max_length='200',
+        max_length=200,
     )
 
 
@@ -69,7 +69,7 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         verbose_name='фотография рецепта',
-        elp_text='добавьте изображение готового блюда',
+        help_text='добавьте изображение готового блюда',
         upload_to='recipes/',
         blank=True
     )

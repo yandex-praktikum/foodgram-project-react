@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 class UserFoodgram(AbstractUser):
-    """Модель фудграм юзера"""
+    """Модель фудграм юзера """
     email = models.EmailField(
         max_length=254,
         help_text='введите е-mail',
@@ -37,7 +37,7 @@ class UserFoodgram(AbstractUser):
     class Meta:
         """Метамодель для модели UserFoodgram"""
         ordering = ['username',]
-        verbose_name = 'пользователь',
+        verbose_name = 'пользователь'
         verbose_name_plural = 'пользователи'
 
     def __str__(self):
@@ -48,7 +48,7 @@ class Fallow(models.Model):
     """Модель взаимодействия юзеров"""
     author = models.ForeignKey(
         UserFoodgram,
-        related_name='fallow',
+        related_name='follow',
         verbose_name='автор рецепта',
         on_delete=models.CASCADE,
     )
@@ -67,7 +67,7 @@ class Fallow(models.Model):
     class Meta:
         """Метамодель модели Fallow"""
         verbose_name = 'подписка'
-        verbose_name_prural = 'подписки'
+        verbose_name_plural = 'подписки'
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'author'],

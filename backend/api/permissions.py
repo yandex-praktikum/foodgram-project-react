@@ -1,4 +1,4 @@
-from rest_framework.permissions import BasePermission, SAFE_METHODS, IsAdminUser
+from rest_framework.permissions import BasePermission, SAFE_METHODS, IsAdminUser, IsAuthenticatedOrReadOnly, IsAuthenticated
 
 
 class AuthorStaffOrReadOnly(BasePermission):
@@ -25,3 +25,7 @@ class AdminOrReadOnly(IsAdminUser):
             request.method in SAFE_METHODS
             or request.user.is_staff
         )
+
+
+class IsAuthenticatedOrReadOnlyFoodgram(IsAuthenticatedOrReadOnly):
+    """Если не пользователь, то только чтение"""
