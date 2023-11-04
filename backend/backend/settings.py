@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'users',
     # dj and all
     'django',
+    'django_filter',
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',

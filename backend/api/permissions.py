@@ -1,8 +1,13 @@
-from rest_framework.permissions import BasePermission, SAFE_METHODS, IsAdminUser, IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import (BasePermission,
+                                        SAFE_METHODS,
+                                        IsAdminUser,
+                                        IsAuthenticatedOrReadOnly,
+                                        IsAuthenticated
+                                        )
 
 
 class AuthorStaffOrReadOnly(BasePermission):
-    """Если не админ и не автор, то только чтение"""
+    """Если не админ или не автор, то только чтение"""
     def has_permission(self, request, view):
         return (request.method in SAFE_METHODS
                 or request.user.is_authenticated)

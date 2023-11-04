@@ -77,10 +77,9 @@ class Recipe(models.Model):
         max_length=200,
         validators=[min_long_name_validator]
     )
-    tag = models.ForeignKey(
+    tag = models.ManyToManyField(
         Tag,
         related_name='recipes',
-        on_delete=models.CASCADE
     )
     image = models.ImageField(
         verbose_name='фотография рецепта',
@@ -184,7 +183,7 @@ class IngredientInRecipe(models.Model):
         Ingredient,
         on_delete=models.CASCADE,
         verbose_name='ингредиент',
-        related_name='ingridients_recipe'
+        related_name='ingridient_recipe'
     )
     recipe = models.ForeignKey(
         Recipe,
@@ -213,7 +212,7 @@ class IngredientInRecipe(models.Model):
         )
 
     def __str__(self):
-        return f'{self.ingredient} {self.recipe}'
+        return f'{self.ingredients} {self.recipe}'
 
 
 class TagInRecipe(models.Model):
