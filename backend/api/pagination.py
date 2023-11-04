@@ -7,7 +7,7 @@ class CustomPagination(PageNumberPagination):
     page_size_query_param = 'limit'
 
 
-class IngridientsPagination(PageNumberPagination):
+class IngredientsPagination(PageNumberPagination):
     """Паджинатор для ингридиентов проекта фудграм"""
     page_size = 20
     page_size_query_param = 'limit'

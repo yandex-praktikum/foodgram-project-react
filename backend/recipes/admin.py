@@ -10,8 +10,8 @@ from .models import (
     TagInRecipe
 )
 
-
-class IngridientAdmin(ModelAdmin):
+@register(Ingredient)
+class IngredientAdmin(ModelAdmin):
     """Настройка полей модели Ingredient в админке"""
     list_display = ('pk', 'name', 'measurement_unit',)
     search_fields = ('name',)
@@ -27,8 +27,8 @@ class TagAdmin(ModelAdmin):
 class RecipeAdmin(ModelAdmin):
     """Настройка полей модели Recipe в админке"""
     list_display = ('pk', 'author', 'name',)
-    list_filter = ('author', 'name', 'tags')
-    search_fields = ('author', 'name', 'tags')
+    list_filter = ('author', 'name', 'tag')
+    search_fields = ('author', 'name', 'tag')
 
 
 @register(ShopCart)

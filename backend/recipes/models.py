@@ -77,7 +77,7 @@ class Recipe(models.Model):
         max_length=200,
         validators=[min_long_name_validator]
     )
-    tags = models.ForeignKey(
+    tag = models.ForeignKey(
         Tag,
         related_name='recipes',
         on_delete=models.CASCADE

@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
-from .pagination import CustomPagination, IngridientsPagination
+from .pagination import CustomPagination, IngredientsPagination
 from recipes.models import (
     Tag,
     Recipe,
@@ -31,14 +31,14 @@ class TagsViewSet(viewsets.ReadOnlyModelViewSet):
 class UsersViewSet(viewsets.ModelViewSet):
     """Вьювсет для работы с API юзеров"""
     queryset = UserFoodgram.objects.all()
-    pagination_class = [CustomPagination,]
+    pagination_class = CustomPagination
     serializer_class = UserFoodgramSerializer
-    permission_classes = AuthorStaffOrReadOnly
+    permission_classes = [AuthorStaffOrReadOnly,]
 
     @action(
         detail=False,
         methods=('get',),
-        permission_classes=IsAuthenticatedOrReadOnlyFoodgram,
+        permission_classes=[IsAuthenticatedOrReadOnlyFoodgram,],
         url_path='subscriptions',
         url_name='subscriptions',
     )
@@ -100,7 +100,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     """Вьювсет для работы с API рецептов"""
     queryset = Recipe.objects.all()
     pagination_class = CustomPagination
-    permission_classes = AuthorStaffOrReadOnly
+    permission_classes = [AuthorStaffOrReadOnly,]
 
     def get_serializer_class(self):
         """Метод для вызова определенного сериализатора. """
@@ -120,7 +120,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=('post', 'delete'),
-        permission_classes=(IsAuthenticated,),
+        permission_classes=[IsAuthenticated,],
         url_path='favorite',
         url_name='favorite',
     )
@@ -218,11 +218,8 @@ class RecipesViewSet(viewsets.ModelViewSet):
         return HttpResponse(shopping_list, content_type='text/plain')
 
 
-class IngridientsViewSet(viewsets.ReadOnlyModelViewSet):
-    """Вьювсет для работы с API ингридиентов"""
+class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьювсет для работы с API ингридиентов."""
     queryset = Ingredient.objects.all()
-    pagination_class = [IngridientsPagination,]
-    permission_classes = AdminOrReadOnly
-
-
-
+    pagination_class = IngredientsPagination
+    permission_classes = [AdminOrReadOnly,]

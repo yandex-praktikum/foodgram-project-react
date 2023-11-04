@@ -36,8 +36,7 @@ class TagSerializer(ModelSerializer):
     class Meta:
         """Метамодель сериализатора TagSerializer"""
         model = Tag
-        fields = ('id', 'name', 'color', 'slug',)
-        read_only_fields = ("id",)
+        fields = ('id', 'name', 'color', 'slug')
 
 
 class IngredientInRecipeSerializer(ModelSerializer):
@@ -65,7 +64,7 @@ class UserFoodgramSerializer(ModelSerializer):
     is_follower = SerializerMethodField()
 
     class Meta:
-        models = UserFoodgram
+        model = UserFoodgram
         fields = (
             "email",
             "id",
@@ -73,7 +72,6 @@ class UserFoodgramSerializer(ModelSerializer):
             "first_name",
             "last_name",
             "is_follower",
-            "password",
         )
         extra_kwargs = {
             "password": {"write_only": True},
@@ -102,17 +100,17 @@ class RecipeSerializer(ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('id', 'tags', 'author',
+        fields = ('id', 'tag', 'author',
                   'ingredients', 'is_favirite',
                   'is_in_shopping_cart', 'name',
                   'image', 'text', 'cooking_time',
-                  'created',
+                  'created'
                   )
         read_only_fields = (
-            'is_favirite', 'is_in_shopping_cart',
+            'is_favirite', 'is_in_shopping_cart'
         )
 
-    def get_is_favorited(self, obj):
+    def get_is_favorite(self, obj):
         """Присутствие в избранном"""
         request = self.context.get('request')
         if request is None or request.user.is_anonymous:
@@ -133,7 +131,7 @@ class RecipeSerializer(ModelSerializer):
         ).exists()
 
 
-class IngridientSerializer(ModelSerializer):
+class IngredientSerializer(ModelSerializer):
     """Сериализатор для ингридиентов"""
 
     class Meta:
@@ -210,7 +208,7 @@ class CreateRecipeSerializer(ModelSerializer):
 
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
-        tags = validated_data.pop('tags')
+        tags = validated_data.pop('tag')
 
         user = self.context.get('request').user
         recipe = Recipe.objects.create(**validated_data, author=user)
@@ -223,7 +221,7 @@ class CreateRecipeSerializer(ModelSerializer):
         TagInRecipe.objects.filter(recipe=instance).delete()
 
         self.create_ingredients(validated_data.pop('ingredients'), instance)
-        self.create_tags(validated_data.pop('tags'), instance)
+        self.create_tags(validated_data.pop('tag'), instance)
 
         return super().update(instance, validated_data)
 
