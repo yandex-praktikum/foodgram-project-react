@@ -3,11 +3,11 @@ from rest_framework.decorators import action
 
 
 
-from ..recipes.models import (
+from recipes.models import (
     Tag, Recipe, Ingredient, ShopCart,
     Favorites, IngredientInRecipe, TagInRecipe
     )
-from ..users.models import UserFoodgram, Fallow
+from users.models import UserFoodgram, Fallow
 
 from .permissions import (AuthorStaffOrReadOnly,
                           AdminOrReadOnly,
@@ -20,14 +20,14 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .filters import IngredientFilter
 
 
-class TagViewSet(viewsets.ReadOnlyModelViewSet):
+class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюха дял тегов"""
     queryset = Tag.objects.all()
     permission_classes = [AdminOrReadOnly,]
     serializer_class = TagSerializer
 
 
-class RecipeViewSet(viewsets.ModelViewSet):
+class RecipesViewSet(viewsets.ModelViewSet):
     """Вьюха дял Recipe"""
     queryset = Recipe.objects.all()
     permission_classes = [AuthorStaffOrReadOnly,]
@@ -60,7 +60,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             )
 
 
-class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюха дял Ingredient"""
     queryset = Ingredient.objects.all()
     permission_classes = [AdminOrReadOnly,]
@@ -76,7 +76,7 @@ class UserFoodgramViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         """Выбираем сериализатор для типов запросов"""
-        if self.request.method
+        pass
 
 
 
