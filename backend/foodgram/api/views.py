@@ -56,8 +56,9 @@ class CustomUserViewSet(UserViewSet, CustomSerializerContext): #
 
 
 class IngridientsViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Ingredient.objects.select_related('measurement_unit').all()
+    queryset = Ingredient.objects.all() # select_related('measurement_unit')
     serializer_class = IngredientsSerializer
+    filter_backends = (DjangoFilterBackend,)
     # permission_classes = (AllowAny, )
     pagination_class = None
     ordering = ('name',)

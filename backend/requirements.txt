@@ -8,3 +8,6 @@ djoser
 Pillow==9.2.0
 drf-base64==2.0
 webcolors==1.13
+
+
+# django-cors-headers==3.13.0
