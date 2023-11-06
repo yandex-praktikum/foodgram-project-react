@@ -115,3 +115,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # my
 
+DJOSER = {
+    'LOGIN_FIELD': 'email',  # get_token_for_first_user
+}

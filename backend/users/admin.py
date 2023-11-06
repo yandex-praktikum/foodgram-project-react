@@ -12,9 +12,6 @@ class MyUserAdmin(UserAdmin):
     list_display = ('pk', 'username', 'email', 'first_name', 'last_name')
     list_filter = ('username', 'email')
     search_fields = ('username', 'email')
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
-    verbose_name_plural = 'Мои модели'
-    verbose_name = 'Моя модель'
 
 
 @register(Fallow)

@@ -13,7 +13,6 @@ class Ingredient(models.Model):
         max_length=200,
         db_index=True,
         verbose_name='Название ингредиента',
-        validators=[min_long_name_validator]
     )
     measurement_unit = models.CharField(
         max_length=200,
@@ -37,7 +36,6 @@ class Tag(models.Model):
         help_text='введите имя тега',
         max_length=200,
         unique=True,
-        validators=[min_long_name_validator]
     )
     color = models.CharField(
         verbose_name='цвет тега',
@@ -51,7 +49,6 @@ class Tag(models.Model):
         verbose_name='slug тега',
         help_text='slug имя тега',
         max_length=200,
-        validators=[min_long_name_validator]
     )
 
     class Meta:
@@ -75,7 +72,6 @@ class Recipe(models.Model):
         verbose_name='название рецепта',
         help_text='введите название рецепта',
         max_length=200,
-        validators=[min_long_name_validator]
     )
     tag = models.ManyToManyField(
         Tag,
@@ -212,7 +208,7 @@ class IngredientInRecipe(models.Model):
         )
 
     def __str__(self):
-        return f'{self.ingredients} {self.recipe}'
+        return f'{self.ingredient} {self.recipe}'
 
 
 class TagInRecipe(models.Model):
@@ -236,8 +232,10 @@ class TagInRecipe(models.Model):
         verbose_name = 'Тег рецепта'
         verbose_name_plural = 'Теги рецепта'
         constraints = [
-            models.UniqueConstraint(fields=['tag', 'recipe'],
-                                    name='unique_tagrecipe')
+            models.UniqueConstraint(
+                fields=['tag', 'recipe'],
+                name='unique_tag_in_recipe'
+            )
         ]
 
     def __str__(self):

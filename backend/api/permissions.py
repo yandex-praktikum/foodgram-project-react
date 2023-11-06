@@ -6,7 +6,7 @@ from rest_framework.permissions import (BasePermission,
                                         )
 
 
-class AuthorStaffOrReadOnly(BasePermission):
+class AuthorOrStaffOrReadOnly(BasePermission):
     """Если не админ или не автор, то только чтение"""
     def has_permission(self, request, view):
         return (request.method in SAFE_METHODS

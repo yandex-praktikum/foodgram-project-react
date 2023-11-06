@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from recipes.validators import min_long_name_validator
+from .validators import validate_name
 
 
 class UserFoodgram(AbstractUser):
@@ -18,19 +18,19 @@ class UserFoodgram(AbstractUser):
         help_text='введите Ваш псевдоним',
         unique=True,
         db_index=True,
-        validators=[min_long_name_validator]
+        validators=[validate_name]
     )
     first_name = models.CharField(
         max_length=150,
         verbose_name='Имя',
         help_text='введите Ваше имя',
-        validators=[min_long_name_validator]
+        validators=[validate_name]
     )
     last_name = models.CharField(
         max_length=150,
         verbose_name='Фамилия',
         help_text='введите Вашу фамилию',
-        validators=[min_long_name_validator]
+        validators=[validate_name]
     )
     password = models.CharField(
         verbose_name=_("Пароль"),  # так _ в родителе, хз зачем, люди делают так же. РАЗОБРАТЬСЯ!!

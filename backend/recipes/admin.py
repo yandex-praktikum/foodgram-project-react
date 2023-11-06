@@ -1,5 +1,4 @@
 from django.contrib.admin import ModelAdmin, register
-from django.db.models import Model
 from .models import (
     Ingredient,
     Tag,
@@ -48,7 +47,9 @@ class FavoriteAdmin(ModelAdmin):
 @register(IngredientInRecipe)
 class IngredientInRecipeAdmin(ModelAdmin):
     """Настройка полей модели IngredientInRecipe
-    в админке"""
+    в админке.
+    Админ может редактировать ингридиенты в рецептах."""
+
     list_display = ('pk', 'ingredient', 'recipe', 'amount',)
     list_filter = ('ingredient', 'recipe',)
 
@@ -56,5 +57,7 @@ class IngredientInRecipeAdmin(ModelAdmin):
 @register(TagInRecipe)
 class TagInRecipeAdmin(ModelAdmin):
     """Настройка полей модели TagInRecipe
-        в админке"""
+        в админке.
+        Админ может редактировать теги в рецептах.
+        """
     list_display = ('pk', 'tag', 'recipe')
