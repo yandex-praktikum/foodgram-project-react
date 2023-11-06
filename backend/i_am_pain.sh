@@ -7,7 +7,6 @@ echo "удалено"
 echo "начинаю установку нового говна"
 python3 manage.py makemigrations
 python3 manage.py migrate
-echo "установлено"
-echo "запускаю машину боли...."
+
 python3 manage.py runserver
 

@@ -23,7 +23,7 @@ class Ingredient(models.Model):
         """Метамодель для модели Ingridient"""
         verbose_name = 'Ингридиент'
         verbose_name_plural = 'Ингридиенты'
-        ordering = ['-name',]
+        ordering = ['-name', ]
 
     def __str__(self) -> str:
         return f'{self.name}, {self.measurement_unit}'
@@ -55,10 +55,11 @@ class Tag(models.Model):
         """Метамодель для модели Tag"""
         verbose_name = 'Тэг'
         verbose_name_plural = 'Теги'
-        ordering = ['-name',]
+        ordering = ['-name', ]
 
     def __str__(self) -> str:
         return self.name
+
 
 class Recipe(models.Model):
     """Модель рецептов"""
@@ -73,7 +74,7 @@ class Recipe(models.Model):
         help_text='введите название рецепта',
         max_length=200,
     )
-    tag = models.ManyToManyField(
+    tags = models.ManyToManyField(
         Tag,
         related_name='recipes',
     )
@@ -112,7 +113,7 @@ class Recipe(models.Model):
         """Метамодель для модели Recipe"""
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
-        ordering = ['-created',]
+        ordering = ['-created', ]
 
     def __str__(self) -> str:
         return self.name
@@ -156,13 +157,13 @@ class Favorites(models.Model):
     user = models.ForeignKey(
         UserFoodgram,
         verbose_name='пользователь',
-        related_name='favorites_recipes_users',
+        related_name='favorites',
         on_delete=models.CASCADE,
     )
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='рецепт',
-        related_name='favorites_recipes_users',
+        related_name='favorites',
         on_delete=models.CASCADE
     )
 
@@ -170,29 +171,35 @@ class Favorites(models.Model):
         """Метамодель Favorites"""
         verbose_name = 'нравится'
         verbose_name_plural = 'нравится'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'], name='unique_favorite'
+            )
+        ]
 
 
 class IngredientInRecipe(models.Model):
     """Модель колличества ингридиентов в рецептах.
         Many-to-Many Ingredient and Recipe"""
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name='рецепт',
+        related_name='ingridients_recipe',
+
+    )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
         verbose_name='ингредиент',
         related_name='ingridient_recipe'
     )
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        verbose_name='рецепт',
-        related_name='ingridients_recipe'
-    )
     amount = models.PositiveSmallIntegerField(
         verbose_name='количество',
         default=1,
         validators=[MinValueAmountIngridient(
             limit_value=1
-        ),]
+        ), ]
     )
 
     class Meta:

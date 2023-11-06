@@ -115,6 +115,28 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # my
 
+
 DJOSER = {
-    'LOGIN_FIELD': 'email',  # get_token_for_first_user
+    'LOGIN_FIELD': 'email',
+    'SERIALIZERS': {
+        'user_create': 'api.serializers.CustomUserCreateSerializer',
+        'user': 'api.serializers.CustomUserSerializer',
+        'current_user': 'api.serializers.CustomUserSerializer',
+    },
+
+    'PERMISSIONS': {
+        'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
+        'user_list': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
+    },
+    'HIDE_USERS': False,
+}
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
+    ],
+    'PAGE_SIZE': 6,
 }

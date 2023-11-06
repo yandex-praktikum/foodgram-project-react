@@ -26,8 +26,8 @@ class TagAdmin(ModelAdmin):
 class RecipeAdmin(ModelAdmin):
     """Настройка полей модели Recipe в админке"""
     list_display = ('pk', 'author', 'name',)
-    list_filter = ('author', 'name', 'tag')
-    search_fields = ('author', 'name', 'tag')
+    list_filter = ('author', 'name', 'tags')
+    search_fields = ('author', 'name', 'tags')
 
 
 @register(ShopCart)

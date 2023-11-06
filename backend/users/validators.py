@@ -6,20 +6,9 @@ def validate_name(value):
     if not value:
         raise ValidationError('Имя не может быть пустым')
 
-
-
-    # Проверяем, что все символы в имени принадлежат одному языку
-    lang = ''
-    for char in value:
-        # Определяем язык символа с помощью его кода
-        char_lang = 'latin' if ord(char) < 128 else 'non-latin'
-
-        # Если это первый символ, устанавливаем язык
-        if not lang:
-            lang = char_lang
-        # Если текущий символ отличается от предыдущего языка, вызываем исключение
-        elif char_lang != lang:
-            raise ValidationError('Имя должно быть на одном языке')
+    # Проверяем, что значение соответствует условию
+    if not re.match(r'^[\w.@+-]+$', value):
+        raise ValidationError('Некорректное имя')
 
     # Если все проверки пройдены успешно, возвращаем значение
     return value
