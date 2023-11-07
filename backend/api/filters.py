@@ -1,6 +1,7 @@
 from django_filters import rest_framework as filters
 from recipes.models import Ingredient, Recipe, Tag
 
+
 class IngredientFilter(filters.FilterSet):
     name = filters.CharFilter(lookup_expr='startswith')
 
@@ -10,29 +11,28 @@ class IngredientFilter(filters.FilterSet):
 
 
 class RecipeFilter(filters.FilterSet):
-    """Фильтрация по избранному, автору, списку покупок и тегам."""
+    """ Фильтр для отображения избранного и списка покупок"""
     tags = filters.ModelMultipleChoiceFilter(
-        field_name='tags__slug',
-        to_field_name='slug',
         queryset=Tag.objects.all(),
-    )
+        field_name='tags__slug',
+        to_field_name='slug')
+    is_favorites = filters.NumberFilter(
+        method='is_recipe_in_favorites_filter')
+    is_in_shopping_cart = filters.NumberFilter(
+        method='is_recipe_in_shoppingcart_filter')
 
-    is_favorited = filters.BooleanFilter(method='filter_is_favorited')
-    is_in_shopping_cart = filters.BooleanFilter(
-        method='filter_is_in_shopping_cart')
+    def is_recipe_in_favorites_filter(self, queryset, name, value):
+        if value == 1:
+            user = self.request.user
+            return queryset.filter(favorites__user_id=user.id)
+        return queryset
+
+    def is_recipe_in_shoppingcart_filter(self, queryset, name, value):
+        if value == 1:
+            user = self.request.user
+            return queryset.filter(shopping_cart__user_id=user.id)
+        return queryset
 
     class Meta:
         model = Recipe
-        fields = ('tags', 'author',)
-
-    def filter_is_favorited(self, queryset, name, value):
-        user = self.request.user
-        if value and not user.is_anonymous:
-            return queryset.filter(favorites__user=user)
-        return queryset
-
-    def filter_is_in_shopping_cart(self, queryset, name, value):
-        user = self.request.user
-        if value and not user.is_anonymous:
-            return queryset.filter(shopping_cart__user=user)
-        return queryset
+        fields = ('tags', 'author', 'is_favorites', 'is_in_shopping_cart')
