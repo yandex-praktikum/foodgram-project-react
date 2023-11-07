@@ -27,8 +27,6 @@ class Base64ImageField(ImageField):
         return super().to_internal_value(data)
 
 
-
-
 class TagSerializer(ModelSerializer):
     """Сериализатор для получения тегов."""
 
@@ -166,6 +164,25 @@ class RecipeWriteSerializer(ModelSerializer):
             'text',
             'cooking_time',
         )
+
+    def validate_ingredients(self, value):
+        if not value:
+            raise ValidationError({
+                'ingredients': 'Нужен хотя бы один ингредиент!'
+            })
+        ingredients_list = []
+        for item in value:
+            ingredient = get_object_or_404(Ingredient, id=item['id'])
+            if ingredient in ingredients_list:
+                raise ValidationError({
+                    'ingredients': 'Ингридиенты не должны повторяться!'
+                })
+            if int(item['amount']) <= 0:
+                raise ValidationError({
+                    'amount': 'Количество ингредиента должно быть больше 0!'
+                })
+            ingredients_list.append(ingredient)
+        return value
 
     def validate(self, obj):
         for field in ['name', 'text', 'cooking_time']:
