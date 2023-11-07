@@ -25,5 +25,7 @@ jobs:
           
       - name: Test with flake8
         run: |
+          python -m black --check
           python -m flake8
+
 
