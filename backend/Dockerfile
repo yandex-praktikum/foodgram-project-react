@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.7-slim
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ RUN pip3 install -r ./requirements.txt --no-cache-dir
 
 COPY . .
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "foodgram.wsgi"]
+CMD ["gunicorn", "--bind", "0:8000", "foodgram.wsgi:application"]
 
 # При старте контейнера запустить сервер разработки.
 # CMD ["python", "manage.py", "runserver", "0:8000"] 
