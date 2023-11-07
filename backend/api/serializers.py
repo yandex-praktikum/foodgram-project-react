@@ -4,15 +4,11 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.fields import IntegerField, SerializerMethodField
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import ModelSerializer, ReadOnlyField
-
-
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-
 from recipes.models import (Ingredient, IngredientInRecipe, Recipe, Tag)
 from users.models import UserFoodgram, Fallow
 
-from rest_framework.decorators import action
 
 class TagSerializer(ModelSerializer):
     """Сериализатор для получения тегов."""
@@ -69,10 +65,10 @@ class CustomUserSerializer(UserSerializer):
 class ReadIngredientsInRecipeSerializer(ModelSerializer):
     """Сериализатор для ингредиентов в рецептах"""
 
-    id = ReadOnlyField(read_only=True)
-    name = ReadOnlyField(read_only=True)
-    measurement_unit = ReadOnlyField(read_only=True)
-    amount = ReadOnlyField(read_only=True)
+    id = ReadOnlyField(read_only=True, source='ingredient.id')
+    name = ReadOnlyField(read_only=True, source='ingredient.name')
+    measurement_unit = ReadOnlyField(read_only=True, source='ingredient.measurement_unit')
+    #amount = ReadOnlyField(read_only=True)
 
     class Meta:
         """Мета-параметры сериализатора"""
@@ -83,7 +79,7 @@ class ReadIngredientsInRecipeSerializer(ModelSerializer):
 class RecipeReadSerializer(ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = CustomUserSerializer(read_only=True)
-    ingredients = ReadIngredientsInRecipeSerializer(many=True)
+    ingredients = ReadIngredientsInRecipeSerializer(many=True, read_only=True, source='ingridients_recipe')
     image = Base64ImageField()
     is_favorited = SerializerMethodField(read_only=True)
     is_in_shopping_cart = SerializerMethodField(read_only=True)

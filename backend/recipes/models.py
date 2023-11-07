@@ -3,7 +3,6 @@ from users.models import UserFoodgram
 from .validators import (color_hex_validator,
                          MinValueTimeCookingValidator,
                          MinValueAmountIngridient,
-                         min_long_name_validator
                          )
 
 
