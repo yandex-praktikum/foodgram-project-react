@@ -8,10 +8,12 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from recipes.models import (Ingredient, IngredientInRecipe, Recipe, Tag)
 from users.models import UserFoodgram, Fallow
+from django.db import transaction
 
 
 class TagSerializer(ModelSerializer):
     """Сериализатор для получения тегов."""
+
     class Meta:
         model = Tag
         fields = (
@@ -21,6 +23,7 @@ class TagSerializer(ModelSerializer):
 
 class IngredientSerializer(ModelSerializer):
     """Сериализатор для получения ингридиентов."""
+
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
@@ -31,6 +34,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
         model = UserFoodgram
         fields = ("email", "username", "first_name", "last_name", "password")
         extra_kwargs = {"password": {"write_only": True}}
+
 
 ####
 class CustomUserSerializer(UserSerializer):
@@ -75,6 +79,7 @@ class ReadIngredientsInRecipeSerializer(ModelSerializer):
         model = IngredientInRecipe
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
+
 class RecipeReadSerializer(ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = CustomUserSerializer(read_only=True)
@@ -109,6 +114,7 @@ class RecipeReadSerializer(ModelSerializer):
         if user.is_anonymous:
             return False
         return user.shop_carts_users.filter(recipe=recipe).exists()
+
 
 class IngredientInRecipeWriteSerializer(ModelSerializer):
     """Тут все верно, вроде"""
@@ -181,7 +187,7 @@ class RecipeWriteSerializer(ModelSerializer):
         """Метод добавления тега"""
         recipe.tags.set(tags)
 
-    def create(self,  validated_data):
+    def create(self, validated_data):
         """Метод создания модели"""
         print(validated_data)
         print(f'ВСЕ ДААНЫЕ {validated_data}')
@@ -205,26 +211,48 @@ class RecipeWriteSerializer(ModelSerializer):
             )
             recipe.ingredients.add(ing.id)
 
+    @transaction.atomic
+    def tags_and_ingredients_set(self, recipe, tags, ingredients):
+        recipe.tags.set(tags)
+        IngredientInRecipe.objects.bulk_create(
+            [IngredientInRecipe(
+                recipe=recipe,
+                ingredient=Ingredient.objects.get(pk=ingredient['id']),
+                amount=ingredient['amount']
+            ) for ingredient in ingredients]
+        )
+
+    @transaction.atomic
     def update(self, instance, validated_data):
+        instance.image = validated_data.get('image', instance.image)
+        instance.name = validated_data.get('name', instance.name)
+        instance.text = validated_data.get('text', instance.text)
+        instance.cooking_time = validated_data.get(
+            'cooking_time', instance.cooking_time)
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
-        instance.tags.clear()
-        instance.tags.set(tags)
-        instance.ingredients.clear()
-        self.create_ingredients_amounts(recipe=instance,
-                                        ingredients=ingredients)
-        return super().update(instance, validated_data)
+        IngredientInRecipe.objects.filter(
+            recipe=instance,
+            ingredient__in=instance.ingredients.all()).delete()
+        self.tags_and_ingredients_set(instance, tags, ingredients)
+        instance.save()
+        return instance
 
     def to_representation(self, instance):
-        """Метод представления модели"""
+        return RecipeReadSerializer(instance,
+                                    context=self.context).data
 
-        serializer = RecipeReadSerializer(
-            instance,
-            context={
-                'request': self.context.get('request')
-            }
-        )
-        return serializer.data
+
+def to_representation(self, instance):
+    """Метод представления модели"""
+
+    serializer = RecipeReadSerializer(
+        instance,
+        context={
+            'request': self.context.get('request')
+        }
+    )
+    return serializer.data
 
 
 class RecipeShortSerializer(ModelSerializer):
@@ -239,11 +267,13 @@ class RecipeShortSerializer(ModelSerializer):
             'cooking_time'
         )
 
+
 class UserFoodgramCreateSerializer(UserCreateSerializer):
     class Meta:
         model = UserFoodgram
         fields = ("email", "id", "username", "first_name",
                   "last_name", "password")
+
 
 class SubscribeSerializer(CustomUserSerializer):
     recipes_count = SerializerMethodField()
