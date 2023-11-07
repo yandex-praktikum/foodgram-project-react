@@ -1,14 +1,32 @@
+import base64
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from django.core.files.base import ContentFile
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import IntegerField, SerializerMethodField
 from rest_framework.relations import PrimaryKeyRelatedField
-from rest_framework.serializers import ModelSerializer, ReadOnlyField
+from rest_framework.serializers import ModelSerializer, ReadOnlyField, ImageField
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from recipes.models import (Ingredient, IngredientInRecipe, Recipe, Tag)
 from users.models import UserFoodgram, Fallow
 from django.db import transaction
+
+
+class Base64ImageField(ImageField):
+    """Кастомное поле для кодирования изображения в base64."""
+
+    def to_internal_value(self, data):
+        """Метод преобразования картинки"""
+
+        if isinstance(data, str) and data.startswith('data:image'):
+            format, imgstr = data.split(';base64,')
+            ext = format.split('/')[-1]
+            data = ContentFile(base64.b64decode(imgstr), name='photo.' + ext)
+
+        return super().to_internal_value(data)
+
+
 
 
 class TagSerializer(ModelSerializer):
