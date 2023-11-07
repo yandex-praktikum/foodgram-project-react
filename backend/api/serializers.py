@@ -68,7 +68,6 @@ class ReadIngredientsInRecipeSerializer(ModelSerializer):
     id = ReadOnlyField(read_only=True, source='ingredient.id')
     name = ReadOnlyField(read_only=True, source='ingredient.name')
     measurement_unit = ReadOnlyField(read_only=True, source='ingredient.measurement_unit')
-    #amount = ReadOnlyField(read_only=True)
 
     class Meta:
         """Мета-параметры сериализатора"""
@@ -144,20 +143,28 @@ class RecipeWriteSerializer(ModelSerializer):
             'cooking_time',
         )
 
-    def validate(self, attrs):
-
-        ingredients = self.initial_data.get('ingredients')
-        lst_ingredient = []
-
-        for ingredient in ingredients:
-            if ingredient['id'] in lst_ingredient:
+    def validate(self, obj):
+        for field in ['name', 'text', 'cooking_time']:
+            if not obj.get(field):
                 raise ValidationError(
-                    'Ингредиенты должны быть уникальными!'
+                    f'{field} - Обязательное поле.'
                 )
-            lst_ingredient.append(ingredient['id'])
-        print(attrs)
-        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        return attrs
+        if not obj.get('tags'):
+            raise ValidationError(
+                'Нужно указать минимум 1 тег.'
+            )
+        if not obj.get('ingredients'):
+            raise ValidationError(
+                'Нужно указать минимум 1 ингредиент.'
+            )
+        inrgedient_id_list = [item['id'] for item in obj.get('ingredients')]
+        unique_ingredient_id_list = set(inrgedient_id_list)
+        if len(inrgedient_id_list) != len(unique_ingredient_id_list):
+            raise ValidationError(
+                'Ингредиенты должны быть уникальны.'
+            )
+        return obj
+
 
     def create_ingredients(self, ingredients, recipe):
         """Метод создания ингредиента"""
