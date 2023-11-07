@@ -1,7 +1,7 @@
 from django.db.models import Sum
 from django.http import HttpResponse
 import datetime
-from rest_framework import viewsets
+from rest_framework import viewsets, generics, permissions
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from rest_framework import status
@@ -59,9 +59,26 @@ class RecipeViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'create', 'delete']
 
     def get_serializer_class(self):
-        if self.request.method in SAFE_METHODS or self.action in 'retrieve':  # не точно
+        if self.action in ['retrieve', 'list']:
             return RecipeReadSerializer
         return RecipeWriteSerializer
+
+    def partial_update(self, request, *args, **kwargs):
+        """Явно переопределяю"""
+        instance = self.get_object()
+        if instance.author != request.user:
+            return Response(
+                {"error": "Вы не являетесь автором этого рецепта."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Продолжаем обновление объекта
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        return Response(serializer.data)
+
 
     @action(
         detail=True,

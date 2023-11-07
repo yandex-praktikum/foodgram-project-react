@@ -154,6 +154,7 @@ class RecipeWriteSerializer(ModelSerializer):
     image = Base64ImageField()
     cooking_time = IntegerField()
 
+
     class Meta:
         model = Recipe
 
@@ -226,8 +227,7 @@ class RecipeWriteSerializer(ModelSerializer):
 
     def create(self, validated_data):
         """Метод создания модели"""
-        print(validated_data)
-        print(f'ВСЕ ДААНЫЕ {validated_data}')
+        #print(f'ВСЕ ДААНЫЕ {validated_data}')
         ingredients = validated_data.pop('ingredients')
         user = self.context.get('request').user
         tags = validated_data.pop('tags')
