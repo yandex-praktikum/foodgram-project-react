@@ -41,13 +41,14 @@ class Tag(models.Model):
         help_text='введите цвет тега в HEX-формате',
         max_length=7,
         unique=True,
-        default='#ffffff',
+        default='#ffffff',  # дефолтный цвет - лучшая заглушка
         validators=[color_hex_validator]
     )
     slug = models.CharField(
         verbose_name='slug тега',
         help_text='slug имя тега',
         max_length=200,
+        unique=True,
     )
 
     class Meta:

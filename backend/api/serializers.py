@@ -210,6 +210,19 @@ class RecipeWriteSerializer(ModelSerializer):
         return obj
 
     @staticmethod
+    def validate_tags(value):
+        if not value:
+            raise ValidationError({
+                'tags': 'Нужно выбрать хотя бы один тег!'
+            })
+        tags_set = set(value)
+        if len(value) != len(tags_set):
+            raise ValidationError({
+                'tags': 'Теги должны быть уникальными!'
+            })
+        return value
+
+    @staticmethod
     def create_ingredients(ingredients, recipe):
         """Метод создания ингредиента"""
         for element in ingredients:
