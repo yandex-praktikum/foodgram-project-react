@@ -126,6 +126,8 @@ class RecipeReadSerializer(ModelSerializer):
         return user.favorites.filter(recipe=recipe).exists()
 
     def get_is_in_shopping_cart(self, recipe):
+        print(recipe)
+        print('CARTAAAAAAAAAAAAAA')
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
@@ -165,8 +167,13 @@ class RecipeWriteSerializer(ModelSerializer):
             'cooking_time',
         )
 
-    def validate_ingredients(self, value):
+    @staticmethod
+    def validate_ingredients(value):
+        print('ПОЧЕМУ ЭТО НЕ РАБОТАЕТ!!!!!!!!!!!!!!!')
+        print(value)
         if not value:
+
+            print('ПОЧЕМУ ЭТО НЕ РАБОТАЕТ!!!!!!!!!!!!!!!')
             raise ValidationError({
                 'ingredients': 'Нужен хотя бы один ингредиент!'
             })
@@ -185,6 +192,7 @@ class RecipeWriteSerializer(ModelSerializer):
         return value
 
     def validate(self, obj):
+        print(obj)
         for field in ['name', 'text', 'cooking_time']:
             if not obj.get(field):
                 raise ValidationError(

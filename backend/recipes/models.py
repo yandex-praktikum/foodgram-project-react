@@ -130,7 +130,7 @@ class ShopCart(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='рецепт',
-        related_name='shop_carts_recipes',
+        related_name='shopping_cart',
         on_delete=models.CASCADE
     )
 
