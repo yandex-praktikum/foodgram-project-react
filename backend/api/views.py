@@ -114,7 +114,8 @@ class CustomUserViewSet(UserViewSet):
     queryset = UserFoodgram.objects.all()
     serializer_class = CustomUserSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = [IsAuthenticated,]
+    permission_classes = [AllowAny,]
+
 
     @action(
         detail=True,
