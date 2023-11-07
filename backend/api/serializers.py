@@ -165,8 +165,8 @@ class RecipeWriteSerializer(ModelSerializer):
             )
         return obj
 
-
-    def create_ingredients(self, ingredients, recipe):
+    @staticmethod
+    def create_ingredients(ingredients, recipe):
         """Метод создания ингредиента"""
         for element in ingredients:
             id = element['id']
@@ -176,7 +176,8 @@ class RecipeWriteSerializer(ModelSerializer):
                 ingredient=ingredient, recipe=recipe, amount=amount
             )
 
-    def create_tags(self, tags, recipe):
+    @staticmethod
+    def create_tags(tags, recipe):
         """Метод добавления тега"""
         recipe.tags.set(tags)
 
@@ -193,7 +194,8 @@ class RecipeWriteSerializer(ModelSerializer):
         self.create_tags(tags, recipe)
         return recipe
 
-    def create_ingredients_amounts(self, ingredients, recipe):
+    @staticmethod
+    def create_ingredients_amounts(ingredients, recipe):
         for ingredient in ingredients:
             ing, _ = IngredientInRecipe.objects.get_or_create(
                 ingredient=get_object_or_404(
@@ -237,7 +239,7 @@ class RecipeShortSerializer(ModelSerializer):
             'cooking_time'
         )
 
-class CustomUserCreateSerializer(UserCreateSerializer):
+class UserFoodgramCreateSerializer(UserCreateSerializer):
     class Meta:
         model = UserFoodgram
         fields = ("email", "id", "username", "first_name",
@@ -268,7 +270,8 @@ class SubscribeSerializer(CustomUserSerializer):
             )
         return data
 
-    def get_recipes_count(self, author):
+    @staticmethod
+    def get_recipes_count(author):
         return author.recipes.count()
 
     def get_recipes(self, author):

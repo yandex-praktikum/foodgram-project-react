@@ -22,7 +22,7 @@ from .paginators import CustomPagination
 from rest_framework.pagination import LimitOffsetPagination
 from .serializers import (
     TagSerializer, IngredientSerializer,
-    RecipeReadSerializer, RecipeWriteSerializer, RecipeShortSerializer, CustomUserSerializer, CustomUserCreateSerializer, SubscribeSerializer)
+    RecipeReadSerializer, RecipeWriteSerializer, RecipeShortSerializer, CustomUserSerializer, UserFoodgramCreateSerializer, SubscribeSerializer)
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import IngredientFilter, RecipeFilter
 
@@ -53,9 +53,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
-
-  #  def perform_create(self, serializer):
-   #     serializer.save(author=self.request.user.id)
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
@@ -90,7 +87,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         else:
             return self.delete_from(ShopCart, request.user, pk)
 
-    def add_to(self, model, user, pk):
+    @staticmethod
+    def add_to(model, user, pk):
         """Метод для добавления."""
         if model.objects.filter(user=user, recipe__id=pk).exists():
             return Response({'errors': 'Рецепт уже добавлен!'},
@@ -100,7 +98,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer = RecipeShortSerializer(recipe)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def delete_from(self, model, user, pk):
+    @staticmethod
+    def delete_from(model, user, pk):
         """Метод для удаления."""
         obj = model.objects.filter(user=user, recipe__id=pk)
         if obj.exists():
@@ -115,7 +114,6 @@ class CustomUserViewSet(UserViewSet):
     serializer_class = CustomUserSerializer
     pagination_class = LimitOffsetPagination
     permission_classes = [AllowAny,]
-
 
     @action(
         detail=True,
