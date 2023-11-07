@@ -7,10 +7,10 @@ from rest_framework.fields import IntegerField, SerializerMethodField
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import ModelSerializer, ReadOnlyField, ImageField
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from drf_extra_fields.fields import Base64ImageField
 from recipes.models import (Ingredient, IngredientInRecipe, Recipe, Tag)
 from users.models import UserFoodgram, Fallow
 from django.db import transaction
+
 
 
 class Base64ImageField(ImageField):
@@ -169,17 +169,12 @@ class RecipeWriteSerializer(ModelSerializer):
 
     @staticmethod
     def validate_ingredients(value):
-        print('ПОЧЕМУ ЭТО НЕ РАБОТАЕТ!!!!!!!!!!!!!!!')
-        print(value)
-        if not value:
-
-            print('ПОЧЕМУ ЭТО НЕ РАБОТАЕТ!!!!!!!!!!!!!!!')
-            raise ValidationError({
-                'ingredients': 'Нужен хотя бы один ингредиент!'
-            })
         ingredients_list = []
         for item in value:
-            ingredient = get_object_or_404(Ingredient, id=item['id'])
+            try:
+                ingredient = Ingredient.objects.get(id=item['id'])
+            except:
+                raise ValidationError("Ингридиент не существует!")
             if ingredient in ingredients_list:
                 raise ValidationError({
                     'ingredients': 'Ингридиенты не должны повторяться!'
@@ -192,7 +187,6 @@ class RecipeWriteSerializer(ModelSerializer):
         return value
 
     def validate(self, obj):
-        print(obj)
         for field in ['name', 'text', 'cooking_time']:
             if not obj.get(field):
                 raise ValidationError(
