@@ -79,6 +79,8 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         script: |
+          cd foodgram-project-react
+          sudo docker compose -f docker-compose.production.yml pull
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram:latest
           sudo docker compose -f docker-compose.production.yml stop
