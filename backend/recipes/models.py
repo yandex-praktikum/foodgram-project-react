@@ -157,13 +157,13 @@ class Favorites(models.Model):
     user = models.ForeignKey(
         UserFoodgram,
         verbose_name='пользователь',
-        related_name='favorites',
+        related_name='favorited',
         on_delete=models.CASCADE,
     )
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='рецепт',
-        related_name='favorites',
+        related_name='favorited',
         on_delete=models.CASCADE
     )
 
@@ -176,6 +176,9 @@ class Favorites(models.Model):
                 fields=['user', 'recipe'], name='unique_favorite'
             )
         ]
+
+    def __str__(self):
+        return f'{self.user} - {self.recipe}'
 
 
 class IngredientInRecipe(models.Model):
