@@ -25,7 +25,7 @@ from .paginators import CustomPagination
 from rest_framework.pagination import LimitOffsetPagination
 from .serializers import (
     TagSerializer, IngredientSerializer,
-    RecipeReadSerializer, RecipeWriteSerializer, RecipeShortSerializer, CustomUserSerializer, UserFoodgramCreateSerializer, SubscribeSerializer)
+    RecipeReadSerializer, RecipeWriteSerializer, RecipeShortSerializer, CustomUserSerializer, UserFoodgramCreateSerializer, FallowSerializer)
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import IngredientFilter, RecipeFilter
 
@@ -170,7 +170,7 @@ class CustomUserViewSet(UserViewSet):
     @action(
         detail=True,
         methods=['post', 'delete'],
-        permission_classes=[IsAuthenticatedOrReadOnlyFoodgram]
+        permission_classes=[IsAuthenticated]
     )
     def subscribe(self, request, **kwargs):
         """Метод для подписки/отписки от автора."""
@@ -179,9 +179,9 @@ class CustomUserViewSet(UserViewSet):
         author = get_object_or_404(UserFoodgram, id=author_id)
 
         if request.method == 'POST':
-            serializer = SubscribeSerializer(author,
-                                             data=request.data,
-                                             context={'request': request})
+            serializer = FallowSerializer(author,
+                                          data=request.data,
+                                          context={'request': request})
             serializer.is_valid(raise_exception=True)
             Fallow.objects.create(user=user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -195,14 +195,15 @@ class CustomUserViewSet(UserViewSet):
 
     @action(
         detail=False,
-        permission_classes=[IsAuthenticatedOrReadOnlyFoodgram]
+        permission_classes=[IsAuthenticated]
     )
     def subscriptions(self, request):
         """Метод для просмотра подписок на авторов."""
         user = request.user
-        queryset = UserFoodgram.objects.filter(follow__user=user)
+        queryset = UserFoodgram.objects.filter(subscribing__user=user)
         pages = self.paginate_queryset(queryset)
-        serializer = SubscribeSerializer(pages,
-                                         many=True,
-                                         context={'request': request})
+        serializer = FallowSerializer(pages,
+                                      many=True,
+                                      context={'request': request})
         return self.get_paginated_response(serializer.data)
+
