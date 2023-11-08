@@ -12,7 +12,6 @@ from users.models import UserFoodgram, Fallow
 from django.db import transaction
 
 
-
 class Base64ImageField(ImageField):
     """Кастомное поле для кодирования изображения в base64."""
 
@@ -90,7 +89,7 @@ class ReadIngredientsInRecipeSerializer(ModelSerializer):
     measurement_unit = ReadOnlyField(read_only=True, source='ingredient.measurement_unit')
 
     class Meta:
-        """Мета-параметры сериализатора"""
+        """Метамодель сериализатора"""
 
         model = IngredientInRecipe
         fields = ('id', 'name', 'measurement_unit', 'amount')
@@ -151,7 +150,6 @@ class RecipeWriteSerializer(ModelSerializer):
     ingredients = IngredientInRecipeWriteSerializer(many=True)
     image = Base64ImageField()
     cooking_time = IntegerField()
-
 
     class Meta:
         model = Recipe

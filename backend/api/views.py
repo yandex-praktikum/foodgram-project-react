@@ -114,7 +114,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if model.objects.filter(user=user, recipe__id=pk).exists():
             return Response({'errors': 'Рецепт уже добавлен!'},
                             status=status.HTTP_400_BAD_REQUEST)
-        recipe = get_object_or_404(Recipe, id=pk)
+        #recipe = get_object_or_404(Recipe, id=pk)
+        try:
+            recipe = Recipe.objects.get(id=pk)
+        except Recipe.DoesNotExist:
+            return Response(
+                data={'errors': 'Рецепт не существует!'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         model.objects.create(user=user, recipe=recipe)
         serializer = RecipeShortSerializer(recipe)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -122,6 +129,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @staticmethod
     def delete_from(model, user, pk):
         """Метод для удаления."""
+        try:
+            Recipe.objects.get(id=pk)
+        except Recipe.DoesNotExist:
+            return Response(
+                data={f'errors': 'Рецепт не существует!'},
+                status=status.HTTP_404_NOT_FOUND
+            )
         obj = model.objects.filter(user=user, recipe__id=pk)
         if obj.exists():
             obj.delete()
