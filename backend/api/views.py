@@ -1,33 +1,27 @@
+import datetime
+
 from django.db.models import Sum
 from django.http import HttpResponse
-import datetime
-from rest_framework import viewsets, generics, permissions
-from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
-from rest_framework import status
-from djoser.views import UserViewSet
-from rest_framework.response import Response
-from recipes.models import (
-    Tag, Recipe, Ingredient, ShopCart,
-    Favorites, IngredientInRecipe, TagInRecipe
-    )
-from users.models import UserFoodgram, Fallow
-
-from .permissions import (
-    AuthorOrStaffOrReadOnly,
-    IsAuthenticatedOrReadOnlyFoodgram,
-    SAFE_METHODS,
-    IsAuthenticated,
-    AllowAny
-)
-
-from .paginators import CustomPagination
-from rest_framework.pagination import LimitOffsetPagination
-from .serializers import (
-    TagSerializer, IngredientSerializer,
-    RecipeReadSerializer, RecipeWriteSerializer, RecipeShortSerializer, CustomUserSerializer, UserFoodgramCreateSerializer, FallowSerializer)
 from django_filters.rest_framework import DjangoFilterBackend
+from djoser.views import UserViewSet
+from rest_framework import generics, permissions, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.response import Response
+
+from recipes.models import (Favorites, Ingredient, IngredientInRecipe, Recipe,
+                            ShopCart, Tag, TagInRecipe)
+from users.models import Fallow, UserFoodgram
+
 from .filters import IngredientFilter, RecipeFilter
+from .paginators import CustomPagination
+from .permissions import (SAFE_METHODS, AllowAny, AuthorOrStaffOrReadOnly,
+                          IsAuthenticated, IsAuthenticatedOrReadOnlyFoodgram)
+from .serializers import (CustomUserSerializer, FallowSerializer,
+                          IngredientSerializer, RecipeReadSerializer,
+                          RecipeShortSerializer, RecipeWriteSerializer,
+                          TagSerializer, UserFoodgramCreateSerializer)
 
 
 class TagsViewSet(viewsets.ReadOnlyModelViewSet):

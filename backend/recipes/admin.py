@@ -1,13 +1,8 @@
 from django.contrib.admin import ModelAdmin, register
-from .models import (
-    Ingredient,
-    Tag,
-    Recipe,
-    ShopCart,
-    Favorites,
-    IngredientInRecipe,
-    TagInRecipe
-)
+
+from .models import (Favorites, Ingredient, IngredientInRecipe, Recipe,
+                     ShopCart, Tag, TagInRecipe)
+
 
 @register(Ingredient)
 class IngredientAdmin(ModelAdmin):
@@ -25,7 +20,7 @@ class TagAdmin(ModelAdmin):
 @register(Recipe)
 class RecipeAdmin(ModelAdmin):
     """Настройка полей модели Recipe в админке"""
-    list_display = ('pk', 'author', 'name',)
+    list_display = ('pk', 'author', 'name')
     list_filter = ('author', 'name', 'tags')
     search_fields = ('author', 'name', 'tags')
 

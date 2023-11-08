@@ -1,15 +1,18 @@
 import base64
-from django.shortcuts import get_object_or_404
-from rest_framework import status
+
 from django.core.files.base import ContentFile
+from django.db import transaction
+from django.shortcuts import get_object_or_404
+from djoser.serializers import UserCreateSerializer, UserSerializer
+from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import IntegerField, SerializerMethodField
 from rest_framework.relations import PrimaryKeyRelatedField
-from rest_framework.serializers import ModelSerializer, ReadOnlyField, ImageField
-from djoser.serializers import UserCreateSerializer, UserSerializer
-from recipes.models import (Ingredient, IngredientInRecipe, Recipe, Tag)
-from users.models import UserFoodgram, Fallow
-from django.db import transaction
+from rest_framework.serializers import (ImageField, ModelSerializer,
+                                        ReadOnlyField)
+
+from recipes.models import Ingredient, IngredientInRecipe, Recipe, Tag
+from users.models import Fallow, UserFoodgram
 
 
 class Base64ImageField(ImageField):
@@ -287,19 +290,6 @@ class RecipeWriteSerializer(ModelSerializer):
     def to_representation(self, instance):
         return RecipeReadSerializer(instance,
                                     context=self.context).data
-
-
-def to_representation(self, instance):
-    """Метод представления модели"""
-
-    serializer = RecipeReadSerializer(
-        instance,
-        context={
-            'request': self.context.get('request')
-        }
-    )
-    return serializer.data
-
 
 class RecipeShortSerializer(ModelSerializer):
     image = Base64ImageField()

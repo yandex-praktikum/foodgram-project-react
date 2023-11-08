@@ -1,5 +1,7 @@
 import re
+
 from django.core.validators import ValidationError
+
 
 def validate_name(value):
     # Проверяем, что значение не пустое

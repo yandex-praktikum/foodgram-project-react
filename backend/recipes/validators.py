@@ -1,5 +1,5 @@
-from django.core.validators import RegexValidator, MinValueValidator
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator, RegexValidator
 
 
 def color_hex_validator(value):

@@ -1,9 +1,9 @@
 from django.db import models
+
 from users.models import UserFoodgram
-from .validators import (color_hex_validator,
-                         MinValueTimeCookingValidator,
-                         MinValueAmountIngridient,
-                         )
+
+from .validators import (MinValueAmountIngridient,
+                         MinValueTimeCookingValidator, color_hex_validator)
 
 
 class Ingredient(models.Model):

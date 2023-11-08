@@ -1,9 +1,8 @@
-from django.contrib.admin import register, ModelAdmin
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin, Group
+from django.contrib.admin import ModelAdmin, register
+from django.contrib.auth.admin import Group, UserAdmin
 
-from .models import UserFoodgram, Fallow
-
+from .models import Fallow, UserFoodgram
 
 admin.site.unregister(Group)  # Убираем видимость админки групп
 
