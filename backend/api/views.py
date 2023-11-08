@@ -200,7 +200,7 @@ class CustomUserViewSet(UserViewSet):
     def subscriptions(self, request):
         """Метод для просмотра подписок на авторов."""
         user = request.user
-        queryset = UserFoodgram.objects.filter(subscribing__user=user)
+        queryset = UserFoodgram.objects.filter(follow__user=user)
         pages = self.paginate_queryset(queryset)
         serializer = FallowSerializer(pages,
                                       many=True,
