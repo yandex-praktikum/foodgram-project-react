@@ -126,7 +126,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if obj.exists():
             obj.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({'errors': 'Рецепт уже удален!'},
+        return Response({'errors': 'Рецепт не существует!'},
                         status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False,
@@ -192,11 +192,14 @@ class CustomUserViewSet(UserViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         if request.method == 'DELETE':
-            subscription = get_object_or_404(Fallow,
+            subscription = Fallow.objects.filter(
                                              user=user,
                                              author=author)
-            subscription.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            if subscription.exists():
+                subscription.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response({'errors': 'Такой подписки не существует!'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
     @action(
         detail=False,
