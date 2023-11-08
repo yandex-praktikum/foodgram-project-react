@@ -59,7 +59,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'create', 'delete']
 
     def get_serializer_class(self):
-        if self.action in ['retrieve', 'list']:
+        if self.action in (SAFE_METHODS or ['retrieve', 'list']):
             return RecipeReadSerializer
         return RecipeWriteSerializer
 
@@ -129,19 +129,24 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response({'errors': 'Рецепт уже удален!'},
                         status=status.HTTP_400_BAD_REQUEST)
 
-
+    @action(detail=False,
+            methods=['get'],
+            permission_classes=[AllowAny,],
+            url_path='download_shopping_cart',
+            url_name='download_shopping_cart'
+            )
     def download_shopping_cart(self, request):
         """Метод для скачивания списка покупок."""
         user = request.user
-        if not user.shopping_cart.exists():
-            return Response(status.status.HTTP_400_BAD_REQUEST)
+        #if not user.shopping_cart.exists():
+         #   return Response(status.status.HTTP_400_BAD_REQUEST)
         ingredients = IngredientInRecipe.objects.filter(
             recipe__shopping_cart__user=request.user
         ).values(
             'ingredient__name',
             'ingredient__measurement_unit'
         ).annotate(amount=Sum('amount'))
-        today = datetime.today()
+        today = datetime.datetime.today()
         shopping_list = (
             f'Список покупок для: {user.get_full_name()}\n\n'
             f'Дата: {today:%Y-%m-%d}\n\n'
