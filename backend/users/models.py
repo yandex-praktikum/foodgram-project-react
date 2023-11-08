@@ -34,7 +34,7 @@ class UserFoodgram(AbstractUser):
         validators=[validate_name]
     )
     password = models.CharField(
-        verbose_name=_("Пароль"),  # так _ в родителе, хз зачем, люди делают так же. РАЗОБРАТЬСЯ!!
+        verbose_name=_("Пароль"),
         max_length=150,
         help_text="Максимум 128 символов",
     )

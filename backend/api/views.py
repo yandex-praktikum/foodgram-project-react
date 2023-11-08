@@ -5,23 +5,24 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from rest_framework import generics, permissions, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from recipes.models import (Favorites, Ingredient, IngredientInRecipe, Recipe,
-                            ShopCart, Tag, TagInRecipe)
+                            ShopCart, Tag)
 from users.models import Fallow, UserFoodgram
 
 from .filters import IngredientFilter, RecipeFilter
 from .paginators import CustomPagination
-from .permissions import (SAFE_METHODS, AllowAny, AuthorOrStaffOrReadOnly,
-                          IsAuthenticated, IsAuthenticatedOrReadOnlyFoodgram)
+from .permissions import (SAFE_METHODS, AuthorOrStaffOrReadOnly,
+                          IsAuthenticatedOrReadOnlyFoodgram)
 from .serializers import (CustomUserSerializer, FallowSerializer,
                           IngredientSerializer, RecipeReadSerializer,
                           RecipeShortSerializer, RecipeWriteSerializer,
-                          TagSerializer, UserFoodgramCreateSerializer)
+                          TagSerializer,)
 
 
 class TagsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -37,7 +38,7 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     В api-спецификации одно, в задание другое,
      в тестах третье... Как работать?"""
     queryset = Ingredient.objects.all()
-    permission_classes = [AllowAny,]  # имеет ли это поле смысл, ведь ReadOnlyModelViewSet
+    permission_classes = [AllowAny,]
     serializer_class = IngredientSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = IngredientFilter
@@ -65,14 +66,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 {"error": "Вы не являетесь автором этого рецепта."},
                 status=status.HTTP_403_FORBIDDEN
             )
-
-        # Продолжаем обновление объекта
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer = self.get_serializer(
+            instance, data=request.data,
+            partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
         return Response(serializer.data)
-
 
     @action(
         detail=True,
@@ -108,7 +108,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if model.objects.filter(user=user, recipe__id=pk).exists():
             return Response({'errors': 'Рецепт уже добавлен!'},
                             status=status.HTTP_400_BAD_REQUEST)
-        #recipe = get_object_or_404(Recipe, id=pk)
         try:
             recipe = Recipe.objects.get(id=pk)
         except Recipe.DoesNotExist:
@@ -127,7 +126,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             Recipe.objects.get(id=pk)
         except Recipe.DoesNotExist:
             return Response(
-                data={f'errors': 'Рецепт не существует!'},
+                data={'errors': 'Рецепт не существует!'},
                 status=status.HTTP_404_NOT_FOUND
             )
         obj = model.objects.filter(user=user, recipe__id=pk)
@@ -146,8 +145,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request):
         """Метод для скачивания списка покупок."""
         user = request.user
-        #if not user.shopping_cart.exists():
-         #   return Response(status.status.HTTP_400_BAD_REQUEST)
         ingredients = IngredientInRecipe.objects.filter(
             recipe__shopping_cart__user=request.user
         ).values(
@@ -172,6 +169,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         response['Content-Disposition'] = f'attachment; filename={filename}'
         return response
+
 
 class CustomUserViewSet(UserViewSet):
     """Вьюсет для кастомной модели пользователя."""
@@ -222,4 +220,3 @@ class CustomUserViewSet(UserViewSet):
                                       many=True,
                                       context={'request': request})
         return self.get_paginated_response(serializer.data)
-

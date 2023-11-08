@@ -1,6 +1,6 @@
 
-from rest_framework.permissions import (SAFE_METHODS, AllowAny, BasePermission,
-                                        IsAdminUser, IsAuthenticated,
+from rest_framework.permissions import (SAFE_METHODS, BasePermission,
+                                        IsAdminUser,
                                         IsAuthenticatedOrReadOnly)
 
 

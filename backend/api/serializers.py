@@ -89,7 +89,10 @@ class ReadIngredientsInRecipeSerializer(ModelSerializer):
 
     id = ReadOnlyField(read_only=True, source='ingredient.id')
     name = ReadOnlyField(read_only=True, source='ingredient.name')
-    measurement_unit = ReadOnlyField(read_only=True, source='ingredient.measurement_unit')
+    measurement_unit = ReadOnlyField(
+        read_only=True,
+        source='ingredient.measurement_unit'
+    )
 
     class Meta:
         """Метамодель сериализатора"""
@@ -101,7 +104,11 @@ class ReadIngredientsInRecipeSerializer(ModelSerializer):
 class RecipeReadSerializer(ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = CustomUserSerializer(read_only=True)
-    ingredients = ReadIngredientsInRecipeSerializer(many=True, read_only=True, source='ingridients_recipe')
+    ingredients = ReadIngredientsInRecipeSerializer(
+        many=True,
+        read_only=True,
+        source='ingridients_recipe'
+    )
     image = Base64ImageField()
     is_favorited = SerializerMethodField(read_only=True)
     is_in_shopping_cart = SerializerMethodField(read_only=True)
@@ -239,7 +246,7 @@ class RecipeWriteSerializer(ModelSerializer):
 
     def create(self, validated_data):
         """Метод создания модели"""
-        #print(f'ВСЕ ДААНЫЕ {validated_data}')
+        # print(f'ВСЕ ДААНЫЕ {validated_data}')
         ingredients = validated_data.pop('ingredients')
         user = self.context.get('request').user
         tags = validated_data.pop('tags')
@@ -290,6 +297,7 @@ class RecipeWriteSerializer(ModelSerializer):
     def to_representation(self, instance):
         return RecipeReadSerializer(instance,
                                     context=self.context).data
+
 
 class RecipeShortSerializer(ModelSerializer):
     image = Base64ImageField()

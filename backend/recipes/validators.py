@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator, RegexValidator
+from django.core.validators import MinValueValidator
 
 
 def color_hex_validator(value):
@@ -18,6 +18,7 @@ def min_long_name_validator(value):
     """Валидатор коректности длины имени"""
     if len(value) < 2:
         raise ValidationError('минимальная длина этого поля 2')
+
 
 class MinValueTimeCookingValidator(MinValueValidator):
     """Валидатор корректности вводимого значения времени

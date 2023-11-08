@@ -6,6 +6,7 @@ from .models import Fallow, UserFoodgram
 
 admin.site.unregister(Group)  # Убираем видимость админки групп
 
+
 @register(UserFoodgram)
 class MyUserAdmin(UserAdmin):
     list_display = ('pk', 'username', 'email', 'first_name', 'last_name')
