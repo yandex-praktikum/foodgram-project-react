@@ -87,7 +87,6 @@ class IngredientSerializer(ModelSerializer):
 
 
 class IngredientInRecipeWriteSerializer(ModelSerializer):
-    """Тут все верно, вроде"""
 
     id = IntegerField()
     amount = IntegerField()
@@ -189,7 +188,7 @@ class RecipeWriteSerializer(ModelSerializer):
                 })
             if int(item['amount']) <= 0:
                 raise ValidationError({
-                    'amount': 'Количество ингредиента должно быть больше 0!'
+                    'amount': 'Количество ингредиента должно быть не меньше 1!'
                 })
             ingredients_list.append(ingredient)
         return value
@@ -208,9 +207,9 @@ class RecipeWriteSerializer(ModelSerializer):
             raise ValidationError(
                 'Нужно указать минимум 1 ингредиент.'
             )
-        inrgedient_id_list = [item['id'] for item in obj.get('ingredients')]
-        unique_ingredient_id_list = set(inrgedient_id_list)
-        if len(inrgedient_id_list) != len(unique_ingredient_id_list):
+        ingredient_id_list = [item['id'] for item in obj.get('ingredients')]
+        unique_ingredient_id_list = set(ingredient_id_list)
+        if len(ingredient_id_list) != len(unique_ingredient_id_list):
             raise ValidationError(
                 'Ингредиенты должны быть уникальны.'
             )
@@ -378,7 +377,8 @@ class FallowFoodgramSerializer(ReadUserFoodgramSerializer):
             )
         return data
 
-    def get_recipes_count(self, author):
+    @staticmethod
+    def get_recipes_count(author):
         return author.recipes.count()
 
     def get_recipes(self, author):
