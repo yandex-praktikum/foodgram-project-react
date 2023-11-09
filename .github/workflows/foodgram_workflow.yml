@@ -58,39 +58,17 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram:latest
 
   deploy:
+    if: github.ref == 'refs/heads/5.10'
     runs-on: ubuntu-latest
     needs: build_and_push_to_docker_hub
-    if: github.ref == 'refs/heads/5.10'
     steps:
-    - name: copy docker-compose.production.yml via ssh
+    - name: copy docker-compose.yml via ssh
       uses: appleboy/scp-action@master
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USER }}
         key: ${{ secrets.SSH_KEY }}
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
-        source: "infra/docker-compose.production.yml"
+        source: "docker-compose.yml"
         target: "foodgram-project-react"
-    - name: executing remote ssh command to deploy
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USER }}
-        key: ${{ secrets.SSH_KEY }}
-        passphrase: ${{ secrets.SSH_PASSPHRASE }}
-        script: |
-          cd foodgram-project-react
-          sudo docker compose -f docker-compose.production.yml pull
-
-            
-  send_message_telegram:
-    name: Send message to Telegram
-    runs-on: ubuntu-latest
-    needs: deploy
-    steps:
-      - name: send message
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: ${{ github.workflow }} OK
+    
