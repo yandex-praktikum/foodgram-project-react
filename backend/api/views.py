@@ -26,7 +26,7 @@ from .serializers import (CustomUserSerializer, FallowSerializer,
 
 
 class TagsViewSet(viewsets.ReadOnlyModelViewSet):
-    """Вьюха дял тегов.
+    """Вью дял тегов.
     Через АПИ требуются только GET запросы."""
     queryset = Tag.objects.all()
     permission_classes = [AllowAny,]
@@ -35,8 +35,7 @@ class TagsViewSet(viewsets.ReadOnlyModelViewSet):
 
 class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюха дял Ingredient.
-    В api-спецификации одно, в задание другое,
-     в тестах третье... Как работать?"""
+    Через АПИ требуются только GET запросы."""
     queryset = Ingredient.objects.all()
     permission_classes = [AllowAny,]
     serializer_class = IngredientSerializer
@@ -51,7 +50,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
-    http_method_names = ['get', 'post', 'patch', 'create', 'delete']
+    #http_method_names = ['get', 'post', 'patch', 'create', 'delete']
 
     def get_serializer_class(self):
         if self.action in (SAFE_METHODS or ['retrieve', 'list']):
@@ -78,8 +77,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         detail=True,
         methods=['post', 'delete'],
         permission_classes=[IsAuthenticatedOrReadOnlyFoodgram],
-        url_path='favorite',
-        url_name='favorite',
     )
     def favorite(self, request, pk):
         """Метод для добавления/удаления из избранного."""
@@ -92,8 +89,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         detail=True,
         methods=['post', 'delete'],
         permission_classes=[IsAuthenticatedOrReadOnlyFoodgram],
-        url_path='shopping_cart',
-        url_name='shopping_cart',
     )
     def shopping_cart(self, request, pk):
         """Метод для добавления/удаления из списка покупок."""
@@ -139,8 +134,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=False,
             methods=['get'],
             permission_classes=[AllowAny,],
-            url_path='download_shopping_cart',
-            url_name='download_shopping_cart'
             )
     def download_shopping_cart(self, request):
         """Метод для скачивания списка покупок."""
