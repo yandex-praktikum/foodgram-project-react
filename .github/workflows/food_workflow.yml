@@ -82,9 +82,11 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         script: |
-          cd food
-          sudo docker compose pull
-
+          sudo docker compose stop
+          yes | sudo docker-compose rm backend
+          sudo docker rmi devinse/foodgram:latest
+          sudo docker pull devinse/foodgram:latest
+          touch .env
 
 
 
