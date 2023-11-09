@@ -1,10 +1,10 @@
 #!/bin/bash
-echo "Начинаю удаление говна"
+echo "Начинаю удаление хлама"
 rm recipes/migrations/00*
 rm users/migrations/00*
 rm db.sqlite3
 echo "удалено"
-echo "начинаю установку нового говна"
+echo "начинаю установку нового хлама"
 python3 manage.py makemigrations
 python3 manage.py migrate
 
