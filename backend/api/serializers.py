@@ -15,35 +15,7 @@ from recipes.models import Ingredient, IngredientInRecipe, Recipe, Tag
 from users.models import Fallow, UserFoodgram
 
 
-class Base64ImageField(ImageField):
-    """Кодирование изображения в base64."""
-    def to_internal_value(self, data):
-        """Метод преобразования картинки"""
-        if isinstance(data, str) and data.startswith('data:image'):
-            format_value, imgstr = data.split(';base64,')
-            ext = format_value.split('/')[-1]
-            data = ContentFile(base64.b64decode(imgstr), name='photo.' + ext)
-
-        return super().to_internal_value(data)
-
-
-class TagSerializer(ModelSerializer):
-    """Сериализатор для получения тегов."""
-
-    class Meta:
-        model = Tag
-        fields = (
-            'id', 'name', 'color', 'slug',
-        )
-
-
-class IngredientSerializer(ModelSerializer):
-    """Сериализатор для получения ингридиентов."""
-
-    class Meta:
-        model = Ingredient
-        fields = ('id', 'name', 'measurement_unit')
-
+############### users ###############
 class WriteUserFoodgramCreateSerializer(UserCreateSerializer):
     class Meta:
         model = UserFoodgram
@@ -79,6 +51,52 @@ class ReadUserFoodgramSerializer(UserSerializer):
         if user.is_authenticated and instance == user:
             return super().to_representation(instance)
         return super().to_representation(instance)
+
+
+############### recipes ###############
+
+
+class Base64ImageField(ImageField):
+    """Кодирование изображения в base64."""
+    def to_internal_value(self, data):
+        """Метод преобразования картинки"""
+        if isinstance(data, str) and data.startswith('data:image'):
+            format_value, imgstr = data.split(';base64,')
+            ext = format_value.split('/')[-1]
+            data = ContentFile(base64.b64decode(imgstr), name='photo.' + ext)
+
+        return super().to_internal_value(data)
+
+
+class TagSerializer(ModelSerializer):
+    """Сериализатор для получения тегов."""
+
+    class Meta:
+        model = Tag
+        fields = (
+            'id', 'name', 'color', 'slug',
+        )
+
+
+class IngredientSerializer(ModelSerializer):
+    """Сериализатор для получения ингридиентов."""
+
+    class Meta:
+        model = Ingredient
+        fields = ('id', 'name', 'measurement_unit')
+
+
+class IngredientInRecipeWriteSerializer(ModelSerializer):
+    """Тут все верно, вроде"""
+
+    id = IntegerField()
+    amount = IntegerField()
+
+    class Meta:
+        model = IngredientInRecipe
+        fields = (
+            'id', 'amount',
+        )
 
 
 class ReadIngredientsInRecipeSerializer(ModelSerializer):
@@ -135,19 +153,6 @@ class ReadRecipeSerializer(ModelSerializer):
         if user.is_anonymous:
             return False
         return user.shop_carts_users.filter(recipe=recipe).exists()
-
-
-class IngredientInRecipeWriteSerializer(ModelSerializer):
-    """Тут все верно, вроде"""
-
-    id = IntegerField()
-    amount = IntegerField()
-
-    class Meta:
-        model = IngredientInRecipe
-        fields = (
-            'id', 'amount',
-        )
 
 
 class RecipeWriteSerializer(ModelSerializer):
@@ -359,14 +364,14 @@ class FallowFoodgramSerializer(ReadUserFoodgramSerializer):
         read_only_fields = ('email', 'username', 'first_name', 'last_name')
 
     def validate(self, data):
-        author = self.instance
+        writer = self.instance
         user = self.context.get('request').user
-        if Fallow.objects.filter(author=author, user=user).exists():
+        if Fallow.objects.filter(author=writer, user=user).exists():
             raise ValidationError(
                 detail='Вы уже подписаны на этого пользователя!',
                 code=status.HTTP_400_BAD_REQUEST
             )
-        if user == author:
+        if user == writer:
             raise ValidationError(
                 detail='Нельзя подписаться на самого себя!',
                 code=status.HTTP_400_BAD_REQUEST
