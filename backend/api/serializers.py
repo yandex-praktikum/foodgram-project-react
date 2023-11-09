@@ -16,14 +16,12 @@ from users.models import Fallow, UserFoodgram
 
 
 class Base64ImageField(ImageField):
-    """Кастомное поле для кодирования изображения в base64."""
-
+    """Кодирование изображения в base64."""
     def to_internal_value(self, data):
         """Метод преобразования картинки"""
-
         if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
+            format_value, imgstr = data.split(';base64,')
+            ext = format_value.split('/')[-1]
             data = ContentFile(base64.b64decode(imgstr), name='photo.' + ext)
 
         return super().to_internal_value(data)
@@ -46,16 +44,15 @@ class IngredientSerializer(ModelSerializer):
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
 
-
-class CustomUserCreateSerializer(UserCreateSerializer):
+class WriteUserFoodgramCreateSerializer(UserCreateSerializer):
     class Meta:
         model = UserFoodgram
-        fields = ("email", "username", "first_name", "last_name", "password")
-        extra_kwargs = {"password": {"write_only": True}}
+        fields = ("email", "id", "username", "first_name",
+                  "last_name", "password")
 
 
-####
-class CustomUserSerializer(UserSerializer):
+class ReadUserFoodgramSerializer(UserSerializer):
+    """Чтение обьектов из модели через API."""
     is_subscribed = SerializerMethodField(read_only=True)
 
     class Meta:
@@ -85,7 +82,7 @@ class CustomUserSerializer(UserSerializer):
 
 
 class ReadIngredientsInRecipeSerializer(ModelSerializer):
-    """Сериализатор для ингредиентов в рецептах"""
+    """"Чтение обьектов из модели через API."""
 
     id = ReadOnlyField(read_only=True, source='ingredient.id')
     name = ReadOnlyField(read_only=True, source='ingredient.name')
@@ -95,15 +92,14 @@ class ReadIngredientsInRecipeSerializer(ModelSerializer):
     )
 
     class Meta:
-        """Метамодель сериализатора"""
-
         model = IngredientInRecipe
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
-class RecipeReadSerializer(ModelSerializer):
+class ReadRecipeSerializer(ModelSerializer):
+    """Чтение обьектов из модели через API."""
     tags = TagSerializer(many=True, read_only=True)
-    author = CustomUserSerializer(read_only=True)
+    author = ReadUserFoodgramSerializer(read_only=True)
     ingredients = ReadIngredientsInRecipeSerializer(
         many=True,
         read_only=True,
@@ -295,11 +291,12 @@ class RecipeWriteSerializer(ModelSerializer):
         return instance
 
     def to_representation(self, instance):
-        return RecipeReadSerializer(instance,
+        return ReadRecipeSerializer(instance,
                                     context=self.context).data
 
 
 class RecipeShortSerializer(ModelSerializer):
+    """Вспомогательный сериализатор для необходимого вывода"""
     image = Base64ImageField()
 
     class Meta:
@@ -312,19 +309,12 @@ class RecipeShortSerializer(ModelSerializer):
         )
 
 
-class UserFoodgramCreateSerializer(UserCreateSerializer):
-    class Meta:
-        model = UserFoodgram
-        fields = ("email", "id", "username", "first_name",
-                  "last_name", "password")
-
-
-class SubscribeSerializer(CustomUserSerializer):
+class SubscribeFoodgramSerializer(ReadUserFoodgramSerializer):
     recipes_count = SerializerMethodField()
     recipes = SerializerMethodField()
 
-    class Meta(CustomUserSerializer.Meta):
-        fields = CustomUserSerializer.Meta.fields + (
+    class Meta(ReadUserFoodgramSerializer.Meta):
+        fields = ReadUserFoodgramSerializer.Meta.fields + (
             'recipes_count', 'recipes'
         )
         read_only_fields = ('email', 'username')
@@ -358,12 +348,12 @@ class SubscribeSerializer(CustomUserSerializer):
         return serializer.data
 
 
-class FallowSerializer(CustomUserSerializer):
+class FallowFoodgramSerializer(ReadUserFoodgramSerializer):
     recipes_count = SerializerMethodField()
     recipes = SerializerMethodField()
 
-    class Meta(CustomUserSerializer.Meta):
-        fields = CustomUserSerializer.Meta.fields + (
+    class Meta(ReadUserFoodgramSerializer.Meta):
+        fields = ReadUserFoodgramSerializer.Meta.fields + (
             'recipes_count', 'recipes'
         )
         read_only_fields = ('email', 'username', 'first_name', 'last_name')

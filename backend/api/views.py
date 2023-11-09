@@ -18,10 +18,10 @@ from users.models import Fallow, UserFoodgram
 from .filters import IngredientFilter, RecipeFilter
 from .paginators import CustomPagination
 from .permissions import (SAFE_METHODS, AuthorOrStaffOrReadOnly)
-from .serializers import (CustomUserSerializer, FallowSerializer,
-                          IngredientSerializer, RecipeReadSerializer,
+from .serializers import (ReadUserFoodgramSerializer, FallowFoodgramSerializer,
+                          IngredientSerializer, ReadRecipeSerializer,
                           RecipeShortSerializer, RecipeWriteSerializer,
-                          TagSerializer,)
+                          TagSerializer, )
 
 
 class TagsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -53,7 +53,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         """Роутинг сериализаторов исходя из действий."""
         if self.action in (SAFE_METHODS or ['retrieve', 'list']):
-            return RecipeReadSerializer
+            return ReadRecipeSerializer
         return RecipeWriteSerializer
 
     def partial_update(self, request, *args, **kwargs):
@@ -164,7 +164,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 class CustomUserViewSet(UserViewSet):
     """Вьюсет для кастомной модели пользователя."""
     queryset = UserFoodgram.objects.all()
-    serializer_class = CustomUserSerializer
+    serializer_class = ReadUserFoodgramSerializer
     pagination_class = LimitOffsetPagination
     permission_classes = [AllowAny,]
 
@@ -180,7 +180,7 @@ class CustomUserViewSet(UserViewSet):
         author = get_object_or_404(UserFoodgram, id=author_id)
 
         if request.method == 'POST':
-            serializer = FallowSerializer(
+            serializer = FallowFoodgramSerializer(
                 author,
                 data=request.data,
                 context={'request': request}
@@ -208,7 +208,7 @@ class CustomUserViewSet(UserViewSet):
         user = request.user
         queryset = UserFoodgram.objects.filter(follow__user=user)
         pages = self.paginate_queryset(queryset)
-        serializer = FallowSerializer(pages,
-                                      many=True,
-                                      context={'request': request})
+        serializer = FallowFoodgramSerializer(pages,
+                                              many=True,
+                                              context={'request': request})
         return self.get_paginated_response(serializer.data)

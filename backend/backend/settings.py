@@ -118,9 +118,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 DJOSER = {
     'LOGIN_FIELD': 'email',
     'SERIALIZERS': {
-        'user_create': 'api.serializers.UserFoodgramCreateSerializer',
-        'user': 'api.serializers.CustomUserSerializer',
-        'current_user': 'api.serializers.CustomUserSerializer',
+        'user_create': 'api.serializers.WriteUserFoodgramCreateSerializer',
+        'user': 'api.serializers.ReadUserFoodgramSerializer',
+        'current_user': 'api.serializers.ReadUserFoodgramSerializer',
     },
 
     'PERMISSIONS': {
