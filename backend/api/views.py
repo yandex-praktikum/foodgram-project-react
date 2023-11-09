@@ -8,7 +8,7 @@ from djoser.views import UserViewSet
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
 from recipes.models import (Favorites, Ingredient, IngredientInRecipe, Recipe,
@@ -17,8 +17,7 @@ from users.models import Fallow, UserFoodgram
 
 from .filters import IngredientFilter, RecipeFilter
 from .paginators import CustomPagination
-from .permissions import (SAFE_METHODS, AuthorOrStaffOrReadOnly,
-                          IsAuthenticatedOrReadOnlyFoodgram)
+from .permissions import (SAFE_METHODS, AuthorOrStaffOrReadOnly)
 from .serializers import (CustomUserSerializer, FallowSerializer,
                           IngredientSerializer, RecipeReadSerializer,
                           RecipeShortSerializer, RecipeWriteSerializer,
@@ -50,15 +49,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
-    #http_method_names = ['get', 'post', 'patch', 'create', 'delete']
 
     def get_serializer_class(self):
+        """Роутинг сериализаторов исходя из действий."""
         if self.action in (SAFE_METHODS or ['retrieve', 'list']):
             return RecipeReadSerializer
         return RecipeWriteSerializer
 
     def partial_update(self, request, *args, **kwargs):
-        """Явно переопределяю"""
+        """Явно переопределяю. Нужно для тестов."""
         instance = self.get_object()
         if instance.author != request.user:
             return Response(
@@ -76,30 +75,29 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=['post', 'delete'],
-        permission_classes=[IsAuthenticatedOrReadOnlyFoodgram],
+        permission_classes=[IsAuthenticatedOrReadOnly],
     )
     def favorite(self, request, pk):
-        """Метод для добавления/удаления из избранного."""
+        """Выбор метода для списка избранного."""
         if request.method == 'POST':
-            return self.add_to(Favorites, request.user, pk)
+            return self.add_to_target(Favorites, request.user, pk)
         else:
-            return self.delete_from(Favorites, request.user, pk)
+            return self.delete_from_target(Favorites, request.user, pk)
 
     @action(
         detail=True,
         methods=['post', 'delete'],
-        permission_classes=[IsAuthenticatedOrReadOnlyFoodgram],
+        permission_classes=[IsAuthenticatedOrReadOnly],
     )
     def shopping_cart(self, request, pk):
-        """Метод для добавления/удаления из списка покупок."""
+        """Выбор метода для списка покупок."""
         if request.method == 'POST':
-            return self.add_to(ShopCart, request.user, pk)
+            return self.add_to_target(ShopCart, request.user, pk)
         else:
-            return self.delete_from(ShopCart, request.user, pk)
+            return self.delete_from_target(ShopCart, request.user, pk)
 
     @staticmethod
-    def add_to(model, user, pk):
-        """Метод для добавления."""
+    def add_to_target(model, user, pk):
         if model.objects.filter(user=user, recipe__id=pk).exists():
             return Response({'errors': 'Рецепт уже добавлен!'},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -115,8 +113,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @staticmethod
-    def delete_from(model, user, pk):
-        """Метод для удаления."""
+    def delete_from_target(model, user, pk):
         try:
             Recipe.objects.get(id=pk)
         except Recipe.DoesNotExist:
@@ -146,7 +143,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).annotate(amount=Sum('amount'))
         today = datetime.datetime.today()
         shopping_list = (
-            f'Список покупок для: {user.get_full_name()}\n\n'
+            f'Список покупок: {user.get_full_name()}\n\n'
             f'Дата: {today:%Y-%m-%d}\n\n'
         )
         shopping_list += '\n'.join([
@@ -177,15 +174,17 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=[IsAuthenticated]
     )
     def subscribe(self, request, **kwargs):
-        """Метод для подписки/отписки от автора."""
+        """Подписка и отписка от автора."""
         user = request.user
         author_id = self.kwargs.get('id')
         author = get_object_or_404(UserFoodgram, id=author_id)
 
         if request.method == 'POST':
-            serializer = FallowSerializer(author,
-                                          data=request.data,
-                                          context={'request': request})
+            serializer = FallowSerializer(
+                author,
+                data=request.data,
+                context={'request': request}
+            )
             serializer.is_valid(raise_exception=True)
             Fallow.objects.create(user=user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -205,7 +204,7 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=[IsAuthenticated]
     )
     def subscriptions(self, request):
-        """Метод для просмотра подписок на авторов."""
+        """Просмотр подписок на авторов."""
         user = request.user
         queryset = UserFoodgram.objects.filter(follow__user=user)
         pages = self.paginate_queryset(queryset)
