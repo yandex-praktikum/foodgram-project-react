@@ -1,0 +1,27 @@
+name: Food
+
+on:
+  push:
+    branches:
+      - 5.10
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/5.10'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+    - name: Copy docker-compose.production.yml via ssh
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.SSH_KEY }}
+        passphrase: ${{ secrets.SSH_PASSPHRASE }}
+        source: "docker-compose.yml"
+        target: "food"
+
+
+                                                           
+                                                                 
