@@ -60,6 +60,8 @@ jobs:
   deploy:
     if: github.ref == 'refs/heads/5.10'
     runs-on: ubuntu-latest
+    needs:
+      build_and_push_to_docker_hub
     steps:
     - name: checkout repo
       uses: actions/checkout@v3     
@@ -72,6 +74,19 @@ jobs:
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         source: "docker-compose.yml"
         target: "food"
+    - name: Executing remote ssh commands to deploy
+      uses: appleboy/ssh-action@v0.1.4
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.SSH_KEY }}
+        passphrase: ${{ secrets.SSH_PASSPHRASE }}
+        script: |
+          cd food
+          sudo docker pull
+          sudo docker down
+          sudo docker up -d
+
 
 
                                                            
