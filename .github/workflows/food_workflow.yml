@@ -74,19 +74,7 @@ jobs:
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         source: "docker-compose.yml"
         target: "food"
-    - name: Executing remote ssh commands to deploy
-      uses: appleboy/ssh-action@v0.1.4
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USER }}
-        key: ${{ secrets.SSH_KEY }}
-        passphrase: ${{ secrets.SSH_PASSPHRASE }}
-        script: |
-          sudo docker compose stop
-          yes | sudo docker-compose rm backend
-          sudo docker rmi devinse/foodgram:latest
-          sudo docker pull devinse/foodgram:latest
-          touch .env
+
 
 
 
