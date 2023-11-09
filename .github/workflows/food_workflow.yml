@@ -83,8 +83,7 @@ jobs:
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         script: |
           cd food
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram:latest
+          sudo docker compose pull
 
 
 
