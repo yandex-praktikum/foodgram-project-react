@@ -88,9 +88,11 @@ jobs:
           sudo docker compose -f ./infra/docker-compose.yml down
           sudo docker compose -f ./infra/docker-compose.yml rm backend
           sudo docker compose -f ./infra/docker-compose.yml up -d
+          sudo docker compose -f ./infra/docker-compose.yml exec backend python manage.py makemigrations
           sudo docker compose -f ./infra/docker-compose.yml exec backend python manage.py migrate
           sudo docker-compose -f ./infra/docker-compose.yml exec backend python manage.py collectstatic --no-input
           
+
           
 
 
