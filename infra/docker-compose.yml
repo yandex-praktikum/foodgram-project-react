@@ -1,44 +1,42 @@
-version: '3.3'
-services:
-
-  db:
-    image: postgres:13.3-alpine
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    env_file:
-      - ./.env
-
-  backend:
-    image: devinse/foodgram:latest
-    restart: always
-    volumes:
-      - static_value:/app/static/
-      - media_value:/app/media/
-    depends_on:
-      - db
-    env_file:
-      - ./.env
-
-  frontend:
-    image: devinse/foodgram_frontend:latest
-    volumes:
-      - ../frontend/:/app/result_build/
-    depends_on:
-      - backend
-
-  nginx:
-    image: nginx:1.19.3
-    ports:
-      - "7000:80"
-    volumes:
-      - ../frontend/build:/usr/share/nginx/html/
-      - ../docs/:/usr/share/nginx/html/api/docs/
-      - static_value:/var/html/static/
-      - media_value:/var/html/media/
-    depends_on:
-      - frontend
+version: '3'
 
 volumes:
-  postgres_data:
-  static_value:
-  media_value:
+  pg_data:
+  static:
+  media:
+
+services:
+  db:
+    container_name: db
+    image: postgres:13.3-alpine
+    env_file: .env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+  backend:
+    image: devinse/foodgram
+    env_file: .env
+    volumes:
+      - static:/backend_static
+      - media:/media
+    restart: always
+    depends_on: 
+        - db
+  frontend:
+    env_file: .env
+    image: devinse/foodgram_frontend
+    command: cp -r /app/result_build/. /frontend_static/
+    volumes:
+      - static:/frontend_static
+    depends_on:
+      - backend
+  nginx:
+    image: nginx:1.22.1-alpine
+    env_file: .env
+    volumes:
+      - ./nginx.conf:/etc/nginx/templates/default.conf.template
+      - static:/staticfiles
+      - media:/media
+    depends_on: 
+        - backend
+    ports:
+      - 7000:80
