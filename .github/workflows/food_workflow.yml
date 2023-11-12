@@ -82,11 +82,20 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         script: |
-          cd food
-          sudo docker compose -f ./infra/docker-compose.yml down
-          sudo docker compose -f ./infra/docker-compose.yml rm backend
-          sudo docker compose -f ./infra/docker-compose.yml up -d
-          sudo docker compose -f ./infra/docker-compose.yml exec backend python manage.py collectstatic
-          sudo docker compose -f ./infra/docker-compose.yml exec backend cp -r /app/backend_static/. /backend_static/static
-          sudo docker compose -f ./infra/docker-compose.yml exec backend python manage.py makemigrations
-          sudo docker compose -f ./infra/docker-compose.yml exec backend python manage.py migrate
+          cd food/infra/
+          sudo touch .env
+          echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
+          echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+          echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
+          echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
+          echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+          echo DB_PORT=${{ secrets.DB_PORT }} >> .env
+          echo SECRET_KEY="${{ secrets.SECRET_KEY }}" >> .env
+          echo DEBUG="${{ secrets.DEBUG }}" >> .env
+          sudo docker compose down
+          sudo docker compose rm backend
+          sudo docker compose up -d
+          sudo docker compose exec backend python manage.py collectstatic
+          sudo docker compose exec backend cp -r /app/backend_static/. /backend_static/static
+          sudo docker compose exec backend python manage.py makemigrations
+          sudo docker compose exec backend python manage.py migrate
