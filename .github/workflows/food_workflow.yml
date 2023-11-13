@@ -84,7 +84,7 @@ jobs:
         script: |
           cd food/infra/
           touch .env
-          echo "Привет" | sudo tee .env
+          echo "# Привет" | sudo tee .env
           sudo echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
           sudo echo DB_NAME=${{ secrets.DB_NAME }} >> .env
           sudo echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
