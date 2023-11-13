@@ -30,7 +30,7 @@ services:
     depends_on:
       - backend
   nginx:
-    image: nginx:1.21.3-alpine
+    image: nginx:1.18.0
     container_name: nginx
     restart: always
     volumes:
