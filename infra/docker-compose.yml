@@ -1,9 +1,6 @@
 version: '3'
 
-volumes:
-  pg_data:
-  static:
-  media:
+
 
 services:
   db:
@@ -35,12 +32,16 @@ services:
     container_name: foonginx
     env_file: .env
     image: devinse/nginx
-    restart: always
-    depends_on: 
-        - backend
+    depends_on:
+      backend:
+        condition: service_healthy
     volumes:
-      - ./nginx.conf:/etc/nginx/templates/default.conf.template
       - static:/staticfiles
       - media:/media
     ports:
       - 8080:80
+
+  volumes:
+    pg_data:
+    static:
+    media:
