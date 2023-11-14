@@ -42,6 +42,6 @@ services:
       - 8080:80
 
   volumes:
-    pg_data:
+    # pg_data:
     static:
     # media:
