@@ -34,7 +34,7 @@ services:
   nginx:
     container_name: foonginx
     env_file: .env
-    build: ../infra
+    image: devinse/nginx
     restart: always
     depends_on: 
         - backend
