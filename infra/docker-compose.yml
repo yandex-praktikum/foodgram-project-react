@@ -37,11 +37,11 @@ services:
         condition: service_healthy
     volumes:
       - static:/staticfiles
-      - media:/media
+      # - media:/media
     ports:
       - 8080:80
 
   volumes:
     pg_data:
     static:
-    media:
+    # media:
