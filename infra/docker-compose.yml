@@ -39,7 +39,7 @@ services:
     depends_on: 
         - backend
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx.conf:/etc/nginx/templates/default.conf.template
       - static:/staticfiles
       - media:/media
     ports:
