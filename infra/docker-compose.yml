@@ -7,7 +7,7 @@ volumes:
 
 services:
   db:
-    container_name: db
+    container_name: foodb
     image: postgres:13.3-alpine
     env_file: .env
     volumes:
@@ -32,7 +32,7 @@ services:
     depends_on:
       - backend
   nginx:
-    container_name: nginx
+    container_name: foonginx
     env_file: .env
     image: devinse/nginx
     restart: always
