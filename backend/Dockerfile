@@ -12,5 +12,4 @@ RUN pip3 install -r ./requirements.txt --no-cache-dir
 
 COPY . .
 
-CMD ["gunicorn", "--bind", "0.0.0.0:7000", "foodgram.wsgi:application"]
-
+CMD ["gunicorn", "--bind", "0.0.0.0:9000", "foodgram.wsgi:application"]
