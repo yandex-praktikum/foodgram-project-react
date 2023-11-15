@@ -36,7 +36,7 @@ services:
     env_file: .env
     image: devinse/nginx
     ports:
-      - 8080:80
+      - 9000:80
     depends_on:
       - frontend
     volumes:
