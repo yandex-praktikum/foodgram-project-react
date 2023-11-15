@@ -35,6 +35,8 @@ services:
     container_name: food-nginx
     env_file: .env
     image: devinse/nginx
+    ports:
+      - 8080:80
     depends_on:
       - frontend
     volumes:
@@ -43,5 +45,4 @@ services:
       - ../docs/:/usr/share/nginx/html/api/docs/
       - static:/var/html/
       - media:/var/html/media/recipes/
-    ports:
-      - 8080:80
+    
