@@ -57,6 +57,14 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram:latest
 
+      - name: push nginx to Docker Hub
+        uses: docker/build-push-action@v4
+        with:
+          context: ./infra
+          file: ./infra/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/nginx:latest
+
   deploy:
     if: github.ref == 'refs/heads/zond.2'
     runs-on: ubuntu-latest
