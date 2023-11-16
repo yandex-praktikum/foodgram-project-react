@@ -39,8 +39,8 @@ services:
   nginx:
     container_name: food-nginx
     env_file: .env
-    # image: devinse/nginx
-    image: nginx:1.23.3-alpine
+    image: devinse/nginx
+    # image: nginx:1.23.3-alpine
     restart: always
     ports:
       - 80:80
