@@ -43,7 +43,7 @@ services:
     # image: nginx:1.23.3-alpine
     restart: always
     ports:
-      - 80:80
+      - 80:9000
     depends_on:
       - frontend
     volumes:
