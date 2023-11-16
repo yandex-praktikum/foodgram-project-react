@@ -53,3 +53,4 @@ services:
       - static:/etc/nginx/html/static/
       - media:/etc/nginx/html/media/
 
+## fhaka[fkq]
