@@ -19,7 +19,7 @@ DEBUG = os.getenv('DEBUG', default='True')
 
 
 ALLOWED_HOSTS = ['130.193.53.39']
-
+RUN_SERVER_PORT = 8080
 
 INSTALLED_APPS = [
     "django.contrib.admin",
