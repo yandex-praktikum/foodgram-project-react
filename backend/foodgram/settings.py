@@ -5,7 +5,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from pathlib import Path
+from django.core.management.commands.runserver import Command as runserver
 
+runserver.default_port = "8080"
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -17,7 +19,8 @@ SECRET_KEY = os.getenv(
 
 DEBUG = os.getenv('DEBUG', default='True')
 
-
+from django.core.management.commands.runserver import Command as runserver
+runserver.default_port = "8000"
 ALLOWED_HOSTS = ['130.193.53.39']
 RUN_SERVER_PORT = 8080
 
