@@ -16,8 +16,8 @@ services:
 
   backend:
     container_name: food_backend
-    # image: devinse/foodgram
-    build: ../backend
+    image: devinse/foodgram
+    # build: ../backend
     restart: always
     env_file: .env
     volumes:
