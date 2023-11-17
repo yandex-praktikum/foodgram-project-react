@@ -1,6 +1,5 @@
 import os
 
-# from decouple import Csv, config
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -19,7 +18,6 @@ SECRET_KEY = os.getenv(
 DEBUG = os.getenv('DEBUG', default='True')
 
 ALLOWED_HOSTS = ['130.193.53.39']
-# ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="*", cast=Csv())
 
 
 INSTALLED_APPS = [

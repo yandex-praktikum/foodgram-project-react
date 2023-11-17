@@ -27,7 +27,7 @@ from api.serializers import (
     FavoriteSerializer,
     RecipeMinifiedSerializer,
     ShoppingCartSerializer,
-)  #
+)
 from api.viewsets import CreateDestroyViewSet, ListViewSet
 from recipes.models import (
     Ingredient,
@@ -68,15 +68,14 @@ class CustomSerializerContext(generics.GenericAPIView):
         }
 
 
-class CustomUserViewSet(UserViewSet, CustomSerializerContext):  #
+class CustomUserViewSet(UserViewSet, CustomSerializerContext):
     pass
 
 
 class IngridientsViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Ingredient.objects.all()  # select_related('measurement_unit')
+    queryset = Ingredient.objects.all()
     serializer_class = IngredientsSerializer
     filter_backends = (DjangoFilterBackend,)
-    # permission_classes = (AllowAny, )
     pagination_class = None
     ordering = ("name",)
 
@@ -84,7 +83,6 @@ class IngridientsViewSet(viewsets.ReadOnlyModelViewSet):
 class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagsSerializer
-    # permission_classes = (AllowAny, )
     pagination_class = None
     ordering = ("name",)
 
@@ -138,7 +136,7 @@ class RecipesViewSet(viewsets.ModelViewSet, CustomSerializerContext):
         return response
 
 
-class SubscriptionsViewSet(ListViewSet, CustomSerializerContext):  #
+class SubscriptionsViewSet(ListViewSet, CustomSerializerContext):
     serializer_class = SubscriptionSerializer
     permission_classes = (IsAuthenticated,)
     ordering = ("author",)
@@ -150,7 +148,7 @@ class SubscriptionsViewSet(ListViewSet, CustomSerializerContext):  #
         )
 
 
-class SubscribeViewSet(CreateDestroyViewSet, CustomSerializerContext):  #
+class SubscribeViewSet(CreateDestroyViewSet, CustomSerializerContext):
     queryset = Subscription.objects.all()
     serializer_class = SubscribeSerializer
 

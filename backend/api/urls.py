@@ -22,7 +22,6 @@ router.register("users", CustomUserViewSet)
 router.register("ingredients", IngridientsViewSet)
 router.register("tags", TagsViewSet)
 router.register("recipes", RecipesViewSet)
-# print(router.urls)
 
 urlpatterns = [
     path(
