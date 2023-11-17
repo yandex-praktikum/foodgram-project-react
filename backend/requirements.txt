@@ -5,6 +5,7 @@ gunicorn==20.1.0
 psycopg2-binary==2.8.6
 djoser
 Pillow==9.2.0
+python-decouple==3.5
 drf-base64==2.0
 webcolors==1.13
 django-cors-headers==3.14.0

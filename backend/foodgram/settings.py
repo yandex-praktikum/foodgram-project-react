@@ -1,14 +1,12 @@
 import os
 
+from decouple import Csv, config
 from dotenv import load_dotenv
 
 load_dotenv()
 
 from pathlib import Path
-from django.core.management.commands.runserver import Command as runserver
 
-
-runserver.default_port = "8080"
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -21,7 +19,7 @@ SECRET_KEY = os.getenv(
 DEBUG = os.getenv('DEBUG', default='True')
 
 
-ALLOWED_HOSTS = ['130.193.53.39']
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="*", cast=Csv())
 
 
 INSTALLED_APPS = [
