@@ -1,23 +1,14 @@
-from http import HTTPStatus
-
-
-from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db import transaction
-from django.db.models import Count, Prefetch, Sum
+from django.db.models import Count, Sum
 from django.http import HttpResponse
-from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from rest_framework import generics, viewsets, filters
+from rest_framework import generics, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
-from api.exceptions import BadRequestException
 from api.serializers import (
-    CustomUserSerializer,
     IngredientsSerializer,
     RecipesPostSerializer,
     RecipesSerializer,
@@ -25,7 +16,6 @@ from api.serializers import (
     SubscribeSerializer,
     SubscriptionSerializer,
     FavoriteSerializer,
-    RecipeMinifiedSerializer,
     ShoppingCartSerializer,
 )
 from api.viewsets import CreateDestroyViewSet, ListViewSet
@@ -38,7 +28,7 @@ from recipes.models import (
     Subscription,
     Favorite,
 )
-from rest_framework.response import Response
+
 
 User = get_user_model()
 
@@ -54,7 +44,8 @@ class CustomSerializerContext(generics.GenericAPIView):
         recipes = None
         if self.request.user.is_authenticated:
             subscriptions = set(
-                Subscription.objects.filter(subscriber=self.request.user).values_list(
+                Subscription.objects.filter(
+                    subscriber=self.request.user).values_list(
                     "author_id", flat=True
                 )
             )
@@ -125,7 +116,7 @@ class RecipesViewSet(viewsets.ModelViewSet, CustomSerializerContext):
         result = HEADER_FILE_CART
         result += "\n".join(
             [
-                f'{ingredient["ingredient__name"]}     -     {ingredient["total"]}/'
+                f'{ingredient["ingredient__name"]} - {ingredient["total"]}/'
                 f'{ingredient["ingredient__measurement_unit"]}'
                 for ingredient in ingredients
             ]
@@ -143,7 +134,8 @@ class SubscriptionsViewSet(ListViewSet, CustomSerializerContext):
 
     def get_queryset(self):
         user = self.request.user
-        return User.objects.filter(id__in=user.subscriber.values("author_id")).annotate(
+        return User.objects.filter(
+            id__in=user.subscriber.values("author_id")).annotate(
             recipes_count=Count("recipes")
         )
 
@@ -156,7 +148,8 @@ class SubscribeViewSet(CreateDestroyViewSet, CustomSerializerContext):
         queryset = self.filter_queryset(self.get_queryset())
         author = get_object_or_404(User, pk=self.kwargs["id"])
         subscriber = self.request.user
-        return get_object_or_404(queryset, subscriber=subscriber, author=author)
+        return get_object_or_404(queryset, subscriber=subscriber,
+                                 author=author)
 
     def perform_create(self, serializer):
         author = get_object_or_404(User, pk=self.kwargs["id"])

@@ -28,7 +28,8 @@ class CustomUserSerializer(GetIsSubscribedMixin, UserSerializer):
 
     class Meta:
         model = User
-        fields = ("email", "id", "username", "first_name", "last_name", "is_subscribed")
+        fields = ("email", "id", "username", "first_name", "last_name",
+                  "is_subscribed")
         read_only_fields = ("is_subscribed",)
 
 
@@ -71,7 +72,7 @@ class Hex2NameColor(serializers.Field):
 
 
 class TagsSerializer(serializers.ModelSerializer):
-    color = Hex2NameColor() 
+    color = Hex2NameColor()
 
     class Meta:
         model = Tag
@@ -90,11 +91,12 @@ class Base64ImageField(serializers.ImageField):
 
 class RecipesSerializer(serializers.ModelSerializer):
     tags = TagsSerializer(many=True)
-    ingredients = IngredientRecipeSerializer(source="ingredients_recipes", many=True)
+    ingredients = IngredientRecipeSerializer(source="ingredients_recipes",
+                                             many=True)
     author = CustomUserSerializer(default=serializers.CurrentUserDefault())
     image = Base64ImageField(
         required=False, allow_null=True
-    ) 
+    )
 
     class Meta:
         model = Recipe
@@ -117,13 +119,16 @@ class RecipeMinifiedSerializer(RecipesSerializer):
 
 
 class RecipesPostSerializer(RecipesSerializer):
-    tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all())
+    tags = serializers.PrimaryKeyRelatedField(many=True,
+                                              queryset=Tag.objects.all())
     ingredients = IngredientRecipePostSerializer(many=True)
-    author = serializers.HiddenField(default=serializers.CurrentUserDefault())  #
+    author = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+        )
     image = Base64ImageField(required=False, allow_null=True)
 
-    class Meta:  
-        model = Recipe  
+    class Meta:
+        model = Recipe
         fields = (
             "id",
             "tags",
@@ -133,8 +138,8 @@ class RecipesPostSerializer(RecipesSerializer):
             "image",
             "text",
             "cooking_time",
-        ) 
-        read_only_fields = ("author",)  
+        )
+        read_only_fields = ("author",)
 
     def create(self, validated_data):
         tags = validated_data.pop("tags")
@@ -232,26 +237,35 @@ class SubscribeSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         request = self.context.get("request")
-        author = get_object_or_404(User, pk=self.context.get("view").kwargs.get("id"))
+        author = get_object_or_404(User,
+                                   pk=self.context.get("view").kwargs.get("id"))
         subscriber = request.user
         if request.method == "POST":
             if author == subscriber:
-                raise serializers.ValidationError("Нельзя подписаться на самого себя!")
+                raise serializers.ValidationError(
+                    "Нельзя подписаться на самого себя!"
+                    )
             if Subscription.objects.filter(
                 author=author, subscriber=subscriber
             ).exists():
-                raise serializers.ValidationError("Вы уже подписаны на этого автора!")
+                raise serializers.ValidationError(
+                    "Вы уже подписаны на этого автора!"
+                    )
         return data
 
     def to_representation(self, instance):
-        user_query = User.objects.all().annotate(recipes_count=Count("recipes"))
-        sub_query = Subscription.objects.select_related("subscriber").prefetch_related(
-            Prefetch("author", queryset=user_query)
+        user_query = User.objects.all().annotate(
+            recipes_count=Count("recipes")
+            )
+        sub_query = Subscription.objects.select_related(
+            "subscriber").prefetch_related(
+                Prefetch("author", queryset=user_query)
         )
         instance = get_object_or_404(
             sub_query, subscriber=instance.subscriber, author=instance.author
         )
-        serializer = SubscriptionSerializer(instance.author, context=self.context)
+        serializer = SubscriptionSerializer(instance.author,
+                                            context=self.context)
         return serializer.data
 
 
