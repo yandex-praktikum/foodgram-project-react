@@ -91,6 +91,8 @@ jobs:
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         script: |
           cd food/infra/
+          sudo docker compose stop
+          sudo docker ps -a | grep Exit | cut -d ' ' -f 1 | xargs sudo docker rm
           touch .env
           echo "# Привет" | sudo tee .env
           sudo echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
@@ -101,13 +103,14 @@ jobs:
           sudo echo DB_PORT=${{ secrets.DB_PORT }} >> .env
           sudo echo SECRET_KEY="${{ secrets.SECRET_KEY }}" >> .env
           sudo echo DEBUG="${{ secrets.DEBUG }}" >> .env
-          sudo docker compose down
-          sudo docker compose rm backend
+          sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend
+          sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/foodgram
           sudo docker compose up -d
           sudo docker image prune -af
           sudo docker compose exec -T backend python manage.py migrate
           sudo docker compose exec -T backend python manage.py collectstatic --no-input
           sudo docker compose exec -T backend python manage.py load_ingredients
+          sudo rm -f .env
 
   send_message:
     runs-on: ubuntu-latest
