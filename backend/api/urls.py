@@ -34,7 +34,7 @@ urlpatterns = [
     ),
     path(
         "users/subscriptions/", SubscriptionsViewSet.as_view({"get": "list"})
-        ),
+    ),
     path(
         "users/<int:id>/subscribe/",
         SubscribeViewSet.as_view({"post": "create", "delete": "destroy"}),

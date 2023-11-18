@@ -124,7 +124,7 @@ class RecipesPostSerializer(RecipesSerializer):
     ingredients = IngredientRecipePostSerializer(many=True)
     author = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
-        )
+    )
     image = Base64ImageField(required=False, allow_null=True)
 
     class Meta:
@@ -237,26 +237,27 @@ class SubscribeSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         request = self.context.get("request")
-        author = get_object_or_404(User,
-                                   pk=self.context.get("view").kwargs.get("id"))
+        author = get_object_or_404(
+            User, pk=self.context.get("view").kwargs.get("id")
+        )
         subscriber = request.user
         if request.method == "POST":
             if author == subscriber:
                 raise serializers.ValidationError(
                     "Нельзя подписаться на самого себя!"
-                    )
+                )
             if Subscription.objects.filter(
                 author=author, subscriber=subscriber
             ).exists():
                 raise serializers.ValidationError(
                     "Вы уже подписаны на этого автора!"
-                    )
+                )
         return data
 
     def to_representation(self, instance):
         user_query = User.objects.all().annotate(
             recipes_count=Count("recipes")
-            )
+        )
         sub_query = Subscription.objects.select_related(
             "subscriber").prefetch_related(
                 Prefetch("author", queryset=user_query)
