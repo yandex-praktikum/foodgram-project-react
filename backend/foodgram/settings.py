@@ -1,6 +1,7 @@
 import os
 
 from dotenv import load_dotenv
+from decouple import Csv, config
 
 load_dotenv()
 
@@ -14,9 +15,33 @@ SECRET_KEY = os.getenv(
 # SECRET_KEY = "django-insecure-051ek9e6-u)7oq=(bws@q0f1=vg$n66w81zlye2&mmue!is5ni"
 
 DEBUG = os.getenv('DEBUG', default='True')
+ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="*", cast=Csv())
 
-ALLOWED_HOSTS = ['130.193.53.39', 'devinse.ru']
+# CSRF_TRUSTED_ORIGINS = config(
+    # "CSRF_TRUSTED_ORIGINS",
+    # default="http://localhost, http://127.0.0.1",
+    # cast=Csv(),
+# )
 
+
+# ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = ['130.193.53.39', 'devinse.ru']
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_HTTPONLY = False
+
+# CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost',
+    'http://localhost:8000',
+]
+
+# CORS_ALLOWED_ORIGINS = [
+    # 'http://localhost:8000',
+# ]
+
+# CORS_ALLOW_ALL_ORIGINS = False
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -31,13 +56,14 @@ INSTALLED_APPS = [
     "djoser",
     "api",
     "recipes",
-    "corsheaders",
+    "users",
+    # "corsheaders",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
+    # "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -46,7 +72,7 @@ MIDDLEWARE = [
 ]
 
 
-CORS_ALLOW_ALL_ORIGINS = True
+
 
 ROOT_URLCONF = "foodgram.urls"
 
@@ -76,10 +102,10 @@ DATABASES = {
         'NAME': os.getenv('DB_NAME',
                           default=os.path.join(BASE_DIR, 'db.sqlite3')),
         # "NAME": os.getenv("DB_NAME", default="postgres"),
-        "USER": os.getenv("POSTGRES_USER", default="postgres"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD", default="postgres"),
-        "HOST": os.getenv("DB_HOST", default="db"),
-        "PORT": os.getenv("DB_PORT", default="5432"),
+        # "USER": os.getenv("POSTGRES_USER", default="postgres"),
+        # "PASSWORD": os.getenv("POSTGRES_PASSWORD", default="postgres"),
+        # "HOST": os.getenv("DB_HOST", default="db"),
+        # "PORT": os.getenv("DB_PORT", default="5432"),
     }
 }
 
@@ -135,7 +161,7 @@ REST_FRAMEWORK = {
 }
 
 
-AUTH_USER_MODEL = "recipes.User"
+AUTH_USER_MODEL = "users.User"
 
 
 DJOSER = {

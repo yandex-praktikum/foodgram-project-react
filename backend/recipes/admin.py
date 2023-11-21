@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+# from django.contrib.auth.admin import UserAdmin
 
 
 from recipes.models import (
@@ -7,7 +7,7 @@ from recipes.models import (
     IngredientRecipe,
     Recipe,
     Tag,
-    User,
+    # User,
     Favorite,
     ShoppingCart,
 )
@@ -56,23 +56,6 @@ class RecipeAdmin(admin.ModelAdmin):
     @admin.display(description="Добавили в избранное", ordering="author")
     def count_favorite(self, obj):
         return obj.recipe.count()
-
-
-@admin.register(User)
-class MyUserAdmin(UserAdmin):
-    change_user_password_template = True
-    list_display = (
-        "pk",
-        "username",
-        "email",
-        "first_name",
-        "last_name",
-        "is_superuser",
-        "is_staff",
-        "is_active",
-    )
-    search_fields = ("username", "email")
-    list_filter = ("is_staff", "username", "email")
 
 
 @admin.register(Favorite)
