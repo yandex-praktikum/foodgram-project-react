@@ -48,13 +48,17 @@ class Subscription(models.Model):
     )
 
     class Meta:
-        # ordering = ('id',)
+        ordering = ('id',)
         verbose_name = "Подписка"
         verbose_name_plural = "Подписки"
         constraints = [
             models.UniqueConstraint(
                 fields=["subscriber", "author"],
                 name="unique subscriber author"
+            ),
+            models.CheckConstraint(
+                check=~models.Q(subscriber=models.F("author")),
+                name='self susbscription'
             )
         ]
 

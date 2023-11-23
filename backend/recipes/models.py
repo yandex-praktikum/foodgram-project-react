@@ -1,20 +1,11 @@
 from colorfield.fields import ColorField
 
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from core.constants import Limits
-
-
-
-
-
-
-
-
-
 
 
 User = get_user_model()
@@ -98,14 +89,19 @@ class Recipe(models.Model):
     text = models.TextField(
         verbose_name="Как приготовить"
     )
-    cooking_time = models.IntegerField(
+    cooking_time = models.PositiveSmallIntegerField(
+        verbose_name="Время приготовления",
+        default=0,
         validators=[
             MinValueValidator(
-            Limits.MIN_COOKING_TIME.value, 
-            "Время приготовления не может быть меньше 1 минуты"
+                Limits.MIN_COOKING_TIME.value, 
+                "Время приготовления не может быть меньше 1 минуты"
+            ),
+            MaxValueValidator(
+                Limits.MAX_COOKING_TIME.value,
+                "Ошибка ввода времени приготовления"
             )
-        ],
-        verbose_name="Время приготовления",
+        ]   
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
@@ -136,7 +132,14 @@ class IngredientRecipe(models.Model):
         default=1,
         verbose_name='Количество',
         validators=[
-            MinValueValidator(1, 'Нельзя выбрать < 1')
+            MinValueValidator(
+                Limits.MIN_AMOUNT_INGREDIENTS.value,
+                'Нельзя выбрать < 1'
+            ),
+            MaxValueValidator(
+                Limits.MAX_AMOUNT_INGREDIENTS,
+                'Нельзя выбрать > 20'
+            )
         ]
     )
 
