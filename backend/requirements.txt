@@ -10,4 +10,4 @@ drf-base64==2.0
 webcolors==1.13
 django-cors-headers==3.14.0
 python-dotenv==0.21.1
-
+python-decouple==3.5

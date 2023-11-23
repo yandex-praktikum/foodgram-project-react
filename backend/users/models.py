@@ -1,37 +1,62 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from core.constants import Limits
+
 
 class User(AbstractUser):
-    email = models.EmailField(_("email address"), max_length=254, unique=True)
-    password = models.CharField(_("password"), max_length=150)
-    first_name = models.CharField(_("first name"), max_length=150)
-    last_name = models.CharField(_("last name"), max_length=150)
+    email = models.EmailField(
+        _("email address"),
+        max_length=Limits.MAX_LEN_EMAIL_FIELD.value,
+        unique=True
+    )
+    password = models.CharField(
+        _("password"),
+        max_length=Limits.MAX_LEN_USERS_CHARFIELD.value
+    )
+    first_name = models.CharField(
+        _("first name"),
+        max_length=Limits.MAX_LEN_USERS_CHARFIELD.value
+    )
+    last_name = models.CharField(
+        _("last name"),
+        max_length=Limits.MAX_LEN_USERS_CHARFIELD.value
+        )
 
     REQUIRED_FIELDS = ["username", "first_name", "last_name"]
     USERNAME_FIELD = "email"
 
     class Meta:
-        ordering = ["pk"]
+        ordering = ('id',)
         verbose_name = "поварёнок"
         verbose_name_plural = "Все поварята"
 
 
 class Subscription(models.Model):
     subscriber = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="subscriber"
+        User,
+        on_delete=models.CASCADE,
+        related_name="subscriber",
+        verbose_name="Подписчик"
     )
-    author = models.ForeignKey(User, on_delete=models.CASCADE,
-                               related_name="author")
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="author",
+        verbose_name="Автор"
+    )
 
     class Meta:
+        # ordering = ('id',)
+        verbose_name = "Подписка"
         verbose_name_plural = "Подписки"
-        ordering = ["author"]
         constraints = [
             models.UniqueConstraint(
                 fields=["subscriber", "author"],
                 name="unique subscriber author"
             )
         ]
+
+    def __str__(self):
+        return f"Подписчик {self.subscriber} - автор {self.author}"
