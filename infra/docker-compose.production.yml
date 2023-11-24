@@ -8,14 +8,14 @@ volumes:
 
 services:
   db:
-    image: postgres:13.10-alpine
+    image: postgres:14.10-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file: .env
     restart: always
   
   backend:
-    build: ../backend
+    image: mccloudin/food_back:latest
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/
@@ -23,17 +23,19 @@ services:
     env_file: .env
   
   frontend:
-    build: ../frontend
+    image: mccloudin/food_front:latest
     volumes:
       - ../frontend/:/app/result_build/
-  
+
   nginx:
-    image: nginx:1.19.3
+    image: nginx:latest
+    restart: always
     ports:
-      - "80:80"
+      - 8000:8000
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
+      - ../docs/redoc.html:/usr/share/nginx/html/api/docs/redoc.html
+      - ../docs/openapi-schema.yml:/usr/share/nginx/html/api/docs/openapi-schema.yml
       - static_value:/var/html/static/
       - media_value:/var/html/media/
-      - redoc:/usr/share/nginx/html/api/docs/
