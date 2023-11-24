@@ -171,62 +171,6 @@ class TagRecipe(models.Model):
         return f"{self.tag} {self.recipe}"
 
 
-class Favorite(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='user',
-        verbose_name='Пользователь'
-    )
-    recipe = models.ForeignKey(
-        Recipe, on_delete=models.CASCADE,
-        related_name='recipe'
-    )
-
-    class Meta:
-        verbose_name = "избранный рецепт"
-        verbose_name_plural = "Избранные рецепты"
-        ordering = ('user',)
-        constraints = [
-            models.UniqueConstraint(
-                fields=["user", "recipe"],
-                name="unique user recipe"
-            )
-        ]
-    
-    def __str__(self):
-        return f'{self.user} - {self.recipe.name}'
-
-
-class ShoppingCart(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='cart',
-        verbose_name='Пользователь'
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        related_name='cart',
-        verbose_name='Рецепт',
-    )
-
-    class Meta:
-        verbose_name = 'Список покупок'
-        verbose_name_plural = 'Список покупок'
-        ordering = ('-id',)
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'recipe'],
-                name='unique user cart'
-            )
-        ]
-
-    def __str__(self):
-        return f'{self.user} - {self.recipe.name}'
-    
-"""
 class AbstractUserRecipe(models.Model):
     user = models.ForeignKey(
         User,
@@ -239,11 +183,30 @@ class AbstractUserRecipe(models.Model):
 
     class Meta:
         abstract = True 
-       
+
+
+class Favorite(AbstractUserRecipe):
+    
+    class Meta:
+        default_related_name='recipe'
+        verbose_name = "избранный рецепт"
+        verbose_name_plural = "Избранные рецепты"
+        ordering = ('user',)
+        #constraints = [
+            #models.UniqueConstraint(
+                # fields=["user", "recipe"],
+                # name="unique user recipe"
+            # )
+        # ]
+    
+    def __str__(self):
+        return f'{self.user} - {self.recipe.name}'
+
 
 class ShoppingCart(AbstractUserRecipe):
    
     class Meta:
+        default_related_name = 'cart'
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Список покупок'
         ordering = ('-id',)
@@ -257,17 +220,3 @@ class ShoppingCart(AbstractUserRecipe):
     def __str__(self):
         return f'{self.user} - {self.recipe.name}'     
 
-class AbstractTagChat(models.Model): 
-    class Meta: 
-        abstract = True 
-
-    chat = models.OneToOneField(
-        'Chat',
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name='%(class)s_chat'
-    )
-    value = models.CharField(max_length=200)
-
-"""

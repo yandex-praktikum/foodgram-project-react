@@ -86,19 +86,6 @@ class RecipesViewSet(viewsets.ModelViewSet, CustomSerializerContext):
     serializer_class = RecipesSerializer
     ordering = ("-pub_date",)
 
-    """
-        def dispatch(self, request, *args, **kwargs):
-        print(request)
-        res = super().dispatch(request, *args, **kwargs)
-
-        from django.db import connection
-        print(len(connection.queries))
-        for q in connection.queries:
-            print('>>>>', q['sql'])
-
-        return res
-    """
-
     def get_serializer_class(self):
         if self.action in ["create", "partial_update"]:
             return RecipesPostSerializer
