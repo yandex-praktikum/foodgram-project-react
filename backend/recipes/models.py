@@ -222,3 +222,52 @@ class ShoppingCart(models.Model):
                 name='unique user cart'
             )
         ]
+
+    def __str__(self):
+        return f'{self.user} - {self.recipe.name}'
+    
+"""
+class AbstractUserRecipe(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        abstract = True 
+       
+
+class ShoppingCart(AbstractUserRecipe):
+   
+    class Meta:
+        verbose_name = 'Список покупок'
+        verbose_name_plural = 'Список покупок'
+        ordering = ('-id',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique user cart'
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.user} - {self.recipe.name}'     
+
+class AbstractTagChat(models.Model): 
+    class Meta: 
+        abstract = True 
+
+    chat = models.OneToOneField(
+        'Chat',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='%(class)s_chat'
+    )
+    value = models.CharField(max_length=200)
+
+"""
