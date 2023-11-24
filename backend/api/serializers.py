@@ -1,19 +1,16 @@
 import base64
 
 import webcolors
-from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.db.models import Count, Prefetch
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserSerializer
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
-from recipes.models import (Ingredient, IngredientRecipe, Recipe,
-                            Tag, TagRecipe, Favorite,
-                            ShoppingCart)
-from users.models import  Subscription
-
-
-User = get_user_model()
+from recipes.models import (Ingredient, IngredientRecipe,
+                            Recipe, Tag, TagRecipe,
+                            Favorite, ShoppingCart)
+from users.models import  User, Subscription
 
 
 class GetIsSubscribedMixin:
@@ -42,7 +39,13 @@ class IngredientsSerializer(serializers.ModelSerializer):
 
 class IngredientRecipePostSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
-
+    def validate_ingredients(self, data):
+        ingredients = self.initial_data.get('ingredients')
+        for ingredient in ingredients:
+            if int(ingredient.get('amount')) < 1:
+                raise serializers.ValidationError(
+                    'Некорректное количество ингредиента')
+        return data
     class Meta:
         model = IngredientRecipe
         fields = ("id", "amount")
@@ -59,7 +62,7 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
         model = IngredientRecipe
         fields = ("id", "name", "measurement_unit", "amount")
 
-
+"""
 class Hex2NameColor(serializers.Field):
     def to_representation(self, value):
         return value
@@ -70,16 +73,15 @@ class Hex2NameColor(serializers.Field):
         except ValueError:
             raise serializers.ValidationError("Для этого цвета нет имени")
         return data
-
+"""
 
 class TagsSerializer(serializers.ModelSerializer):
-    color = Hex2NameColor()
-
+    # color = Hex2NameColor()
     class Meta:
         model = Tag
         fields = ("id", "name", "color", "slug")
 
-
+"""
 class Base64ImageField(serializers.ImageField):
     def to_internal_value(self, data):
         if isinstance(data, str) and data.startswith("data:image"):
@@ -89,6 +91,7 @@ class Base64ImageField(serializers.ImageField):
 
         return super().to_internal_value(data)
 
+"""
 
 class RecipesSerializer(serializers.ModelSerializer):
     tags = TagsSerializer(many=True)
@@ -141,6 +144,43 @@ class RecipesPostSerializer(RecipesSerializer):
             "cooking_time",
         )
         read_only_fields = ("author",)
+
+    def validate_tags(self, tags):
+        tags_list = []
+        for tag in tags:
+            if tag in tags_list:
+                raise serializers.ValidationError(
+                    'Повтор тега'
+                )
+            tags_list.append(tag)
+            if len(tags_list) < 1:
+                raise serializers.ValidationError(
+                    'Выберите тег'
+                )
+        return tags
+
+    def validate_ingredients(self, data):
+        if not data:
+            raise serializers.ValidationError(
+                'Выберите ингредиент'
+            )
+        ingredients = self.initial_data.get('ingredients')
+        ingredients_list = []
+        for ingredient in ingredients:
+            ingredient_id = ingredient['id']
+            if ingredient_id in ingredients_list:
+                raise serializers.ValidationError(
+                    'Ингредиент выбран повторно'
+                )
+    
+    def validate_cooking_time(self, cooking_time):
+        if cooking_time < 1:
+            raise serializers.ValidationError(
+                'Минимальное время готовки не менее 1 минуты')
+        if cooking_time > 300:
+            raise serializers.ValidationError(
+                'Время готовки ограничено 5 часами')
+        return cooking_time
 
     def create(self, validated_data):
         tags = validated_data.pop("tags")
@@ -200,6 +240,31 @@ class RecipesPostSerializer(RecipesSerializer):
 
 
 class SubscriptionSerializer(CustomUserSerializer):
+    recipes = RecipeMinifiedSerializer(many=True, read_only=True)
+    recipes_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            "email",
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "is_subscribed",
+            "recipes",
+            "recipes_count",
+        )
+        read_only_fields = ("__all__",)
+
+    def get_is_subscribed(*args) -> bool:
+        return True
+
+    def get_recipes_count(self, obj: User) -> int:
+        return obj.recipes.count()
+
+    
+"""
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.IntegerField()
 
@@ -229,7 +294,7 @@ class SubscriptionSerializer(CustomUserSerializer):
                 recipes = recipes[: int(recipes_limit)]
         serializer = RecipeMinifiedSerializer(recipes, many=True)
         return serializer.data
-
+"""
 
 class SubscribeSerializer(serializers.ModelSerializer):
     class Meta:

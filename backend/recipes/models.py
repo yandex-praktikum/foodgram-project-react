@@ -1,7 +1,8 @@
 from colorfield.fields import ColorField
 
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import (MinValueValidator, MaxValueValidator,
+                                    RegexValidator)
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -80,7 +81,14 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         max_length=Limits.DESIGNATION.value,
-        verbose_name="Название"
+        verbose_name="Название",
+        validators=[
+            RegexValidator(
+                regex="[^!@#$%^&*()_0-9]",  
+                message=(f'Приветствуется человекочитаемое '
+                         f'название рецепта')
+            )
+        ]
     )
     image = models.ImageField(
         upload_to="recipes/images/",

@@ -36,7 +36,7 @@ HEADER_FILE_CART = (
     "Не порть продукты, сходи в ресторан:\n\nИнгредиент   -   Кол-во/Ед.изм.\n"
 )
 
-
+"""
 class CustomSerializerContext(generics.GenericAPIView):
     def get_serializer_context(self):
         subscriptions = None
@@ -61,6 +61,7 @@ class CustomSerializerContext(generics.GenericAPIView):
 class CustomUserViewSet(UserViewSet, CustomSerializerContext):
     pass
 
+"""
 
 class IngridientsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
@@ -77,7 +78,7 @@ class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ("name",)
 
 
-class RecipesViewSet(viewsets.ModelViewSet, CustomSerializerContext):
+class RecipesViewSet(viewsets.ModelViewSet):  # , CustomSerializerContext
     queryset = (
         Recipe.objects.select_related("author")
         .prefetch_related("tags", "ingredients_recipes")
@@ -113,7 +114,7 @@ class RecipesViewSet(viewsets.ModelViewSet, CustomSerializerContext):
         return response
 
 
-class SubscriptionsViewSet(ListViewSet, CustomSerializerContext):
+class SubscriptionsViewSet(ListViewSet):  # , CustomSerializerContext
     serializer_class = SubscriptionSerializer
     permission_classes = (IsAuthenticated,)
     ordering = ("author",)
@@ -126,7 +127,7 @@ class SubscriptionsViewSet(ListViewSet, CustomSerializerContext):
         )
 
 
-class SubscribeViewSet(CreateDestroyViewSet, CustomSerializerContext):
+class SubscribeViewSet(CreateDestroyViewSet): # , CustomSerializerContext
     queryset = Subscription.objects.all()
     serializer_class = SubscribeSerializer
 
