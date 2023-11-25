@@ -1,22 +1,19 @@
 from django.contrib import admin
-# from django.contrib.auth.admin import UserAdmin
-
+from django.contrib.admin import TabularInline
 
 from recipes.models import (
     Ingredient,
     IngredientRecipe,
     Recipe,
     Tag,
-    # User,
     Favorite,
     ShoppingCart,
 )
 
 
-class IngredientRecipeInline(admin.TabularInline):
+class IngredientInline(TabularInline):
     model = IngredientRecipe
-    extra = 1
-
+    extra = 2
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
@@ -50,7 +47,7 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = ["name"]
     list_filter = ("author", "tags")
     ordering = ("pub_date",)
-    inlines = [IngredientRecipeInline]
+    inlines = (IngredientInline,)
     readonly_fields = ("count_favorite",)
 
     @admin.display(description="Добавили в избранное", ordering="author")

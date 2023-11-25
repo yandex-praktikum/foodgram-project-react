@@ -19,6 +19,7 @@ from api.serializers import (
     ShoppingCartSerializer,
 )
 from api.viewsets import CreateDestroyViewSet, ListViewSet
+from core.utils import create_shoping_list
 from recipes.models import (
     Ingredient,
     ShoppingCart,
@@ -31,37 +32,6 @@ from users.models import Subscription
 
 User = get_user_model()
 
-FILENAME = "shopping_cart.txt"
-HEADER_FILE_CART = (
-    "Не порть продукты, сходи в ресторан:\n\nИнгредиент   -   Кол-во/Ед.изм.\n"
-)
-
-"""
-class CustomSerializerContext(generics.GenericAPIView):
-    def get_serializer_context(self):
-        subscriptions = None
-        recipes = None
-        if self.request.user.is_authenticated:
-            subscriptions = set(
-                Subscription.objects.filter(
-                    subscriber=self.request.user).values_list(
-                    "author_id", flat=True
-                )
-            )
-            recipes = Recipe.objects.filter(author__in=subscriptions)
-        return {
-            "request": self.request,
-            "format": self.format_kwarg,
-            "view": self,
-            "subscriptions": subscriptions,
-            "recipes": recipes,
-        }
-
-
-class CustomUserViewSet(UserViewSet, CustomSerializerContext):
-    pass
-
-"""
 
 class IngridientsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
@@ -94,24 +64,9 @@ class RecipesViewSet(viewsets.ModelViewSet):  # , CustomSerializerContext
 
     @action(methods=["get"], detail=False)
     def download_shopping_cart(self, request):
-        ingredients = (
-            IngredientRecipe.objects.filter(recipe__cart__user=request.user)
-            .values("ingredient__name", "ingredient__measurement_unit")
-            .order_by("ingredient__name")
-            .annotate(total=Sum("amount"))
-        )
-        result = HEADER_FILE_CART
-        result += "\n".join(
-            [
-                f'{ingredient["ingredient__name"]} - {ingredient["total"]}/'
-                f'{ingredient["ingredient__measurement_unit"]}'
-                for ingredient in ingredients
-            ]
-        )
-        response = HttpResponse(result, content_type="text/plain")
-        response["Content-Disposition"] = f"attachment; filename={FILENAME}"
-        print(response)
-        return response
+        user = self.request.user
+        shopping_list = create_shoping_list(user)
+        return shopping_list
 
 
 class SubscriptionsViewSet(ListViewSet):  # , CustomSerializerContext

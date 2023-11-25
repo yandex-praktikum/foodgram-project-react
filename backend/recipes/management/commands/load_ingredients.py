@@ -7,7 +7,6 @@ from recipes.models import Ingredient
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        print("Errors should never pass silently")
         with open("./data/ingredients.json", "rb") as f:
             data = json.load(f)
             for line in data:
@@ -15,4 +14,3 @@ class Command(BaseCommand):
                     name=line["name"].lower(),
                     measurement_unit=line["measurement_unit"].lower(),
                 )
-        print("Now is better than never")

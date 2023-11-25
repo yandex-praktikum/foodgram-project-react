@@ -1,6 +1,7 @@
 import base64
 
 import webcolors
+from core.utils import ingredient_recipe
 from django.core.files.base import ContentFile
 from django.db.models import Count, Prefetch
 from django.shortcuts import get_object_or_404
@@ -62,36 +63,12 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
         model = IngredientRecipe
         fields = ("id", "name", "measurement_unit", "amount")
 
-"""
-class Hex2NameColor(serializers.Field):
-    def to_representation(self, value):
-        return value
-
-    def to_internal_value(self, data):
-        try:
-            data = webcolors.hex_to_name(data)
-        except ValueError:
-            raise serializers.ValidationError("Для этого цвета нет имени")
-        return data
-"""
 
 class TagsSerializer(serializers.ModelSerializer):
-    # color = Hex2NameColor()
     class Meta:
         model = Tag
         fields = ("id", "name", "color", "slug")
 
-"""
-class Base64ImageField(serializers.ImageField):
-    def to_internal_value(self, data):
-        if isinstance(data, str) and data.startswith("data:image"):
-            format, imgstr = data.split(";base64,")
-            ext = format.split("/")[-1]
-            data = ContentFile(base64.b64decode(imgstr), name="temp." + ext)
-
-        return super().to_internal_value(data)
-
-"""
 
 class RecipesSerializer(serializers.ModelSerializer):
     tags = TagsSerializer(many=True)
@@ -181,26 +158,13 @@ class RecipesPostSerializer(RecipesSerializer):
             raise serializers.ValidationError(
                 'Время готовки ограничено 5 часами')
         return cooking_time
-
+    
     def create(self, validated_data):
         tags = validated_data.pop("tags")
         ingredients = validated_data.pop("ingredients")
         recipe = Recipe.objects.create(**validated_data)
-        lst = []
-        for tag in tags:
-            TagRecipe.objects.create(tag=tag, recipe=recipe)
-            lst.append(tag)
-        recipe.tags.set(lst)
-        IngredientRecipe.objects.bulk_create(
-            [
-                IngredientRecipe(
-                    ingredient=ingredient["id"],
-                    recipe=recipe,
-                    amount=ingredient["amount"],
-                )
-                for ingredient in ingredients
-            ]
-        )
+        recipe.tags.set(tags)
+        ingredient_recipe(recipe, ingredients)
         return recipe
 
     def update(self, instance, validated_data):
@@ -257,45 +221,13 @@ class SubscriptionSerializer(CustomUserSerializer):
         )
         read_only_fields = ("__all__",)
 
-    def get_is_subscribed(*args) -> bool:
+    def get_is_subscribed(*args):
         return True
 
-    def get_recipes_count(self, obj: User) -> int:
+    def get_recipes_count(self, obj):
         return obj.recipes.count()
 
     
-"""
-    recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.IntegerField()
-
-    class Meta:
-        model = User
-        fields = (
-            "email",
-            "id",
-            "username",
-            "first_name",
-            "last_name",
-            "is_subscribed",
-            "recipes",
-            "recipes_count",
-        )
-
-    def get_recipes(self, obj):
-        request = self.context.get("request")
-        if request.method == "POST":
-            recipes = obj.recipes.all()
-        else:
-            recipes_all = self.context.get("recipes", [])
-            recipes = recipes_all.filter(author=obj)
-        if request:
-            recipes_limit = request.GET.get("recipes_limit")
-            if recipes_limit:
-                recipes = recipes[: int(recipes_limit)]
-        serializer = RecipeMinifiedSerializer(recipes, many=True)
-        return serializer.data
-"""
-
 class SubscribeSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ()
