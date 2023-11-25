@@ -16,8 +16,6 @@ DEBUG = os.getenv('DEBUG', default='True')
 
 ALLOWED_HOSTS = ['130.193.53.39', 'devinse.ru']
 
-CORS_ALLOW_ALL_ORIGINS = False
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
