@@ -1,10 +1,8 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Count, Sum
-from django.http import HttpResponse
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from djoser.views import UserViewSet
-from rest_framework import generics, viewsets
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
@@ -23,7 +21,6 @@ from core.utils import create_shoping_list
 from recipes.models import (
     Ingredient,
     ShoppingCart,
-    IngredientRecipe,
     Recipe,
     Tag,
     Favorite,
@@ -48,7 +45,7 @@ class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ("name",)
 
 
-class RecipesViewSet(viewsets.ModelViewSet):  # , CustomSerializerContext
+class RecipesViewSet(viewsets.ModelViewSet):
     queryset = (
         Recipe.objects.select_related("author")
         .prefetch_related("tags", "ingredients_recipes")
@@ -69,7 +66,7 @@ class RecipesViewSet(viewsets.ModelViewSet):  # , CustomSerializerContext
         return shopping_list
 
 
-class SubscriptionsViewSet(ListViewSet):  # , CustomSerializerContext
+class SubscriptionsViewSet(ListViewSet):
     serializer_class = SubscriptionSerializer
     permission_classes = (IsAuthenticated,)
     ordering = ("author",)
@@ -82,7 +79,7 @@ class SubscriptionsViewSet(ListViewSet):  # , CustomSerializerContext
         )
 
 
-class SubscribeViewSet(CreateDestroyViewSet): # , CustomSerializerContext
+class SubscribeViewSet(CreateDestroyViewSet):
     queryset = Subscription.objects.all()
     serializer_class = SubscribeSerializer
 

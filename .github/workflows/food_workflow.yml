@@ -3,7 +3,7 @@ name: Foodprivet
 on: 
   push:
     branches:
-      - zond.2
+      - review.0
 
 jobs:
   tests:

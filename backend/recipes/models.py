@@ -200,12 +200,6 @@ class Favorite(AbstractUserRecipe):
         verbose_name = "избранный рецепт"
         verbose_name_plural = "Избранные рецепты"
         ordering = ('user',)
-        #constraints = [
-            #models.UniqueConstraint(
-                # fields=["user", "recipe"],
-                # name="unique user recipe"
-            # )
-        # ]
     
     def __str__(self):
         return f'{self.user} - {self.recipe.name}'
@@ -227,4 +221,3 @@ class ShoppingCart(AbstractUserRecipe):
 
     def __str__(self):
         return f'{self.user} - {self.recipe.name}'     
-
