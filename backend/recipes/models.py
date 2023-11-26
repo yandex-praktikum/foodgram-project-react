@@ -86,7 +86,7 @@ class Recipe(models.Model):
         validators=[
             RegexValidator(
                 regex="[^!@#$%^&*()_0-9]",
-                message= 'только буквы'
+                message='только буквы'
             )
         ]
     )
