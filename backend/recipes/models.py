@@ -31,7 +31,7 @@ class Ingredient(models.Model):
                 name="unique_among_ingredient",
             ),
         ]
-    
+
     def __str__(self):
         return f"{self.name}, {self.measurement_unit}."
 
@@ -86,8 +86,7 @@ class Recipe(models.Model):
         validators=[
             RegexValidator(
                 regex="[^!@#$%^&*()_0-9]",
-                message=(f'Приветствуется человекочитаемое ')
-                        (f'название рецепта')
+                message= 'только буквы'
             )
         ]
     )
@@ -222,4 +221,3 @@ class ShoppingCart(AbstractUserRecipe):
 
     def __str__(self):
         return f'{self.user} - {self.recipe.name}'
-
