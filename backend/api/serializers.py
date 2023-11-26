@@ -1,8 +1,4 @@
-import base64
-
-import webcolors
 from core.utils import ingredient_recipe
-from django.core.files.base import ContentFile
 from django.db.models import Count, Prefetch
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserSerializer
@@ -11,7 +7,7 @@ from rest_framework import serializers
 from recipes.models import (Ingredient, IngredientRecipe,
                             Recipe, Tag, TagRecipe,
                             Favorite, ShoppingCart)
-from users.models import  User, Subscription
+from users.models import User, Subscription
 
 
 class GetIsSubscribedMixin:
@@ -40,6 +36,7 @@ class IngredientsSerializer(serializers.ModelSerializer):
 
 class IngredientRecipePostSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+
     def validate_ingredients(self, data):
         ingredients = self.initial_data.get('ingredients')
         for ingredient in ingredients:
@@ -47,6 +44,7 @@ class IngredientRecipePostSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     'Некорректное количество ингредиента')
         return data
+
     class Meta:
         model = IngredientRecipe
         fields = ("id", "amount")
@@ -149,7 +147,7 @@ class RecipesPostSerializer(RecipesSerializer):
                 raise serializers.ValidationError(
                     'Ингредиент выбран повторно'
                 )
-    
+
     def validate_cooking_time(self, cooking_time):
         if cooking_time < 1:
             raise serializers.ValidationError(
@@ -158,7 +156,7 @@ class RecipesPostSerializer(RecipesSerializer):
             raise serializers.ValidationError(
                 'Время готовки ограничено 5 часами')
         return cooking_time
-    
+
     def create(self, validated_data):
         tags = validated_data.pop("tags")
         ingredients = validated_data.pop("ingredients")
@@ -227,7 +225,7 @@ class SubscriptionSerializer(CustomUserSerializer):
     def get_recipes_count(self, obj):
         return obj.recipes.count()
 
-    
+
 class SubscribeSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ()

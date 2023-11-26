@@ -9,5 +9,3 @@ class Limits(IntEnum):
     MAX_COOKING_TIME = 300
     MIN_AMOUNT_INGREDIENTS = 1
     MAX_AMOUNT_INGREDIENTS = 20
-    
-    

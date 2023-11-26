@@ -22,7 +22,7 @@ class User(AbstractUser):
     last_name = models.CharField(
         _("last name"),
         max_length=Limits.MAX_LEN_USERS_CHARFIELD.value
-        )
+    )
 
     REQUIRED_FIELDS = ["username", "first_name", "last_name"]
     USERNAME_FIELD = "email"

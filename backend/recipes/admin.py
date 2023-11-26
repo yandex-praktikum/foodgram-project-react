@@ -15,6 +15,7 @@ class IngredientInline(TabularInline):
     model = IngredientRecipe
     extra = 2
 
+
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ("pk", "name")
