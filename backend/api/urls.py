@@ -7,7 +7,7 @@ from api.views import (
     TagsViewSet,
     SubscribeViewSet,
     SubscriptionsViewSet,
-    FavoriteViewSet,
+    FavoriteRecipeViewSet,
     ShoppingCartViewSet,
 )
 
@@ -20,16 +20,19 @@ router = DefaultRouter()
 router.register("ingredients", IngridientsViewSet)
 router.register("tags", TagsViewSet)
 router.register("recipes", RecipesViewSet)
+router.register(
+    r'recipes/(?P<recipe_id>\d+)/favorite', FavoriteRecipeViewSet,
+    basename='favorite')
 
 urlpatterns = [
     path(
         "recipes/<int:id>/shopping_cart/",
-        ShoppingCartViewSet.as_view({"post": "create", "delete": "destroy"}),
+        ShoppingCartViewSet.as_view({"post": "create", "delete": "destroy"})
     ),
-    path(
-        "recipes/<int:id>/favorite/",
-        FavoriteViewSet.as_view({"post": "create", "delete": "destroy"}),
-    ),
+    #path(
+        #"recipes/<int:id>/favorite/",
+        #FavoriteRecipeViewSet.as_view({"post": "create", "delete": "destroy"})
+    #),
     path(
         "users/subscriptions/", SubscriptionsViewSet.as_view({"get": "list"})
     ),

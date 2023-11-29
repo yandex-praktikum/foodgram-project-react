@@ -14,7 +14,8 @@ SECRET_KEY = os.getenv(
 
 DEBUG = os.getenv('DEBUG', default='True')
 
-ALLOWED_HOSTS = ['130.193.53.39', 'devinse.ru']
+# ALLOWED_HOSTS = ['130.193.53.39', 'devinse.ru']
+ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -65,6 +66,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "foodgram.wsgi.application"
 
+"""
 DATABASES = {
     "default": {
         "ENGINE": os.getenv("DB_ENGINE", default="django.db.backends.postgresql"),
@@ -75,6 +77,17 @@ DATABASES = {
         "PORT": os.getenv("DB_PORT", default="5432"),
     }
 }
+"""
+
+DATABASES = {
+    "default": {
+        'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.sqlite3'),
+        'NAME': os.getenv('DB_NAME',
+                          default=os.path.join(BASE_DIR, 'db.sqlite3')),
+    }
+}
+
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {

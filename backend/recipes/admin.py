@@ -6,7 +6,7 @@ from recipes.models import (
     IngredientRecipe,
     Recipe,
     Tag,
-    Favorite,
+    FavoriteRecipe,
     ShoppingCart,
 )
 
@@ -38,7 +38,7 @@ class RecipeAdmin(admin.ModelAdmin):
         "text",
         "cooking_time",
         "author",
-        "count_favorite",
+        # "count_favorite",
         "image",
     )
     list_display_links = ("name", "pub_date", "text", "cooking_time", "author")
@@ -49,17 +49,21 @@ class RecipeAdmin(admin.ModelAdmin):
     list_filter = ("author", "tags")
     ordering = ("pub_date",)
     inlines = (IngredientInline,)
-    readonly_fields = ("count_favorite",)
+    # readonly_fields = ("count_favorite",)
 
     @admin.display(description="Добавили в избранное", ordering="author")
     def count_favorite(self, obj):
         return obj.recipe.count()
 
 
-@admin.register(Favorite)
-class FavoriteAdmin(admin.ModelAdmin):
-    list_display = ("pk", "user", "recipe")
-    ordering = ("user",)
+@admin.register(FavoriteRecipe)
+class FavoriteRecipeAdmin(admin.ModelAdmin):
+    list_display = (
+        'id', 'user', 'favorite_recipe'
+    )
+    search_fields = ('favorite_recipe',)
+    list_filter = ('id', 'user', 'favorite_recipe')
+    empy_value_display = '-пусто-'
 
 
 @admin.register(ShoppingCart)

@@ -6,7 +6,7 @@ FILENAME = "shopping_cart.txt"
 HEADER_FILE_CART = (
     "Не порть продукты, сходи в ресторан:\n\nИнгредиент   -   Кол-во/Ед.изм.\n"
 )
-
+"""
 
 def ingredient_recipe(recipe, ingredients):
     selected_ingredients = []
@@ -37,3 +37,4 @@ def create_shoping_list(user: 'User'):
     response["Content-Disposition"] = f"attachment; filename={FILENAME}"
     print(response)
     return response
+"""
