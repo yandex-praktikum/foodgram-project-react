@@ -1,3 +1,4 @@
+
 from colorfield.fields import ColorField
 from django.contrib.auth import get_user_model
 from django.core.validators import (MinValueValidator, MaxValueValidator,
@@ -246,5 +247,3 @@ class ShoppingCart(models.Model):
     def __str__(self):
         return (f'Пользователь: {self.user.username},'
                 f'рецепт в списке: {self.recipe.name}')
-
-

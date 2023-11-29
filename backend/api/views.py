@@ -34,7 +34,7 @@ from users.models import Subscription
 User = get_user_model()
 
 
-class IngridientsViewSet(viewsets.ReadOnlyModelViewSet):
+class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientsSerializer
     filter_backends = (DjangoFilterBackend,)
@@ -47,6 +47,7 @@ class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TagsSerializer
     pagination_class = None
     ordering = ("name",)
+
 
 
 class RecipesViewSet(viewsets.ModelViewSet):
