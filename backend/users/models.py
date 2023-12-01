@@ -7,60 +7,59 @@ from core.constants import Limits
 
 class User(AbstractUser):
     email = models.EmailField(
-        _("email address"),
+        _('email address'),
         max_length=Limits.MAX_LEN_EMAIL_FIELD.value,
         unique=True
     )
     password = models.CharField(
-        _("password"),
+        _('password'),
         max_length=Limits.MAX_LEN_USERS_CHARFIELD.value
     )
     first_name = models.CharField(
-        _("first name"),
+        _('first name'),
         max_length=Limits.MAX_LEN_USERS_CHARFIELD.value
     )
     last_name = models.CharField(
-        _("last name"),
+        _('last name'),
         max_length=Limits.MAX_LEN_USERS_CHARFIELD.value
     )
 
-    REQUIRED_FIELDS = ["username", "first_name", "last_name"]
-    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+    USERNAME_FIELD = 'email'
 
     class Meta:
         ordering = ('id',)
-        verbose_name = "поварёнок"
-        verbose_name_plural = "Все поварята"
+        verbose_name = 'поварёнок'
+        verbose_name_plural = 'Все поварята'
 
 
 class Subscription(models.Model):
     subscriber = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="subscriber",
-        verbose_name="Подписчик"
+        related_name='subscriber',
+        verbose_name='Подписчик'
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="author",
-        verbose_name="Автор"
+        related_name='author',
+        verbose_name='Автор'
     )
 
     class Meta:
-        ordering = ('id',)
-        verbose_name = "Подписка"
-        verbose_name_plural = "Подписки"
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
         constraints = [
             models.UniqueConstraint(
-                fields=["subscriber", "author"],
-                name="unique subscriber author"
+                fields=['subscriber', 'author'],
+                name='unique subscriber author'
             ),
             models.CheckConstraint(
-                check=~models.Q(subscriber=models.F("author")),
+                check=~models.Q(subscriber=models.F('author')),
                 name='self susbscription'
             )
         ]
 
     def __str__(self):
-        return f"Подписчик {self.subscriber} - автор {self.author}"
+        return f'Подписчик {self.subscriber} - автор {self.author}'
