@@ -20,9 +20,6 @@ router = DefaultRouter()
 router.register("ingredients", IngredientsViewSet)
 router.register("tags", TagsViewSet)
 router.register("recipes", RecipesViewSet)
-# router.register(
-    # r'recipes/(?P<recipe_id>\d+)/favorite', FavoriteRecipeViewSet,
-    # basename='favorite')
 
 urlpatterns = [
     path(

@@ -1,11 +1,11 @@
-from django.db.models import Count, Prefetch, F
+from django.db.models import Count, F, Prefetch
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserSerializer
 from drf_extra_fields.fields import Base64ImageField
+from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
+                            ShoppingCart, Tag)
 from rest_framework import serializers
-from recipes.models import (Ingredient, IngredientRecipe,
-                            Recipe, Tag, Favorite, ShoppingCart)
-from users.models import User, Subscription
+from users.models import Subscription, User
 
 
 class GetIsSubscribedMixin:
