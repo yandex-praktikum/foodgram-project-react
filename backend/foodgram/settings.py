@@ -147,3 +147,7 @@ DJOSER = {
         "current_user": "api.serializers.CustomUserSerializer",
     },
 }
+
+FILENAME = 'Shopping_cart'
+EXT = '.txt'
+PREF = MEDIA_ROOT + '/recipes/files/'

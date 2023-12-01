@@ -7,8 +7,8 @@ from api.views import (
     TagsViewSet,
     SubscribeViewSet,
     SubscriptionsViewSet,
-    FavoriteRecipeViewSet,
-    ShoppingCartViewSet,
+    FavoriteViewSet,
+    ShoppingCartViewSet
 )
 
 
@@ -31,7 +31,7 @@ urlpatterns = [
     ),
     path(
         "recipes/<int:id>/favorite/",
-        FavoriteRecipeViewSet.as_view({"post": "create", "delete": "destroy"})
+        FavoriteViewSet.as_view({"post": "create", "delete": "destroy"})
     ),
     path(
         "users/subscriptions/", SubscriptionsViewSet.as_view({"get": "list"})
