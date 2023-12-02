@@ -14,4 +14,3 @@ class Command(BaseCommand):
                     name=line['name'].lower(),
                     measurement_unit=line['measurement_unit'].lower(),
                 )
-

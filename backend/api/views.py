@@ -40,7 +40,6 @@ class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ('name',)
 
 
-
 class RecipesViewSet(viewsets.ModelViewSet):
     queryset = (
         Recipe.objects.select_related("author")
@@ -54,15 +53,15 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(
             author=self.request.user)
-        
+
     def get_serializer_class(self):
         if self.action in ['create', 'partial_update']:
             return RecipesPostSerializer
         return RecipesSerializer
-    
+
     @action(detail=False, methods=['get'],
             permission_classes=[IsAuthenticated],
-            url_path='download_shopping_cart')   
+            url_path='download_shopping_cart')
     def download_shopping_cart(self, request):
         user = '_' + request.user.username
         content_type = {'.txt': 'text/plain'}

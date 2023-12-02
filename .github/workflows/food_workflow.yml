@@ -3,7 +3,7 @@ name: Foodprivet
 on: 
   push:
     branches:
-      - zond.2_copy
+      - zond.2
 
 jobs:
   tests:

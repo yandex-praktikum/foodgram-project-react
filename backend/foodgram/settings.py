@@ -137,4 +137,3 @@ DJOSER = {
 
 FILENAME = 'Shopping_cart'
 EXT = '.txt'
-

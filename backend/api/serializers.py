@@ -27,7 +27,7 @@ class CustomUserSerializer(GetIsSubscribedMixin, UserSerializer):
 
 
 class IngredientsSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         fields = ('name', 'measurement_unit', 'id')
         model = Ingredient
@@ -35,7 +35,7 @@ class IngredientsSerializer(serializers.ModelSerializer):
 
 class IngredientRecipePostSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
-  
+
     class Meta:
         model = IngredientRecipe
         fields = ('id', 'amount')
@@ -99,7 +99,7 @@ class RecipesSerializer(serializers.ModelSerializer):
                     user=self.context.get('request').user,
                     recipe=obj
         ).exists())
-    
+
 
 class RecipeMinifiedSerializer(RecipesSerializer):
 
@@ -109,7 +109,7 @@ class RecipeMinifiedSerializer(RecipesSerializer):
 
 
 class GetIngredientsMixin:
-    
+
     def get_ingredients(self, obj):
         return obj.ingredients.values(
             'id', 'name', 'measurement_unit',
@@ -129,7 +129,7 @@ class RecipesPostSerializer(GetIngredientsMixin, serializers.ModelSerializer):
         model = Recipe
         fields = '__all__'
         read_only_fields = ('author',)
-    
+
     def validate_tags(self, tags):
         tags_list = []
         for tag in tags:
@@ -170,7 +170,6 @@ class RecipesPostSerializer(GetIngredientsMixin, serializers.ModelSerializer):
             ingredient_list.append(ingredient)
         data['ingredients'] = ingredients
         return data
-
 
     def add_ingredients_and_tags(self, instance, **validate_data):
         ingredients = validate_data['ingredients']
@@ -221,7 +220,7 @@ class SubscriptionSerializer(CustomUserSerializer):
             'recipes',
             'recipes_count',
         )
- 
+
     def get_is_subscribed(*args):
         return True
 
@@ -231,7 +230,7 @@ class SubscriptionSerializer(CustomUserSerializer):
 
 class SubscribeSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = () # python пишет, что поле должно быть
+        fields = ()  # python пишет, что поле должно быть
         model = Subscription
 
     def validate(self, data):
@@ -282,9 +281,9 @@ class FavoriteSerializer(serializers.ModelSerializer):
             pk=self.context.get('view').kwargs.get('id')
         )
         user = request.user
-        if (request.method == 'POST' and
-            Favorite.objects.filter(recipe=recipe,
-                                    user=user).exists()):
+        if (request.method == 'POST'
+            and Favorite.objects.filter(recipe=recipe,
+                                        user=user).exists()):
             raise serializers.ValidationError(
                 'Этот рецепт уже есть в избранном!')
         return data
@@ -307,9 +306,9 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
             pk=self.context.get('view').kwargs.get('id')
         )
         user = request.user
-        if (request.method == 'POST' and
-            ShoppingCart.objects.filter(recipe=recipe,
-                                        user=user).exists()):
+        if (request.method == 'POST'
+            and ShoppingCart.objects.filter(recipe=recipe,
+                                            user=user).exists()):
             raise serializers.ValidationError(
                 'Этот рецепт уже есть в списке покупок!')
         return data
