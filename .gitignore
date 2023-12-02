@@ -1,3 +1,5 @@
+static
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -50,7 +52,7 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
-
+.env_nato_shop
 # Translations
 *.mo
 *.pot
@@ -60,6 +62,9 @@ coverage.xml
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+LOCAL_docker-compose.yml
+LOCAL_nginx.conf
+_ivan.txt
 
 # Flask stuff:
 instance/
@@ -130,3 +135,8 @@ dmypy.json
 
 # .idea
 .idea
+
+media
+media/
+media/*
+
