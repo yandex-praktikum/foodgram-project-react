@@ -129,8 +129,26 @@ class RecipesPostSerializer(GetIngredientsMixin, serializers.ModelSerializer):
         model = Recipe
         fields = '__all__'
         read_only_fields = ('author',)
+    
+    def validate_tags(self, tags):
+        tags_list = []
+        for tag in tags:
+            if tag in tags_list:
+                raise serializers.ValidationError(
+                    'Повтор тега'
+                )
+            tags_list.append(tag)
+            if len(tags_list) < 1:
+                raise serializers.ValidationError(
+                    'Выберите тег'
+                )
+        return tags
 
     def validate(self, data):
+        name = data.get('name')
+        if len(name) < 2:
+            raise serializers.ValidationError({
+                'name': 'Название рецепта минимум 2 символа'})
         ingredients = self.initial_data['ingredients']
         ingredient_list = []
         if not ingredients:
@@ -153,12 +171,6 @@ class RecipesPostSerializer(GetIngredientsMixin, serializers.ModelSerializer):
         data['ingredients'] = ingredients
         return data
 
-    def validate_cooking_time(self, time):
-        if int(time) < 1:
-            raise serializers.ValidationError(
-                'Минимальное время = 1'
-            )
-        return time
 
     def add_ingredients_and_tags(self, instance, **validate_data):
         ingredients = validate_data['ingredients']
@@ -209,8 +221,7 @@ class SubscriptionSerializer(CustomUserSerializer):
             'recipes',
             'recipes_count',
         )
-        read_only_fields = ('__all__',)
-
+ 
     def get_is_subscribed(*args):
         return True
 
@@ -220,7 +231,7 @@ class SubscriptionSerializer(CustomUserSerializer):
 
 class SubscribeSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ()
+        fields = () # джанго пишет, что поле должно быть
         model = Subscription
 
     def validate(self, data):

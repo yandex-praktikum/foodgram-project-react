@@ -1,14 +1,8 @@
 from django.contrib import admin
 from django.contrib.admin import TabularInline
 
-from recipes.models import (
-    Ingredient,
-    IngredientRecipe,
-    Recipe,
-    Tag,
-    Favorite,
-    ShoppingCart
-)
+from recipes.models import (Favorite, Ingredient, IngredientRecipe, Recipe,
+                            ShoppingCart, Tag)
 
 
 class IngredientInline(TabularInline):
@@ -18,38 +12,38 @@ class IngredientInline(TabularInline):
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ("pk", "name")
-    search_fields = ["name"]
+    list_display = ('pk', 'name')
+    search_fields = ['name']
     list_per_page = 20
-    ordering = ("name",)
+    ordering = ('name',)
 
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ("pk", "name", "color", "slug")
-    ordering = ("slug",)
+    list_display = ('pk', 'name', 'color', 'slug')
+    ordering = ('slug',)
 
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
-        "name",
-        "pub_date",
-        "text",
-        "cooking_time",
-        "author",
-        "image",
+        'name',
+        'pub_date',
+        'text',
+        'cooking_time',
+        'author',
+        'image',
     )
-    list_display_links = ("name", "pub_date", "text", "cooking_time", "author")
-    list_editable = ("image",)
+    list_display_links = ('name', 'pub_date', 'text', 'cooking_time', 'author')
+    list_editable = ('image',)
     list_per_page = 15
-    filter_horizontal = ("tags",)
-    search_fields = ["name"]
-    list_filter = ("author", "tags")
-    ordering = ("pub_date",)
+    filter_horizontal = ('tags',)
+    search_fields = ['name']
+    list_filter = ('author', 'tags')
+    ordering = ('pub_date',)
     inlines = (IngredientInline,)
 
-    @admin.display(description="Добавили в избранное", ordering="author")
+    @admin.display(description='Добавили в избранное', ordering='author')
     def count_favorite(self, obj):
         return obj.recipe.count()
 

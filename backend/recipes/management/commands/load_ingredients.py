@@ -11,6 +11,7 @@ class Command(BaseCommand):
             data = json.load(f)
             for line in data:
                 Ingredient.objects.get_or_create(
-                    name=line["name"].lower(),
-                    measurement_unit=line["measurement_unit"].lower(),
+                    name=line['name'].lower(),
+                    measurement_unit=line['measurement_unit'].lower(),
                 )
+

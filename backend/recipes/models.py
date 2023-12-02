@@ -1,12 +1,10 @@
 
 from colorfield.fields import ColorField
+from core.constants import Limits
 from django.contrib.auth import get_user_model
-from django.core.validators import (MinValueValidator, MaxValueValidator,
+from django.core.validators import (MaxValueValidator, MinValueValidator,
                                     RegexValidator)
 from django.db import models
-
-from core.constants import Limits
-
 
 User = get_user_model()
 
@@ -85,8 +83,8 @@ class Recipe(models.Model):
         verbose_name='Название',
         validators=[
             RegexValidator(
-                regex='[^!@#$%^&*()_0-9]',
-                message='только буквы'
+                regex='[a-zа-я]+',
+                message='Принимаются слова из букв'
             )
         ]
     )
