@@ -231,7 +231,7 @@ class SubscriptionSerializer(CustomUserSerializer):
 
 class SubscribeSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = () # джанго пишет, что поле должно быть
+        fields = () # python пишет, что поле должно быть
         model = Subscription
 
     def validate(self, data):
