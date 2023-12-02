@@ -59,7 +59,6 @@ class TagsSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'color', 'slug')
 
 
-
 class RecipesSerializer(serializers.ModelSerializer):
     tags = TagsSerializer(many=True)
     ingredients = IngredientRecipeSerializer(source='ingredients_recipes',
