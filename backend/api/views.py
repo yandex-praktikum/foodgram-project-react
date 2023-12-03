@@ -1,3 +1,4 @@
+
 from core.utils import make_file
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -19,7 +20,7 @@ from api.serializers import (FavoriteSerializer, IngredientsSerializer,
                              SubscriptionSerializer, TagsSerializer)
 from api.viewsets import CreateDestroyViewSet, ListViewSet
 
-from .filters import IngredientFilter
+from .filters import IngredientFilter, RecipeFilter
 
 User = get_user_model()
 
@@ -48,6 +49,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     )
     serializer_class = RecipesSerializer
     filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilter
     ordering = ('-pub_date',)
 
     def perform_create(self, serializer):

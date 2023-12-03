@@ -1,3 +1,4 @@
+from django.utils.html import format_html
 from django.contrib import admin
 from django.contrib.admin import TabularInline
 
@@ -17,12 +18,22 @@ class IngredientAdmin(admin.ModelAdmin):
     list_per_page = 20
     ordering = ('name',)
 
-
+"""
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'color', 'slug')
     ordering = ('slug',)
+"""
 
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug', 'get_color')
+    
+    @admin.display(description='Цвет')
+    def get_color(self, obj):
+        return format_html(
+            f'<spawn style="color: {obj.color};">{obj.color}</spawn>'
+        )
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):

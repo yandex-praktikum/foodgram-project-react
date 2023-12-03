@@ -13,8 +13,8 @@ SECRET_KEY = os.getenv(
 )
 
 DEBUG = os.getenv('DEBUG', default='True')
-
-ALLOWED_HOSTS = ['130.193.53.39', 'devinse.ru']
+ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = ['130.193.53.39', 'devinse.ru']
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -65,14 +65,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "foodgram.wsgi.application"
 
+"""
+DB_PROD = os.getenv('DB_PROD', default='False') == 'True'
+
+if not DB_PROD:
+    DATABASES = {
+        "default": {
+            "ENGINE": os.getenv("DB_ENGINE", default="django.db.backends.postgresql"),
+            "NAME": os.getenv("DB_NAME", default="postgres"),
+            "USER": os.getenv("POSTGRES_USER", default="postgres"),
+            "PASSWORD": os.getenv("POSTGRES_PASSWORD", default="postgres"),
+            "HOST": os.getenv("DB_HOST", default="db"),
+            "PORT": os.getenv("DB_PORT", default="5432"),
+        }
+    }
+else:
+"""
+
 DATABASES = {
     "default": {
-        "ENGINE": os.getenv("DB_ENGINE", default="django.db.backends.postgresql"),
-        "NAME": os.getenv("DB_NAME", default="postgres"),
-        "USER": os.getenv("POSTGRES_USER", default="postgres"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD", default="postgres"),
-        "HOST": os.getenv("DB_HOST", default="db"),
-        "PORT": os.getenv("DB_PORT", default="5432"),
+        'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.sqlite3'),
+        'NAME': os.getenv('DB_NAME',
+                        default=os.path.join(BASE_DIR, 'db.sqlite3')),
     }
 }
 
