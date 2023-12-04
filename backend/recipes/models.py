@@ -219,14 +219,9 @@ class ShoppingCart(AbstractUserRecipe):
         verbose_name_plural = 'Корзина'
         ordering = ['user']
         constraints = [
-            models.UniqueConstraint(fields=['recipe_sh_user', 'recipe_sh_recipe'],
+            models.UniqueConstraint(fields=['user', 'recipe'],
                                     name='unique user_sh recipe_sh')
         ]
-
-    class Meta:
-        default_related_name = 'shopping_list'
-        verbose_name = 'Корзина'
-        verbose_name_plural = 'Корзина'
 
     def __str__(self):
         return (f'Пользователь {ShoppingCart.user} добавил'
