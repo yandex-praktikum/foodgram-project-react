@@ -87,17 +87,18 @@ class RecipesSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         print((self.context.get('request').user.is_authenticated
-               and
-               Favorite.objects.filter(
+                and
+                Favorite.objects.filter(
                     user=self.context.get('request').user,
                     recipe=obj
-        ).exists()))
+               ).exists()
+              ))
         return (self.context.get('request').user.is_authenticated
                 and
                 Favorite.objects.filter(
                     user=self.context.get('request').user,
                     recipe=obj
-        ).exists())
+                ).exists())
 
     def get_is_in_shopping_cart(self, obj):
         return (self.context.get('request').user.is_authenticated
