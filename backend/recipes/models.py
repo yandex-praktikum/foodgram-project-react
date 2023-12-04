@@ -42,7 +42,7 @@ class Tag(models.Model):
     )
     color = ColorField(
         verbose_name='Цвет',
-        default='#FF7777'
+        default='#FFFFFF'
     )
     slug = models.SlugField(
         verbose_name='Ссылка',

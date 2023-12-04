@@ -1,5 +1,4 @@
-
-from core.utils import make_file
+from core.utils import preparation_file
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Count, Sum
@@ -75,7 +74,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
                     amount=Sum('amount')).order_by('ingredient__name',
                                                    'amount')
         file = user
-        make_file(file, settings.EXT, ingredients)
+        preparation_file(file, settings.EXT, ingredients)
         return FileResponse(open(file + settings.EXT, 'rb'),
                             as_attachment=True,
                             content_type=content_type[settings.EXT])

@@ -18,12 +18,6 @@ class IngredientAdmin(admin.ModelAdmin):
     list_per_page = 20
     ordering = ('name',)
 
-"""
-@admin.register(Tag)
-class TagAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'color', 'slug')
-    ordering = ('slug',)
-"""
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):

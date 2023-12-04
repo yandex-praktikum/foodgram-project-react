@@ -65,10 +65,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "foodgram.wsgi.application"
 
-"""
 DB_PROD = os.getenv('DB_PROD', default='False') == 'True'
 
-if not DB_PROD:
+if DB_PROD:
     DATABASES = {
         "default": {
             "ENGINE": os.getenv("DB_ENGINE", default="django.db.backends.postgresql"),
@@ -80,15 +79,13 @@ if not DB_PROD:
         }
     }
 else:
-"""
-
-DATABASES = {
-    "default": {
-        'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.sqlite3'),
-        'NAME': os.getenv('DB_NAME',
-                        default=os.path.join(BASE_DIR, 'db.sqlite3')),
+    DATABASES = {
+        "default": {
+            'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.sqlite3'),
+            'NAME': os.getenv('DB_NAME',
+                            default=os.path.join(BASE_DIR, 'db.sqlite3')),
+        }
     }
-}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -149,5 +146,4 @@ DJOSER = {
     },
 }
 
-FILENAME = 'Shopping_cart'
 EXT = '.txt'

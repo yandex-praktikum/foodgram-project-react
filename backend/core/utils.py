@@ -1,4 +1,4 @@
-def make_file(file, ext, ingredients):
+def preparation_file(file, ext, ingredients):
     with open(file + ext, 'w', encoding='utf-8') as f:
         f.write('Shopping_cart:' + '\n')
         f.write('\n')

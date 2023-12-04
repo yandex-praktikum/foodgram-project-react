@@ -27,7 +27,6 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
 
     class Meta:
-        ordering = ('id',)
         verbose_name = 'поварёнок'
         verbose_name_plural = 'Все поварята'
 
