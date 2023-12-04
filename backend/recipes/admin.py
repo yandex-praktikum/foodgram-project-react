@@ -22,12 +22,13 @@ class IngredientAdmin(admin.ModelAdmin):
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug', 'get_color')
-    
+
     @admin.display(description='Цвет')
     def get_color(self, obj):
         return format_html(
             f'<spawn style="color: {obj.color};">{obj.color}</spawn>'
         )
+
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
