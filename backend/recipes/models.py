@@ -211,21 +211,23 @@ class AbstractUserRecipe(models.Model):
         abstract = True
 
 
-class ShoppingCart(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='user_sh'
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        related_name='recipe_sh'
-    )
+class ShoppingCart(AbstractUserRecipe):
 
     class Meta:
+        default_related_name = 'recipe_sh'
+        verbose_name = 'Корзина'
+        verbose_name_plural = 'Корзина'
         ordering = ['user']
         constraints = [
-            models.UniqueConstraint(fields=['user', 'recipe'],
+            models.UniqueConstraint(fields=['recipe_sh_user', 'recipe_sh_recipe'],
                                     name='unique user_sh recipe_sh')
         ]
+
+    class Meta:
+        default_related_name = 'shopping_list'
+        verbose_name = 'Корзина'
+        verbose_name_plural = 'Корзина'
+
+    def __str__(self):
+        return (f'Пользователь {ShoppingCart.user} добавил'
+                f'рецепт в корзину {ShoppingCart.recipe}')

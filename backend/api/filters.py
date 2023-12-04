@@ -1,16 +1,17 @@
 
 from django_filters import rest_framework as django_filters
 from django_filters.rest_framework import FilterSet, filters
-from recipes.models import Favorite, Ingredient, Recipe, Tag
+from recipes.models import Ingredient, Recipe, Tag
 
 CHOICES = ((1, 1), (0, 0))
 
 
-def favorite(request):
-    if request is None:
-        return Favorite.objects.none()
-    user = request.user
-    return Favorite.objects.filter(user=user)
+class IngredientFilter(FilterSet):
+    name = filters.CharFilter(lookup_expr='istartswith')
+
+    class Meta:
+        model = Ingredient
+        fields = ('name',)
 
 
 class RecipeFilter(django_filters.FilterSet):
@@ -39,10 +40,3 @@ class RecipeFilter(django_filters.FilterSet):
         if value == '0':
             return Recipe.objects.exclude(recipe_sh__user=user).all()
         return Recipe.objects.filter(recipe_sh__user=user).all()
-
-class IngredientFilter(FilterSet):
-    name = filters.CharFilter(lookup_expr='istartswith')
-
-    class Meta:
-        model = Ingredient
-        fields = ('name',)
