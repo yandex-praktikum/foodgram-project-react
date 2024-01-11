@@ -24,7 +24,7 @@ class UserAdmin(admin.ModelAdmin):
         (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
         (_('Permissions'), {
             'fields': ('is_active', 'is_staff', 'is_superuser',
-                        'groups', 'user_permissions'),
+                       'groups', 'user_permissions'),
         }),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
@@ -159,7 +159,10 @@ class UserAdmin(admin.ModelAdmin):
         )
 
     def response_add(self, request, obj, post_url_continue=None):
-        if '_addanother' not in request.POST and IS_POPUP_VAR not in request.POST:
+        if ('_addanother' not in request.POST
+             and IS_POPUP_VAR 
+             not in request.POST
+             ):
             request.POST = request.POST.copy()
             request.POST['_continue'] = 1
         return super().response_add(request, obj, post_url_continue)
