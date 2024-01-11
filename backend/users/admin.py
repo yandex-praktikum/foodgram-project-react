@@ -23,7 +23,8 @@ class UserAdmin(admin.ModelAdmin):
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
         (_('Permissions'), {
-            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
+            'fields': ('is_active', 'is_staff', 'is_superuser',
+                        'groups', 'user_permissions'),
         }),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
@@ -67,7 +68,8 @@ class UserAdmin(admin.ModelAdmin):
         ] + super().get_urls()
 
     def lookup_allowed(self, lookup, value):
-        return not lookup.startswith('password') and super().lookup_allowed(lookup, value)
+        return not lookup.startswith('password') and super().lookup_allowed(
+            lookup, value)
 
     def add_view(self, request, form_url='', extra_context=None):
         with transaction.atomic(using=router.db_for_write(self.model)):
@@ -97,7 +99,8 @@ class UserAdmin(admin.ModelAdmin):
         if not self.has_change_permission(request, user):
             raise PermissionDenied
         if user is None:
-            raise Http404(_('%(name)s object with primary key %(key)r does not exist.') % {
+            raise Http404(_(
+                '%(name)s object with primary key %(key)r does not exist.') % {
                 'name': self.model._meta.verbose_name,
                 'key': escape(id),
             })
@@ -105,7 +108,8 @@ class UserAdmin(admin.ModelAdmin):
             form = self.change_password_form(user, request.POST)
             if form.is_valid():
                 form.save()
-                change_message = self.construct_change_message(request, form, None)
+                change_message = self.construct_change_message(
+                    request, form, None)
                 self.log_change(request, user, change_message)
                 msg = gettext('Password changed successfully.')
                 messages.success(request, msg)
@@ -155,11 +159,6 @@ class UserAdmin(admin.ModelAdmin):
         )
 
     def response_add(self, request, obj, post_url_continue=None):
-        """
-        Determine the HttpResponse for the add_view stage. It mostly defers to
-        its superclass implementation but is customized because the User model
-        has a slightly different workflow.
-        """
         if '_addanother' not in request.POST and IS_POPUP_VAR not in request.POST:
             request.POST = request.POST.copy()
             request.POST['_continue'] = 1
