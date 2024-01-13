@@ -41,6 +41,6 @@ def _create_related_object(pk, request, serializer_class):
 def _delete_related_object(pk, request, model):
     if not model.objects.filter(user=request.user, recipe=pk).exists():
         return Response(status=status.HTTP_400_BAD_REQUEST,
-                        data={'message': 'Объект не найден'})
+                        data={'message': 'Запрашиваемый объект не найден'})
     model.objects.filter(user=request.user, recipe=pk).delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
