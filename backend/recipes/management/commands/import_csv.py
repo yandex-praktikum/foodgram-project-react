@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
         for index, row in df.iterrows():
             Ingredient.objects.bulk_create([
-                name(row['name']),
-                measurement_unit(row['measurement_unit']),
+                Ingredient.name(row['name']),
+                Ingredient.measurement_unit(row['measurement_unit']),
             ]
             )
