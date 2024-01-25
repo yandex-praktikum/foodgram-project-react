@@ -6,10 +6,10 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from constants.constants import (ONE,
-                               LEN2,
-                               LEN3,
-                               LEN4,
-                               LEN5)
+                                 LEN2,
+                                 LEN3,
+                                 LEN4,
+                                 LEN5)
 
 User = get_user_model()
 

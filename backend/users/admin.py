@@ -15,6 +15,7 @@ from django.utils.translation import gettext, gettext_lazy as _
 from .models import User
 from .forms import CustomUserCreationForm, CustomUserChangeForm
 
+
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     add_form_template = 'admin/auth/user/add_form.html'

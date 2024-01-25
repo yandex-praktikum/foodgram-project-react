@@ -2,7 +2,8 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
 from constants.constants import (LEN1,
-                               LEN2,)
+                                 LEN2,)
+
 
 class UserManager(BaseUserManager):
 

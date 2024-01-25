@@ -220,8 +220,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                 recipe(
                     ingredient_id=ingredient.get('id'),
                     amount=ingredient.get('amount'),
-                    )
-                ])
+                )
+            ])
 
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')

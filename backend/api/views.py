@@ -218,12 +218,12 @@ class RecipesViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=['get'],
-        permission_classes=(IsAuthenticated,))   
-    def make_file(self, request):
-        """Создаем файл для списка."""
+        permission_classes=(IsAuthenticated,))
+    def download_shopping_cart(self, request):
+        """Качаем список с ингредиентами."""
 
         buffer = io.BytesIO()
-        page = canvas.Canvas(buffer) 
+        page = canvas.Canvas(buffer)
         pdfmetrics.registerFont(TTFont('Vera', 'Vera.ttf')) 
         x_position, y_position = 50, 800 
         shopping_cart = ( 
@@ -232,12 +232,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
                 'ingredients__name', 
                 'ingredients__measurement_unit' 
             ).annotate(amount=Sum('recipe__amount')).order_by()) 
-        page.setFont('Vera', 14) 
-
-    def download_shopping_cart(self, request):
-        """Качаем список с ингредиентами."""
-
-        make_file()
+        page.setFont('Vera', 14)
         if shopping_cart: 
             indent = 20 
             page.drawString(x_position, y_position, 'Cписок покупок:') 
