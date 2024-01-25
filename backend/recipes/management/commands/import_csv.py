@@ -18,5 +18,5 @@ class Command(BaseCommand):
             Ingredient.objects.bulk_create([
                 name(row['name']),
                 measurement_unit(row['measurement_unit']),
-                ]
+            ]
             )
