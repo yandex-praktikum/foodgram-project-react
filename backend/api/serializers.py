@@ -6,6 +6,7 @@ from drf_base64.fields import Base64ImageField
 from rest_framework import serializers
 
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Subscribe, Tag
+from constants.constants import (ONE)
 
 User = get_user_model()
 ERR_MSG = 'Не удается войти в систему с предоставленными учетными данными.'
@@ -198,7 +199,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return data
 
     def validate_cooking_time(self, cooking_time):
-        if int(cooking_time) < 1:
+        if int(cooking_time) < ONE:
             raise serializers.ValidationError(
                 'Время приготовления >= 1!')
         return cooking_time
@@ -208,17 +209,19 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Мин. 1 ингредиент в рецепте!')
         for ingredient in ingredients:
-            if int(ingredient.get('amount')) < 1:
+            if int(ingredient.get('amount')) < ONE:
                 raise serializers.ValidationError(
                     'Количество ингредиента >= 1!')
         return ingredients
 
     def create_ingredients(self, ingredients, recipe):
         for ingredient in ingredients:
-            RecipeIngredient.objects.create(
-                recipe=recipe,
-                ingredient_id=ingredient.get('id'),
-                amount=ingredient.get('amount'), )
+            RecipeIngredient.objects.bulk_create([
+                recipe(
+                    ingredient_id=ingredient.get('id'),
+                    amount=ingredient.get('amount'),
+                    )
+                ])
 
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')

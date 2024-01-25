@@ -1,5 +1,6 @@
-import pandas as pd
 from django.core.management.base import BaseCommand
+import pandas as pd
+
 from recipes.models import Ingredient
 
 
@@ -14,7 +15,8 @@ class Command(BaseCommand):
         df = pd.read_csv(csv_file)
 
         for index, row in df.iterrows():
-            Ingredient.objects.create(
-                name=row['name'],
-                measurement_unit=row['measurement_unit'],
+            Ingredient.objects.bulk_create([
+                name(row['name']),
+                measurement_unit(row['measurement_unit']),
+                ]
             )

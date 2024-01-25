@@ -4,8 +4,6 @@ from django.contrib.admin.options import IS_POPUP_VAR
 from django.contrib.admin.utils import unquote
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import AdminPasswordChangeForm
-from .models import User
-from .forms import CustomUserCreationForm, CustomUserChangeForm
 from django.core.exceptions import PermissionDenied
 from django.db import router, transaction
 from django.http import Http404, HttpResponseRedirect
@@ -14,6 +12,8 @@ from django.urls import path, reverse
 from django.utils.html import escape
 from django.utils.translation import gettext, gettext_lazy as _
 
+from .models import User
+from .forms import CustomUserCreationForm, CustomUserChangeForm
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
