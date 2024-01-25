@@ -12,8 +12,8 @@ from django.urls import path, reverse
 from django.utils.html import escape
 from django.utils.translation import gettext, gettext_lazy as _
 
-from .models import User
 from .forms import CustomUserCreationForm, CustomUserChangeForm
+from .models import User
 
 
 @admin.register(User)

@@ -6,10 +6,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from constants.constants import (ONE,
-                                 LEN2,
-                                 LEN3,
-                                 LEN4,
-                                 LEN5)
+                                 Recipes,
+                                 )
 
 User = get_user_model()
 
@@ -17,10 +15,10 @@ User = get_user_model()
 class Ingredient(models.Model):
     name = models.CharField(
         'Название ингредиента',
-        max_length=LEN2)
+        max_length=Recipes.ING_NAME_LEN)
     measurement_unit = models.CharField(
         'Единица измерения ингредиента',
-        max_length=LEN2)
+        max_length=Recipes.ING_NAME_LEN)
 
     class Meta:
         ordering = ['name']
@@ -34,12 +32,12 @@ class Ingredient(models.Model):
 class Tag(models.Model):
     name = models.CharField(
         'Имя',
-        max_length=LEN3,
+        max_length=Recipes.TAG_NAME_LEN,
         unique=True)
     color = ColorField(default='#ff0000')
     slug = models.SlugField(
         'Ссылка',
-        max_length=LEN4,
+        max_length=Recipes.SLUG_LEN,
         unique=True)
 
     class Meta:
@@ -59,7 +57,7 @@ class Recipe(models.Model):
         verbose_name='Автор')
     name = models.CharField(
         'Название рецепта',
-        max_length=LEN5)
+        max_length=Recipes.RECIPE_NAME_LEN)
     image = models.ImageField(
         'Изображение рецепта',
         upload_to='static/recipe/',

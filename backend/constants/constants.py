@@ -1,6 +1,13 @@
 ONE = 1
-LEN1 = 150
-LEN2 = 200
-LEN3 = 60
-LEN4 = 100
-LEN5 = 255
+PG_SIZE = 6
+
+
+class Users():
+    NAME_LEN = 150
+    EMAIL_LEN = 200
+
+class Recipes():
+    ING_NAME_LEN = 200
+    TAG_NAME_LEN = 60
+    SLUG_LEN = 100
+    RECIPE_NAME_LEN = 255
