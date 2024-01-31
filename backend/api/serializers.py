@@ -202,17 +202,17 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     def validate_cooking_time(self, cooking_time):
         if int(cooking_time) < api.TIME:
             raise serializers.ValidationError(
-                f'Время приготовления >= {api.TIME}!')
+                'Время приготовления >= 1!')
         return cooking_time
 
     def validate_ingredients(self, ingredients):
         if not ingredients:
             raise serializers.ValidationError(
-                f'Мин. {api.ING_QUAN} ингредиент в рецепте!')
+                'Мин. 1 ингредиент в рецепте!')
         for ingredient in ingredients:
             if int(ingredient.get('amount')) < api.ING_QUAN:
                 raise serializers.ValidationError(
-                    f'Количество ингредиента >= {api.ING_QUAN}!')
+                    'Количество ингредиента >= 1!')
         return ingredients
 
     def create_ingredients(self, ingredients, recipe):

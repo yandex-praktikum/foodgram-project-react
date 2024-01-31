@@ -93,48 +93,20 @@ class Recipe(models.Model):
         return f'{self.author.email}, {self.name}'
 
 
-class Subscribe(models.Model):
-    user = models.ForeignKey( 
-        User, 
-        on_delete=models.CASCADE, 
-        related_name='follower', 
-        verbose_name='Подписчик') 
-    author = models.ForeignKey( 
-        User, 
-        on_delete=models.CASCADE, 
-        related_name='following', 
-        verbose_name='Автор') 
-    created = models.DateTimeField( 
-        'Дата подписки', 
-        auto_now_add=True) 
- 
-    class Meta: 
-        verbose_name = 'Подписка' 
-        verbose_name_plural = 'Подписки' 
-        ordering = ['-id'] 
-        constraints = [ 
-            models.UniqueConstraint( 
-                fields=['user', 'author'], 
-                name='unique_subscription')] 
- 
-    def __str__(self): 
-        return f'Пользователь {self.user} -> автор {self.author}'
-
-
 class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
         related_name='recipe')
     ingredient = models.ForeignKey(
-        Ingredient,
+        'Ingredient',
         on_delete=models.CASCADE,
         related_name='ingredient')
     amount = models.PositiveSmallIntegerField(
-        default=recipes.MIN_QUAN,
+        default=ONE,
         validators=(
             validators.MinValueValidator(
-                recipes.TIME, message=f'Мин. количество ингредиентов {recipes.TIME}'),),
+                ONE, message=f'Мин. количество ингредиентов {ONE}'),),
         verbose_name='Количество',)
 
     class Meta:
@@ -145,6 +117,34 @@ class RecipeIngredient(models.Model):
             models.UniqueConstraint(
                 fields=['recipe', 'ingredient'],
                 name='unique ingredient')]
+
+
+class Subscribe(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='follower',
+        verbose_name='Подписчик')
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='following',
+        verbose_name='Автор')
+    created = models.DateTimeField(
+        'Дата подписки',
+        auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        ordering = ['-id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'],
+                name='unique_subscription')]
+
+    def __str__(self):
+        return f'Пользователь {self.user} -> автор {self.author}'
 
 
 class FavoriteRecipe(models.Model): 
