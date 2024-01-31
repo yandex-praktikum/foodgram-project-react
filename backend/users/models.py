@@ -1,8 +1,8 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
-from constants.constants import (LEN1,
-                               LEN2,)
+from constants.constants import users
+
 
 class UserManager(BaseUserManager):
 
@@ -22,14 +22,14 @@ class UserManager(BaseUserManager):
 class User(AbstractUser):
     email = models.EmailField(
         'Email',
-        max_length=LEN2,
+        max_length=users.EMAIL_LEN,
         unique=True,)
     first_name = models.CharField(
         'Имя',
-        max_length=LEN1)
+        max_length=users.NAME_LEN)
     last_name = models.CharField(
         'Фамилия',
-        max_length=LEN1)
+        max_length=users.NAME_LEN)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']

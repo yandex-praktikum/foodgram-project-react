@@ -5,8 +5,9 @@ from django.shortcuts import get_object_or_404
 from drf_base64.fields import Base64ImageField
 from rest_framework import serializers
 
-from recipes.models import Ingredient, Recipe, RecipeIngredient, Subscribe, Tag
-from constants.constants import (ONE)
+from constants.constants import api
+from recipes.models import (Ingredient, Recipe, RecipeIngredient,
+                            Subscribe, Tag)
 
 User = get_user_model()
 ERR_MSG = 'Не удается войти в систему с предоставленными учетными данными.'
@@ -199,29 +200,31 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return data
 
     def validate_cooking_time(self, cooking_time):
-        if int(cooking_time) < ONE:
+        if int(cooking_time) < api.TIME:
             raise serializers.ValidationError(
-                'Время приготовления >= 1!')
+                f'Время приготовления >= {api.TIME}!')
         return cooking_time
 
     def validate_ingredients(self, ingredients):
         if not ingredients:
             raise serializers.ValidationError(
-                'Мин. 1 ингредиент в рецепте!')
+                f'Мин. {api.ING_QUAN} ингредиент в рецепте!')
         for ingredient in ingredients:
-            if int(ingredient.get('amount')) < ONE:
+            if int(ingredient.get('amount')) < api.ING_QUAN:
                 raise serializers.ValidationError(
-                    'Количество ингредиента >= 1!')
+                    f'Количество ингредиента >= {api.ING_QUAN}!')
         return ingredients
 
     def create_ingredients(self, ingredients, recipe):
-        for ingredient in ingredients:
-            RecipeIngredient.objects.bulk_create([
-                recipe(
-                    ingredient_id=ingredient.get('id'),
-                    amount=ingredient.get('amount'),
-                    )
-                ])
+        objs = [
+            RecipeIngredient(
+                recipe=recipe,
+                ingredient_id=ingredient.get('id'),
+                amount=ingredient.get('amount'),
+            )
+            for ingredient in ingredients
+        ]
+        RecipeIngredient.objects.bulk_create(objs)
 
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
