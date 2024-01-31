@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
+from constants.constants import users
+
 
 class UserManager(BaseUserManager):
 
@@ -16,34 +18,18 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_user(self, email=None, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', False)
-        extra_fields.setdefault('is_superuser', False)
-        return self._create_user(email, password, **extra_fields)
-
-    def create_superuser(self, email=None, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
-
-        return self._create_user(email, password, **extra_fields)
-
 
 class User(AbstractUser):
     email = models.EmailField(
         'Email',
-        max_length=200,
+        max_length=users.EMAIL_LEN,
         unique=True,)
     first_name = models.CharField(
         'Имя',
-        max_length=150)
+        max_length=users.NAME_LEN)
     last_name = models.CharField(
         'Фамилия',
-        max_length=150)
+        max_length=users.NAME_LEN)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
@@ -55,3 +41,31 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
+
+
+class Subscribe(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='follower',
+        verbose_name='Подписчик')
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='following',
+        verbose_name='Автор')
+    created = models.DateTimeField(
+        'Дата подписки',
+        auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        ordering = ['-id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'],
+                name='unique_subscription')]
+
+    def __str__(self):
+        return f'Пользователь {self.user} -> автор {self.author}'

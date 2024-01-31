@@ -3,14 +3,14 @@ version: '3.3'
 volumes:
   static_value:
   media_value:
-  postgres_data:
+  food_data:
   redoc:
 
 services:
   db:
     image: postgres:14.10-alpine
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - food_data:/var/lib/postgresql/data/
     env_file: .env
     restart: always
   

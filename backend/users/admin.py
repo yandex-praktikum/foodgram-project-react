@@ -4,8 +4,6 @@ from django.contrib.admin.options import IS_POPUP_VAR
 from django.contrib.admin.utils import unquote
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import AdminPasswordChangeForm
-from .models import User
-from .forms import CustomUserCreationForm, CustomUserChangeForm
 from django.core.exceptions import PermissionDenied
 from django.db import router, transaction
 from django.http import Http404, HttpResponseRedirect
@@ -13,6 +11,9 @@ from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.html import escape
 from django.utils.translation import gettext, gettext_lazy as _
+
+from .forms import CustomUserCreationForm, CustomUserChangeForm
+from .models import User
 
 
 @admin.register(User)
@@ -160,8 +161,7 @@ class UserAdmin(admin.ModelAdmin):
 
     def response_add(self, request, obj, post_url_continue=None):
         if ('_addanother' not in request.POST
-            and IS_POPUP_VAR
-            not in request.POST):
+                and IS_POPUP_VAR not in request.POST):
             request.POST = request.POST.copy()
             request.POST['_continue'] = 1
         return super().response_add(request, obj, post_url_continue)

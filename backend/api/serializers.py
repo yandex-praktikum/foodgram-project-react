@@ -5,7 +5,9 @@ from django.shortcuts import get_object_or_404
 from drf_base64.fields import Base64ImageField
 from rest_framework import serializers
 
-from recipes.models import Ingredient, Recipe, RecipeIngredient, Subscribe, Tag
+from constants.constants import api
+from recipes.models import (Ingredient, Recipe, RecipeIngredient,
+                            Subscribe, Tag)
 
 User = get_user_model()
 ERR_MSG = 'Не удается войти в систему с предоставленными учетными данными.'
@@ -198,7 +200,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return data
 
     def validate_cooking_time(self, cooking_time):
-        if int(cooking_time) < 1:
+        if int(cooking_time) < api.TIME:
             raise serializers.ValidationError(
                 'Время приготовления >= 1!')
         return cooking_time
@@ -208,17 +210,21 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Мин. 1 ингредиент в рецепте!')
         for ingredient in ingredients:
-            if int(ingredient.get('amount')) < 1:
+            if int(ingredient.get('amount')) < api.ING_QUAN:
                 raise serializers.ValidationError(
                     'Количество ингредиента >= 1!')
         return ingredients
 
     def create_ingredients(self, ingredients, recipe):
-        for ingredient in ingredients:
-            RecipeIngredient.objects.create(
+        objs = [
+            RecipeIngredient(
                 recipe=recipe,
                 ingredient_id=ingredient.get('id'),
-                amount=ingredient.get('amount'), )
+                amount=ingredient.get('amount'),
+            )
+            for ingredient in ingredients
+        ]
+        RecipeIngredient.objects.bulk_create(objs)
 
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')

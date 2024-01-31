@@ -11,9 +11,9 @@ SECRET_KEY = os.getenv(key='SECRET_KEY')
 
 DEBUG = os.getenv('DEBUG', default='True') == 'True'
 
-ALLOWED_HOSTS = ['http://foodgram21.ddns.net']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOST', default='127.0.0.1, localhost').split(', ')
 
-CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1', 'http://foodgram21.ddns.net']
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', default='http://127.0.0.1').split(', ')
 
 
 INSTALLED_APPS = [
@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
+    'colorfield',
     'users.apps.UsersConfig',
     'recipes.apps.RecipesConfig',
     'api.apps.ApiConfig',
@@ -65,8 +66,12 @@ WSGI_APPLICATION = 'foodgram.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB', 'postgres'),
+        'USER': os.getenv('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'pass'),
+        'HOST': os.getenv('DB_HOST', ''),
+        'PORT': os.getenv('DB_PORT', 5432)
     }
 }
 AUTH_USER_MODEL = 'users.User'

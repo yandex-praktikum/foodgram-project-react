@@ -1,36 +1,34 @@
-import io
-
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from django.db.models.aggregates import Count, Sum
 from django.db.models.expressions import Exists, OuterRef, Value
-from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfgen import canvas
 from rest_framework import generics, status, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.decorators import action, api_view
 from rest_framework.permissions import (SAFE_METHODS, AllowAny,
-                                        IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
+                                        IsAuthenticated)
 from rest_framework.response import Response
 
 from api.filters import IngredientFilter, RecipeFilter
-from api.permissions import IsAdminOrReadOnly
+from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
+from recipes.models import (FavoriteRecipe, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
+from recipes.models import Subscribe
+from api.permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from recipes.models import (FavoriteRecipe, Ingredient, Recipe, ShoppingCart,
-                            Subscribe, Tag)
+                            Tag)
+from users.models import Subscribe
 from .serializers import (IngredientSerializer, RecipeReadSerializer,
                           RecipeWriteSerializer, SubscribeRecipeSerializer,
                           SubscribeSerializer, TagSerializer, TokenSerializer,
                           UserCreateSerializer, UserListSerializer,
                           UserPasswordSerializer)
+from .utils import create_shopping_cart
 
 User = get_user_model()
-FILENAME = 'shoppingcart.pdf'
 
 
 class GetObjectMixin:
@@ -186,7 +184,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
     queryset = Recipe.objects.all()
     filterset_class = RecipeFilter
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthorOrReadOnly,)
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
