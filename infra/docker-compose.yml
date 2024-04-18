@@ -1,5 +1,15 @@
 version: '3.3'
+
 services:
+
+  backend:
+    container_name: food_back
+    build: ../backend
+    restart: always
+    environment:
+      - DOCKER=True
+    env_file:
+      - ../.env
 
   frontend:
     build:
