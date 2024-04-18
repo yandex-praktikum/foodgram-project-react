@@ -14,6 +14,6 @@ RUN pip install --upgrade pip && pip install -r requirements_local.txt --no-cach
 
 COPY . .
 
-RUN chmod +x entrypoint.sh
+RUN chmod +x etrypoint.sh
 
-ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["/app/etrypoint.sh"]
