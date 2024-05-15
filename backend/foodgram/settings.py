@@ -28,6 +28,10 @@ DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://foodgramever.zapto.org',
+]
+
 
 # Application definition
 
