@@ -201,8 +201,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         for item in ingredients:
             pfile.drawString(
                 100, y,
-                f'{item["recipes_ingredient__name"]}'
-                f'({item["recipes_ingredient__measurement_unit"]}) - '
+                f'{item["ingredient__name"]}'
+                f'({item["ingredient__measurement_unit"]}) - '
                 f'{item["sum"]}'
             )
             y -= 20
@@ -220,11 +220,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ingredients = RecipeIngredient.objects.filter(
             recipe__shoppingcart__user=request.user
         ).values(
-            'recipes_ingredient__name',
-            'recipes_ingredient__measurement_unit'
+            'ingredient__name',
+            'ingredient__measurement_unit'
         ).annotate(
             sum=Sum('amount')
-        ).order_by('recipes_ingredient__name')
+        ).order_by('ingredient__name')
         buffer = self.generate_shopping_cart_pdf(ingredients)
         return FileResponse(
             buffer,

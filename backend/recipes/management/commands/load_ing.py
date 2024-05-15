@@ -3,6 +3,7 @@ import os
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from foodgram.settings import BASE_DIR
 
 from recipes.models import Ingredient
 
@@ -17,7 +18,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         file_path = kwargs.get('path') or os.path.join(
-            'D:/Dev/foodgram-project-react', 'data', 'ingredients.csv'
+            BASE_DIR, 'data', 'ingredients.csv'
         )
 
         if not os.path.exists(file_path):
