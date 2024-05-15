@@ -20,9 +20,11 @@ from api.filters import RecipeFilter
 from api.pagination import Pagination
 from api.permissions import AuthorOrReadOnly
 from api.serializers import (
-    FavoriteRecipeSerializer, FollowCreateSerializer, FollowSerializer, IngredientSerializer,
-    FoodgramUserSerializer, RecipeCreateSerializer, ShoppingCartRecipeSerializer,
-    RecipeSerializer, TagSerializer
+    FavoriteRecipeSerializer, FollowCreateSerializer,
+    FollowSerializer, IngredientSerializer,
+    FoodgramUserSerializer, RecipeCreateSerializer,
+    ShoppingCartRecipeSerializer, RecipeSerializer,
+    TagSerializer
 )
 
 

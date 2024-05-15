@@ -9,7 +9,10 @@ User = get_user_model()
 
 
 class Ingredient(models.Model):
-    name = models.CharField('Название', max_length=settings.CHAR_FIELD_MAX_LENGTH)
+    name = models.CharField(
+        'Название',
+        max_length=settings.CHAR_FIELD_MAX_LENGTH
+    )
     measurement_unit = models.CharField(
         'Единица измерения',
         max_length=settings.CHAR_FIELD_MAX_LENGTH
@@ -55,7 +58,10 @@ class Tag(models.Model):
 
 
 class Recipe(models.Model):
-    name = models.CharField('Название', max_length=settings.CHAR_FIELD_MAX_LENGTH)
+    name = models.CharField(
+        'Название',
+        max_length=settings.CHAR_FIELD_MAX_LENGTH
+    )
     image = models.ImageField(
         'Ссылка на картинку',
         upload_to='recipes/media'
