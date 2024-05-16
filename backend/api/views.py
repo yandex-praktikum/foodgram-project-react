@@ -1,6 +1,6 @@
 import io
 
-from django.db.models import Sum, Prefetch
+from django.db.models import  Exists, OuterRef, Sum
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -102,11 +102,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        queryset = super().get_queryset()
+        queryset = Recipe.objects.all()
         if not user.is_anonymous:
-            queryset = queryset.prefetch_related(
-                Prefetch('favorites', queryset=Favorites.objects.filter(user=user), to_attr='is_favorited'),
-                Prefetch('shopping_cart', queryset=ShoppingCart.objects.filter(user=user), to_attr='is_in_shopping_cart')
+            queryset = queryset.annotate(
+                is_favorited=Exists(Favorites.objects.filter(user=user, recipe=OuterRef('pk'))),
+                is_in_shopping_cart=Exists(ShoppingCart.objects.filter(user=user, recipe=OuterRef('pk')))
             )
         return queryset
 
