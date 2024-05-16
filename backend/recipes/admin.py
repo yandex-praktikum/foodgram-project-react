@@ -3,7 +3,7 @@ from django.contrib import admin
 from .models import (
     Favorites, Follow, Ingredient,
     Recipe, RecipeIngredient, Tag,
-    ShoppingCart, AbstractModel, 
+    ShoppingCart 
 )
 
 
@@ -52,9 +52,4 @@ class FavoritesAdmin(admin.ModelAdmin):
 
 @admin.register(ShoppingCart)
 class ShoppingCartAdmin(admin.ModelAdmin):
-    list_display = ('user', 'recipe')
-
-
-@admin.register(AbstractModel)
-class AbstractModelAdmin(admin.ModelAdmin):
     list_display = ('user', 'recipe')
