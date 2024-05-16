@@ -1,6 +1,6 @@
 import io
 
-from django.db.models import  Exists, OuterRef, Sum
+from django.db.models import Exists, OuterRef, Sum
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -13,7 +13,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from recipes.models import (
-    Favorites, Follow, Ingredient, Recipe, RecipeIngredient, ShoppingCart, Tag
+    Favorites, Ingredient, Recipe, RecipeIngredient, ShoppingCart, Tag
 )
 from users.models import User
 from api.filters import RecipeFilter
@@ -105,8 +105,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
         queryset = Recipe.objects.all()
         if not user.is_anonymous:
             queryset = queryset.annotate(
-                is_favorited=Exists(Favorites.objects.filter(user=user, recipe=OuterRef('pk'))),
-                is_in_shopping_cart=Exists(ShoppingCart.objects.filter(user=user, recipe=OuterRef('pk')))
+                is_favorited=Exists(
+                    Favorites.objects.filter(
+                        user=user, recipe=OuterRef('pk')
+                    )
+                ),
+                is_in_shopping_cart=Exists(
+                    ShoppingCart.objects.filter(
+                        user=user, recipe=OuterRef('pk')
+                    )
+                )
             )
         return queryset
 
@@ -123,23 +131,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response('Такой рецепт уже добавлен',
                             status=status.HTTP_400_BAD_REQUEST)
         data = {'user': user.id, 'recipe': recipe.id}
-        serializer = serializer(data=data, context={'request': request})
+        serializer = serializer(
+            data=data, context={'request': request}
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(
             serializer.data,
             status=status.HTTP_201_CREATED
         )
-    
-    @action(detail=True, methods=['patch'], permission_classes=[AuthorOrReadOnly])
-    def update_object(self, request, pk=None):
-        recipe = get_object_or_404(Recipe, pk=pk)
-        self.check_object_permissions(self.request, recipe)
-        serializer = RecipeCreateSerializer(recipe, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @staticmethod
     def delete_object(request, pk, model):

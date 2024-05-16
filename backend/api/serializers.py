@@ -69,14 +69,18 @@ class RecipeSerializer(serializers.ModelSerializer):
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
-    def get_ingredients(self, obj): 
-        ingredients = RecipeIngredient.objects.select_related('recipe').filter(recipe=obj) 
+    def get_ingredients(self, obj):
+        ingredients = RecipeIngredient.objects.select_related(
+            'recipe'
+        ).filter(recipe=obj)
         return RecipeIngredientSerializer(ingredients, many=True).data
 
     def get_is_favorited(self, obj):
         request = self.context.get('request')
         return (
-            request and not request.user.is_anonymous and Favorites.objects.filter(
+            request
+            and not request.user.is_anonymous
+            and Favorites.objects.filter(
                 user=request.user,
                 recipe=obj
             ).exists()
@@ -85,7 +89,9 @@ class RecipeSerializer(serializers.ModelSerializer):
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
         return (
-            request and not request.user.is_anonymous and ShoppingCart.objects.filter(
+            request
+            and not request.user.is_anonymous
+            and ShoppingCart.objects.filter(
                 user=request.user,
                 recipe=obj
             ).exists()

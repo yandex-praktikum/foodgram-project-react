@@ -155,11 +155,9 @@ class Follow(models.Model):
             )
         ]
 
-
     def clean(self):
         if self.user == self.following:
             raise ValidationError('Вы не можете подписаться на самого себя!')
-
 
     def __str__(self):
         return f'Подписка {self.user} на {self.following}!'
@@ -177,10 +175,11 @@ class AbstractModel(models.Model):
 
     class Meta:
         abstract = True
-    
 
     def clean(self):
-        if self.__class__.objects.filter(user=self.user, recipe=self.recipe).exists():
+        if self.__class__.objects.filter(
+            user=self.user, recipe=self.recipe
+        ).exists():
             raise ValidationError('Такая запись уже существует!')
 
 
