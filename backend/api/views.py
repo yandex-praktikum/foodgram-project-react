@@ -1,6 +1,6 @@
 import io
 
-from django.db.models import Exists, OuterRef, Sum
+from django.db.models import Sum, Prefetch
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -28,7 +28,7 @@ from api.serializers import (
 )
 
 
-class FoodgramUserViewSet(UserViewSet):
+class UserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = FoodgramUserSerializer
     pagination_class = Pagination
@@ -68,17 +68,13 @@ class FoodgramUserViewSet(UserViewSet):
     def subscribe_delete(self, request, id):
         user = self.request.user
         following = get_object_or_404(User, id=id)
-        follow = Follow.objects.filter(user=user, following=following)
-        deleted_count = follow.delete()[0]
+        deleted_count = following.delete()[0]
         if deleted_count > 0:
             return Response(
                 f'Вы отписались от {following}',
                 status=status.HTTP_204_NO_CONTENT
             )
-        return Response(
-            'Вы не были подписаны на этого пользователя!',
-            status=status.HTTP_404_NOT_FOUND
-        )
+        return Response('Вы не были подписаны на этого пользователя!')
 
     @action(
         detail=False,
@@ -98,7 +94,6 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = (AuthorOrReadOnly,)
     pagination_class = Pagination
@@ -109,17 +104,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = self.request.user
         queryset = super().get_queryset()
         if not user.is_anonymous:
-            queryset = queryset.annotate(
-                is_favorited=Exists(
-                    Favorites.objects.filter(
-                        user=user, recipe=OuterRef('pk')
-                    )
-                ),
-                is_in_shopping_cart=Exists(
-                    ShoppingCart.objects.filter(
-                        user=user, recipe=OuterRef('pk')
-                    )
-                )
+            queryset = queryset.prefetch_related(
+                Prefetch('favorites', queryset=Favorites.objects.filter(user=user), to_attr='is_favorited'),
+                Prefetch('shopping_cart', queryset=ShoppingCart.objects.filter(user=user), to_attr='is_in_shopping_cart')
             )
         return queryset
 

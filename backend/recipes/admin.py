@@ -2,17 +2,21 @@ from django.contrib import admin
 
 from .models import (
     Favorites, Follow, Ingredient,
-    Recipe, RecipeIngredient, Tag
+    Recipe, RecipeIngredient, Tag,
+    ShoppingCart, AbstractModel, 
 )
 
 
 class RecipeIngredientInline(admin.TabularInline):
     model = RecipeIngredient
 
+    def has_add_permission(self, request, obj=None):
+        return False
+
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('name', 'color', 'slug')
 
 
 @admin.register(Ingredient)
@@ -36,15 +40,21 @@ class RecipeAdmin(admin.ModelAdmin):
         return obj.favorites.count()
 
 
-class IngredientRecipeInline(admin.TabularInline):
-    model = RecipeIngredient
-
-
 @admin.register(Follow)
 class FollowAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('user', 'following')
 
 
 @admin.register(Favorites)
 class FavoritesAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('user', 'recipe')
+
+
+@admin.register(ShoppingCart)
+class ShoppingCartAdmin(admin.ModelAdmin):
+    list_display = ('user', 'recipe')
+
+
+@admin.register(AbstractModel)
+class AbstractModelAdmin(admin.ModelAdmin):
+    list_display = ('user', 'recipe')

@@ -1,14 +1,15 @@
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
-from django.conf import settings
+
+from foodgram.constants import MAX_USER_MODEL_LENGTH
 
 
 class User(AbstractUser):
 
     username = models.CharField(
         'Логин',
-        max_length=settings.MAX_USER_MODEL_LENGTH,
+        max_length=MAX_USER_MODEL_LENGTH,
         unique=True,
         validators=[UnicodeUsernameValidator()]
     )
@@ -17,11 +18,11 @@ class User(AbstractUser):
         unique=True
     )
     first_name = models.CharField(
-        max_length=settings.MAX_USER_MODEL_LENGTH,
+        max_length=MAX_USER_MODEL_LENGTH,
         verbose_name='Имя'
     )
     last_name = models.CharField(
-        max_length=settings.MAX_USER_MODEL_LENGTH,
+        max_length=MAX_USER_MODEL_LENGTH,
         verbose_name='Фамилия'
     )
 

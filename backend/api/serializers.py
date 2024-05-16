@@ -25,10 +25,8 @@ class FoodgramUserSerializer(UserCreateSerializer):
         user = (
             request.user if request and request.user.is_authenticated else None
         )
-        return bool(
-            request
-            and user
-            and user.users.filter(following=obj).exists()
+        return (
+            request and user and user.users.filter(following=obj).exists()
         )
 
 
@@ -71,15 +69,14 @@ class RecipeSerializer(serializers.ModelSerializer):
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
-    def get_ingredients(self, obj):
-        ingredients = RecipeIngredient.objects.filter(recipe=obj)
+    def get_ingredients(self, obj): 
+        ingredients = RecipeIngredient.objects.select_related('recipe').filter(recipe=obj) 
         return RecipeIngredientSerializer(ingredients, many=True).data
 
     def get_is_favorited(self, obj):
         request = self.context.get('request')
-        return bool(
-            request and not request.user.is_anonymous
-            and Favorites.objects.filter(
+        return (
+            request and not request.user.is_anonymous and Favorites.objects.filter(
                 user=request.user,
                 recipe=obj
             ).exists()
@@ -87,9 +84,8 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
-        return bool(
-            request and not request.user.is_anonymous
-            and ShoppingCart.objects.filter(
+        return (
+            request and not request.user.is_anonymous and ShoppingCart.objects.filter(
                 user=request.user,
                 recipe=obj
             ).exists()

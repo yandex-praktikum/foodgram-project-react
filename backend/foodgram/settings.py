@@ -168,8 +168,3 @@ DJOSER = {
         'user_list': ['rest_framework.permissions.AllowAny']
     },
 }
-
-MAX_USER_MODEL_LENGTH = 150
-CHAR_FIELD_MAX_LENGTH = 200
-COLOR_FIELD_MAX_LENGTH = 7
-PAGE_SIZE = 6

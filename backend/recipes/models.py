@@ -1,8 +1,10 @@
 from colorfield.fields import ColorField
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
 from django.db import models
-from django.conf import settings
+
+from foodgram.constants import CHAR_FIELD_MAX_LENGTH, COLOR_FIELD_MAX_LENGTH
 
 
 User = get_user_model()
@@ -11,11 +13,11 @@ User = get_user_model()
 class Ingredient(models.Model):
     name = models.CharField(
         'Название',
-        max_length=settings.CHAR_FIELD_MAX_LENGTH
+        max_length=CHAR_FIELD_MAX_LENGTH
     )
     measurement_unit = models.CharField(
         'Единица измерения',
-        max_length=settings.CHAR_FIELD_MAX_LENGTH
+        max_length=CHAR_FIELD_MAX_LENGTH
     )
 
     class Meta:
@@ -36,17 +38,17 @@ class Tag(models.Model):
     name = models.CharField(
         'Название',
         unique=True,
-        max_length=settings.CHAR_FIELD_MAX_LENGTH
+        max_length=CHAR_FIELD_MAX_LENGTH
     )
     color = ColorField(
         'Цвет в НЕХ',
         unique=True,
-        max_length=settings.COLOR_FIELD_MAX_LENGTH
+        max_length=COLOR_FIELD_MAX_LENGTH
     )
     slug = models.SlugField(
         'Уникальный слаг',
         unique=True,
-        max_length=settings.CHAR_FIELD_MAX_LENGTH
+        max_length=CHAR_FIELD_MAX_LENGTH
     )
 
     class Meta:
@@ -60,7 +62,7 @@ class Tag(models.Model):
 class Recipe(models.Model):
     name = models.CharField(
         'Название',
-        max_length=settings.CHAR_FIELD_MAX_LENGTH
+        max_length=CHAR_FIELD_MAX_LENGTH
     )
     image = models.ImageField(
         'Ссылка на картинку',
@@ -153,6 +155,12 @@ class Follow(models.Model):
             )
         ]
 
+
+    def clean(self):
+        if self.user == self.following:
+            raise ValidationError('Вы не можете подписаться на самого себя!')
+
+
     def __str__(self):
         return f'Подписка {self.user} на {self.following}!'
 
@@ -169,6 +177,11 @@ class AbstractModel(models.Model):
 
     class Meta:
         abstract = True
+    
+
+    def clean(self):
+        if self.__class__.objects.filter(user=self.user, recipe=self.recipe).exists():
+            raise ValidationError('Такая запись уже существует!')
 
 
 class Favorites(AbstractModel):
@@ -176,6 +189,12 @@ class Favorites(AbstractModel):
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные'
         default_related_name = 'favorites'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='Уникальность избранного'
+            )
+        ]
 
     def __str__(self):
         return f'{self.user} добавил рецепт {self.recipe} в избранное!'
@@ -186,6 +205,12 @@ class ShoppingCart(AbstractModel):
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
         default_related_name = 'shoppingcart'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='Уникальность покупок'
+            )
+        ]
 
     def __str__(self):
         return (
