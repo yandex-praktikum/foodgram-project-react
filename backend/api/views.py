@@ -66,7 +66,6 @@ class UserViewSet(UserViewSet):
 
     @subscribe.mapping.delete
     def subscribe_delete(self, request, id):
-        user = self.request.user
         following = get_object_or_404(User, id=id)
         deleted_count = following.delete()[0]
         if deleted_count > 0:
