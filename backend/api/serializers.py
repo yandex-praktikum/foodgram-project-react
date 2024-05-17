@@ -52,7 +52,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
         source='ingredient.measurement_unit'
     )
     id = serializers.ReadOnlyField(
-        source='recipes_ingredient.id',
+        source='ingredient.id',
     )
 
     class Meta:
