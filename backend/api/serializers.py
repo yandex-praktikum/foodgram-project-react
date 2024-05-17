@@ -63,7 +63,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    ingredients = serializers.SerializerMethodField(read_only=True)
+    ingredients = serializers.SerializerMethodField() # (read_only=True)
     author = FoodgramUserSerializer()
     tags = TagSerializer(many=True)
     is_favorited = serializers.SerializerMethodField()
@@ -115,7 +115,10 @@ class CreateIngredientInRecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RecipeIngredient
-        fields = ('id', 'amount')
+        fields = ('id', 'amount',)
+        extra_kwargs = {
+            'id': {'source': 'ingredient'},
+        }
 
 
 class RecipeCreateSerializer(RecipeSerializer):
@@ -125,6 +128,13 @@ class RecipeCreateSerializer(RecipeSerializer):
     )
     image = Base64ImageField()
     ingredients = CreateIngredientInRecipeSerializer(many=True)
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id', 'ingredients', 'tags', 'image',
+            'name', 'text', 'cooking_time',
+        )
 
     def validate(self, value):
         if not value.get('ingredients'):
@@ -201,13 +211,6 @@ class RecipeCreateSerializer(RecipeSerializer):
             }
         )
         return serializer.data
-
-    class Meta:
-        model = Recipe
-        fields = (
-            'id', 'ingredients', 'tags', 'image',
-            'name', 'text', 'cooking_time',
-        )
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
