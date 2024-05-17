@@ -8,6 +8,7 @@ from .models import (
 
 class RecipeIngredientInline(admin.TabularInline):
     model = RecipeIngredient
+    min_num = 1
 
     def has_add_permission(self, request, obj=None):
         return False
