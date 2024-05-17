@@ -63,7 +63,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    ingredients = serializers.SerializerMethodField() # (read_only=True)
+    ingredients = serializers.SerializerMethodField(read_only=True)
     author = FoodgramUserSerializer()
     tags = TagSerializer(many=True)
     is_favorited = serializers.SerializerMethodField()
